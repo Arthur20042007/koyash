@@ -1,1 +1,89 @@
-
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "koyash.products validator",
+    "required": [
+      "_id", "name", "brand", "price_rub", "segment", "category_raw", "link",
+      "ingredients_raw", "main_actives", "functional_category", "pH",
+      "allergens_raw", "vegan", "cruelty_free", "format", "volume_ml",
+      "price_per_ml", "issues", "skintype", "status",
+      "routine_step", "tier", "order_index", "allergens_norm"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "string",
+        "description": "= product_id from the source sheet (plan B-1)"
+      },
+      "name": { "bsonType": "string" },
+      "brand": { "bsonType": "string" },
+      "price_rub": {
+        "bsonType": "double",
+        "description": "must be a number — drives the strict budget filter/sort (plan B-4)"
+      },
+      "segment": {
+        "enum": ["low", "mid", "high"],
+        "description": "бюджет/мидл/люкс normalized to low/mid/high (plan B-5)"
+      },
+      "category_raw": { "bsonType": "string" },
+      "link": {
+        "bsonType": ["string", "null"],
+        "description": "null for product_004 — that row has no link in the source sheet"
+      },
+      "ingredients_raw": { "bsonType": "string" },
+      "main_actives": {
+        "bsonType": ["string", "null"],
+        "description": "null for product_004 — that row has no main_actives in the source sheet"
+      },
+      "functional_category": { "bsonType": "string" },
+      "pH": {
+        "bsonType": ["string", "double", "int", "long"],
+        "description": "corrupted source column, incl. an Excel date serial for product_004 (plan A-5) — copied as-is, never used as a filter"
+      },
+      "allergens_raw": { "bsonType": "string" },
+      "vegan": {
+        "bsonType": "bool",
+        "description": "Да/Нет normalized to true/false (plan B-13)"
+      },
+      "cruelty_free": {
+        "enum": ["yes", "no", "unknown"],
+        "description": "Да/Нет/Неизвестно normalized to yes/no/unknown (plan B-14)"
+      },
+      "format": { "bsonType": "string" },
+      "volume_ml": {
+        "bsonType": ["double", "null"],
+        "description": "null where the source said 'N/A' instead of a number (plan B-16, force-numeric)"
+      },
+      "price_per_ml": {
+        "bsonType": ["double", "null"],
+        "description": "null where the source had a formula error '#VALUE!' (plan B-17, force-numeric)"
+      },
+      "issues": { "bsonType": "string" },
+      "skintype": {
+        "bsonType": "array",
+        "items": { "bsonType": "string" },
+        "description": "empty for all 69 products today; future skin-type tags go here (plan B-19, F)"
+      },
+      "status": {
+        "bsonType": "bool",
+        "description": "HOLD — undocumented source column, currently always false (plan B-20)"
+      },
+      "routine_step": {
+        "enum": ["cleanse", "tone", "serum", "moisturize", "spf", "exfoliant", "mask", "needs_review"],
+        "description": "derived from category_raw — see plan section D"
+      },
+      "tier": {
+        "enum": ["core", "occasional"],
+        "description": "core = daily spine, occasional = treatments (plan A-3, D)"
+      },
+      "order_index": {
+        "bsonType": ["int", "null"],
+        "description": "1-5 for tier=core (sorts the spine), null for tier=occasional (plan B, D)"
+      },
+      "allergens_norm": {
+        "bsonType": "array",
+        "items": { "bsonType": "string" },
+        "description": "provisional tokenized allergen list for exclusion filtering (plan A-4, B-51)"
+      }
+    }
+  }
+}

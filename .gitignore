@@ -1,4 +1,6 @@
 *.env
 .env.*
+# ...but DO track the example template (it has no real secrets in it)
+!.env.example
 __pycache__/
 *.pyc

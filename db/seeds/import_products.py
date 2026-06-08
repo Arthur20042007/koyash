@@ -1,1 +1,201 @@
+# PHASE 2 — import the "Products" sheet into MongoDB as the `products` collection.
+#
+# This follows db/docs/KOYASH_data_transformation_plan.md sections B and D exactly.
+# Steps:
+#   1. Connect to Atlas (same .env-based connection as Phase 1).
+#   2. Read every row of the "Products" sheet from Koyash.xlsx.
+#   3. Build one MongoDB document per row: COPY fields unchanged, CONVERT fields
+#      to the right type/vocabulary, and DERIVE the new routine fields.
+#   4. Upsert each document with _id = product_id, so re-running this script
+#      never creates duplicates — it just refreshes the same 69 documents.
+#   5. Print every product whose routine_step came out as "needs_review" so
+#      you can check the category -> step mapping by hand.
 
+import os
+import re
+import sys
+from pathlib import Path
+
+import openpyxl
+from dotenv import load_dotenv
+from pymongo import MongoClient
+
+DB_DIR = Path(__file__).resolve().parent.parent  # .../db
+load_dotenv(dotenv_path=DB_DIR / ".env")
+
+# Make Cyrillic print correctly even if the terminal is in a Windows codepage.
+sys.stdout.reconfigure(encoding="utf-8")
+
+# ---------------------------------------------------------------------------
+# Lookup tables for the CONVERT columns (plan section B, rows 5 / 13 / 14)
+# ---------------------------------------------------------------------------
+SEGMENT_MAP = {"бюджет": "low", "мидл": "mid", "люкс": "high"}
+VEGAN_MAP = {"Да": True, "Нет": False}
+CRUELTY_FREE_MAP = {"Да": "yes", "Нет": "no", "Неизвестно": "unknown"}
+
+
+def to_number(value):
+    """'force numeric' (plan B rows 4/16/17): turn a cell into a float, or
+    None when that's impossible — e.g. Excel error text like '#VALUE!' or
+    the note 'N/A (одна маска)' found in volume_ml for the single-use mask."""
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+# ---------------------------------------------------------------------------
+# routine_step / tier / order_index — plan section D.
+# Case-insensitive substring match on category_raw; first matching rule wins.
+# ---------------------------------------------------------------------------
+def derive_routine_step(category_raw):
+    text = (category_raw or "").lower()
+
+    # DEVIATION approved by Daria (2026-06-08): rule 2's literal "маска"
+    # substring check would also fire on "(не маска)" = "(NOT a mask)" —
+    # e.g. product_042 'Успокаивающий гель (не маска)'. We skip the mask
+    # match when the text explicitly negates it, so that product instead
+    # falls through to the remaining rules (and lands in needs_review for
+    # a human to classify) rather than being silently tagged the opposite
+    # of what its own name says.
+    negates_mask = "не маска" in text
+
+    if "spf" in text:                                            # rule 1
+        return "spf", "core", 5
+    if "маска" in text and not negates_mask:                     # rule 2
+        return "mask", "occasional", None
+    if "пилинг" in text or "эксфолиант" in text:                 # rule 3
+        return "exfoliant", "occasional", None
+    if "крем" in text or "гель-крем" in text or "эмульс" in text:  # rule 4
+        return "moisturize", "core", 4
+
+    mentions_format = any(w in text for w in ("тоник", "тонер", "сыворотк", "эссенц"))
+    mentions_acid = any(w in text for w in ("aha", "bha", "pha", "кислот"))
+    if mentions_format and mentions_acid:                        # rule 5
+        return "exfoliant", "occasional", None
+
+    if "очищ" in text or "пенка" in text or "мицелляр" in text:  # rule 6
+        return "cleanse", "core", 1
+    if "сыворотк" in text or "эссенц" in text:                   # rule 7
+        return "serum", "core", 3
+    if "тонер" in text or "тоник" in text:                       # rule 8
+        return "tone", "core", 2
+
+    return "needs_review", "occasional", None                    # rule 9
+
+
+# Hand classifications for the two products that legitimately landed in
+# needs_review after the first import (Daria, 2026-06-08) — applied AFTER
+# the rule-based derivation above, as explicit _id-scoped exceptions. This
+# is the "edit by hand, re-run, done" path the plan describes in section F:
+# the matching rules in derive_routine_step stay exactly as specified, and
+# only these two specific products get a manual final answer.
+#   - product_008 'Увлажняющий гель для умывания': category_raw alone
+#     ('Увлажняющий гель') is too generic to match any rule, but the
+#     product's own name says "для умывания" (= "for washing") — it's a
+#     cleanser.
+#   - product_042 'Mugwort Calming Soothing гель' (category_raw
+#     'Успокаивающий гель (не маска)'): classified as a moisturizer.
+MANUAL_ROUTINE_STEP_OVERRIDES = {
+    "product_008": ("cleanse", "core", 1),
+    "product_042": ("moisturize", "core", 4),
+}
+
+
+# ---------------------------------------------------------------------------
+# allergens_norm — plan B row 51: "tokenize allergens_raw, strip parentheticals"
+# Provisional list for exclusion (plan A.4) — not authoritative, used with care.
+# ---------------------------------------------------------------------------
+PARENTHETICAL = re.compile(r"\([^)]*\)")
+
+
+def derive_allergens_norm(allergens_raw):
+    if not allergens_raw:
+        return []
+    without_notes = PARENTHETICAL.sub("", allergens_raw)
+    pieces = [piece.strip() for piece in without_notes.split(",")]
+    return [p for p in pieces if p]
+
+
+# ---------------------------------------------------------------------------
+# Connect
+# ---------------------------------------------------------------------------
+uri = os.getenv("MONGODB_URI")
+db_name = os.getenv("DB_NAME")
+client = MongoClient(uri, serverSelectionTimeoutMS=5000)
+db = client[db_name]
+products = db["products"]
+
+# ---------------------------------------------------------------------------
+# Read the sheet
+# ---------------------------------------------------------------------------
+xlsx_path = DB_DIR / "data" / "Koyash.xlsx"
+workbook = openpyxl.load_workbook(xlsx_path, data_only=True)
+sheet = workbook["Products"]
+headers = [cell.value for cell in sheet[1]]
+
+needs_review = []
+upserted = 0
+
+for row in sheet.iter_rows(min_row=2):
+    raw = {headers[i]: row[i].value for i in range(len(headers))}
+
+    routine_step, tier, order_index = derive_routine_step(raw["category"])
+    if raw["product_id"] in MANUAL_ROUTINE_STEP_OVERRIDES:
+        routine_step, tier, order_index = MANUAL_ROUTINE_STEP_OVERRIDES[raw["product_id"]]
+
+    doc = {
+        "_id": raw["product_id"],
+
+        # --- COPY: unchanged -------------------------------------------------
+        "name": raw["name"],
+        "brand": raw["brand"],
+        "link": raw["link"],
+        "ingredients_raw": raw["ingredients_raw"],
+        "main_actives": raw["main_actives"],
+        "functional_category": raw["functional_category"],
+        "pH": raw["pH"],              # untouched on purpose: never a filter (plan A.5)
+        "format": raw["format"],
+        "issues": raw["issues"],
+        "status": raw["status"],      # HOLD: undocumented, not used (plan A.6)
+
+        # --- COPY, renamed to "*_raw" because they also feed a derived field --
+        "category_raw": raw["category"],
+        "allergens_raw": raw["allergens"],
+
+        # --- CONVERT: type / vocabulary fixes --------------------------------
+        "price_rub": to_number(raw["price_rub"]),
+        "segment": SEGMENT_MAP[raw["segment"]],
+        "vegan": VEGAN_MAP[raw["vegan"]],
+        "cruelty_free": CRUELTY_FREE_MAP[raw["cruelty_free"]],
+        "volume_ml": to_number(raw["volume_ml"]),
+        "price_per_ml": to_number(raw["price_per_ml"]),
+
+        # --- DERIVE: brand new fields -----------------------------------------
+        "skintype": [],                                  # empty for now (plan B-19, F)
+        "routine_step": routine_step,
+        "tier": tier,
+        "order_index": order_index,
+        "allergens_norm": derive_allergens_norm(raw["allergens"]),
+    }
+
+    # Upsert by _id: if product_001 already exists, this overwrites it in place
+    # instead of inserting a second copy — safe to run this script many times.
+    products.replace_one({"_id": doc["_id"]}, doc, upsert=True)
+    upserted += 1
+
+    if routine_step == "needs_review":
+        needs_review.append(doc)
+
+print(f"Upserted {upserted} products into '{db_name}.products'.")
+print()
+print(f"=== {len(needs_review)} product(s) need a manual routine_step review ===")
+for doc in needs_review:
+    print(f"  {doc['_id']}  {doc['name']!r}")
+    print(f"    category_raw: {doc['category_raw']!r}")
+
+client.close()
