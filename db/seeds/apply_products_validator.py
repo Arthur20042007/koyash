@@ -1,17 +1,4 @@
-# PHASE 4 — attach a JSON-schema validator to the `products` collection.
-#
-# Why this matters in one line: it makes MongoDB itself enforce the field
-# names/types/enums the plan defines, so a bad write (wrong type, typo'd
-# enum value, missing field) is rejected immediately with a clear error —
-# instead of silently landing in the database and breaking the
-# recommendation engine or frontend much later, far from where it happened.
-#
-# The schema lives in db/schemas/products.json as plain JSON (easy to read
-# and diff on its own). This script just loads that file and attaches it to
-# the collection that already exists with MongoDB's `collMod` command.
-# Note: collMod only affects FUTURE writes — it does not retroactively check
-# documents that are already in the collection (that's standard MongoDB
-# behaviour, not something this script controls).
+# Attach a JSON-schema validator to the `products` collection.
 
 import json
 import os
