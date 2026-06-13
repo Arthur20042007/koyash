@@ -1,0 +1,28 @@
+name: Link Checker
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lychee:
+    name: Check links (Markdown)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check links with lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --config lychee.toml
+            --no-progress
+            --verbose
+            './**/*.md'
+          fail: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

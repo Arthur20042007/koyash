@@ -1,0 +1,32 @@
+# Configuration for lychee (https://lychee.cli.rs), the link checker used by
+# .github/workflows/lychee.yml.
+#
+# Run locally:
+#   lychee --config lychee.toml './**/*.md'
+# Or via Docker (no local install needed):
+#   docker run --rm -v "$PWD:/input" -w /input lycheeverse/lychee \
+#     --config lychee.toml './**/*.md'
+
+# Skip links that point at localhost / 127.0.0.1 / 0.0.0.0. These are local
+# development URLs and are never reachable from a CI runner.
+# Affects:
+#   - README.md ("Running locally" -> http://localhost:8000/health, /docs)
+#   - reports/week2/mvp-v0-report.md (smoke-check -> http://localhost:8000/docs)
+exclude_loopback = true
+
+exclude = [
+  # YouTube blocks automated HTTP clients (incl. lychee and GitHub-hosted
+  # runners) during the TLS handshake / via bot detection, so requests never
+  # get a real response. Manually verified on 2026-06-13 that the video plays
+  # normally in a browser.
+  # Affects: README.md "Deployment" section and
+  # reports/week2/mvp-v0-report.md "Ссылка на публичное видео"
+  # (https://youtu.be/ftTVnoXQvI8).
+  '^https://youtu\.be/',
+]
+
+# Be lenient with slow or flaky external hosts (e.g. the Railway deployment,
+# which can take a moment to wake up) before reporting a failure.
+max_retries = 3
+retry_wait_time = 5
+timeout = 20

@@ -64,4 +64,23 @@ source dataset, JSON-schema validators, sanity checks) — see
 - API + Swagger docs: <https://koyash-production.up.railway.app/docs>
 - Demo video: <https://youtu.be/ftTVnoXQvI8>
 
+## Link checking
+
+CI runs [lychee](https://lychee.cli.rs) on every pull request and on every
+push to `main` (see
+[.github/workflows/lychee.yml](.github/workflows/lychee.yml)), checking every
+link in every Markdown file in the repo — including `reports/` — both
+repo-relative links and public external URLs.
+
+A couple of links are narrowly excluded, with justification in
+[lychee.toml](lychee.toml):
+
+- `http://localhost:8000/...` (in "Running locally" above and in the
+  `reports/week2/mvp-v0-report.md` smoke-check) — local development URLs that
+  are never reachable from a CI runner.
+- `https://youtu.be/ftTVnoXQvI8` (demo video, linked above and in
+  `reports/week2/mvp-v0-report.md`) — YouTube blocks automated HTTP clients
+  at the TLS/bot-detection layer, so lychee can never get a real response;
+  manually verified on 2026-06-13 that the video plays normally in a browser.
+
 
