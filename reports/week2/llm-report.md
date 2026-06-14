@@ -1,31 +1,21 @@
-# LLM Report - Week 2
+# LLM Usage Report
 
-## Overview
-LLM integration and AI capabilities report for week 2.
+The team used AI/LLM tools as productivity aids during Assignment 2. All AI-assisted output was reviewed, edited, and validated by the team before inclusion; the substantive analysis and decisions are the team's own. AI has accelerated routine tasks (boilerplate, formatting, and translation), but product requirements, prioritization, and decisions are the result of teamwork and meeting with customer.
 
-## Implementation Status
-- [ ] LLM integration started
-- [ ] API integration completed
-- [ ] Testing in progress
-- [ ] Performance optimization
+## Tools and how they were used
 
-## Features
-- [Feature 1]: [Status]
-- [Feature 2]: [Status]
+**Claude (chat):**
 
-## Performance Metrics
-- Response Time: [Value]
-- Accuracy: [Value]
-- Token Usage: [Value]
+- Phrasing the user stories in the `As a / I want / so that` format.
+- Translating the customer-meeting audio transcription into English.
+- Cleaning and sanitizing the transcript (readability, PII removal and redaction).
+- Structuring the Week 2 reports, drafting the PR template, and setting up the Lychee link-checking / CI configuration.
 
-## Issues & Solutions
-### Issue 1
-- **Problem:** [Description]
-- **Solution:** [Resolution]
+**Claude Code:**
 
-## Next Steps
-[Outline next steps for LLM development]
+- Writing the backend / MVP v0 code (FastAPI service, rule-based filtering, MongoDB Atlas integration, Docker, and deployment configuration).
+- Building the database / data layer (data transformations, derived fields, and validation).
 
-## References
-- [Reference 1]
-- [Reference 2]
+**ChatGPT:**
+
+- Generating images/illustrations and brainstorming design ideas.
