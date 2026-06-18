@@ -1,6 +1,6 @@
 name: Course Task
 description: Assignment administration, reporting, grading evidence
-title: ""
+title: Course Task
 labels: ["course-task"]
 body:
   - type: textarea
