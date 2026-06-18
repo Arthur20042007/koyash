@@ -7,7 +7,7 @@ class Product(BaseModel):
     name: str
     brand: str
     price_rub: float
-    segment: str  # low/mid/high — used internally for budget guard/upgrade, not in API output
+    segment: str  # low/mid/high — used for budget guard/upgrade logic
     vegan: bool
     cruelty_free: str
     routine_step: str
@@ -17,18 +17,28 @@ class Product(BaseModel):
     allergens_norm: list[str] = []
     link: Optional[str] = None
     main_actives_short: list[str] = []
+    functional_category: str = ""  # needed for justification building
+
+
+class Justification(BaseModel):
+    role: str               # "Шаг 1 из 5 — Очищение" / "2–3 раза в неделю — Отшелушивание"
+    what_it_does: list[str] # first 2–3 phrases from functional_category
+    key_actives: list[str]  # first 2–3 names from main_actives_short
+    why_for_you: list[str]  # concern matches + vegan/CF/allergen flags
 
 
 class ProductOut(BaseModel):
-    """Public-facing product: no segment, no allergen list, no internal fields."""
+    """Public-facing product: segment and frequency added, internal fields excluded."""
     id: str
     name: str
     brand: str
     price_rub: float
+    segment: str
     link: Optional[str] = None
     routine_step: str
     tier: str
     order_index: Optional[int] = None
+    frequency: str
     concerns_addressed: list[str] = []
     main_actives_short: list[str] = []
 
@@ -47,13 +57,15 @@ class BagItem(BaseModel):
     routine_step: str
     order_index: Optional[int] = None
     concern_match: int
+    justification: Justification
 
 
 class RecommendMeta(BaseModel):
     total_price_rub: float
-    budget_range: list[Optional[float]]  # [lo, hi] — hi=null means no upper limit (high budget)
+    budget_range: list[Optional[float]]  # [lo, hi] — hi=null means no upper limit
     budget: str
     note: Optional[str] = None
+    empty_steps: list[str] = []  # steps skipped due to no candidates or budget constraints
 
 
 class RecommendResponse(BaseModel):
