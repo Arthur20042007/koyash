@@ -23,6 +23,13 @@ BUDGET_TARGETS: dict[str, tuple[float, float]] = {
     "high": (7000.0, float("inf")),
 }
 
+# Segment floor: low gets all segments; mid excludes low; high gets only high.
+SEGMENT_FLOOR: dict[str, set[str]] = {
+    "low":  {"low", "mid", "high"},
+    "mid":  {"mid", "high"},
+    "high": {"high"},
+}
+
 CORE_STEPS = ["cleanse", "tone", "serum", "moisturize", "spf"]
 OCCASIONAL_STEPS = ["exfoliant", "mask"]
 
@@ -76,6 +83,7 @@ def _to_out(p: Product) -> ProductOut:
         price_rub=p.price_rub,
         segment=p.segment,
         link=p.link,
+        image_url=p.image_url,
         routine_step=p.routine_step,
         tier=p.tier,
         order_index=p.order_index,
@@ -92,7 +100,6 @@ def _build_justification(
     req_cruelty_free: bool,
     req_has_allergens: bool,
 ) -> Justification:
-    # role: "Шаг X из 5 — Name" for core, "Frequency — Name" for occasional
     step_name = STEP_ROLE_RU.get(p.routine_step, p.routine_step)
     if p.tier == "core" and p.order_index is not None:
         role = f"Шаг {p.order_index} из 5 — {step_name}"
@@ -100,8 +107,8 @@ def _build_justification(
         freq = STEP_FREQUENCY.get(p.routine_step, "По необходимости")
         role = f"{freq} — {step_name}"
 
-    # what_it_does: first 2–3 comma-separated phrases from functional_category,
-    # stripping any parenthetical "(…)" detail after the phrase name
+    # what_it_does: comma-separated phrases from functional_category,
+    # each trimmed at first "(" to strip concentration/detail notes
     what_it_does: list[str] = []
     for part in p.functional_category.split(","):
         phrase = part.split("(")[0].strip()
@@ -109,10 +116,8 @@ def _build_justification(
             what_it_does.append(phrase)
     what_it_does = what_it_does[:3]
 
-    # key_actives: first 2–3 from main_actives_short
     key_actives = p.main_actives_short[:3]
 
-    # why_for_you: concern matches + preference flags
     why: list[str] = []
     for concern in p.concerns_addressed:
         if concern in concerns and concern in CONCERN_PHRASE_RU:
@@ -222,18 +227,21 @@ def _fallback_min_price(
 
 
 def _try_drop_step(
-    basket: list[Product], hi: float
+    basket: list[Product],
 ) -> Optional[tuple[list[Product], float, str]]:
-    """Remove the single most expensive product whose removal brings total ≤ hi.
-    Returns the new basket, new total, and the dropped routine_step name.
-    Per §8: when a step has no product that fits the budget, leave it empty.
+    """Per §8: drop the most expensive product, occasional tier first then core.
+    The caller loops until total ≤ hi, so this function doesn't check the target.
+    Returns None only when the basket is empty.
     """
-    total = sum(p.price_rub for p in basket)
-    for i in sorted(range(len(basket)), key=lambda i: -basket[i].price_rub):
-        new_total = total - basket[i].price_rub
-        if new_total <= hi:
-            step_name = basket[i].routine_step
-            return basket[:i] + basket[i + 1:], new_total, step_name
+    if not basket:
+        return None
+    for tier in ("occasional", "core"):
+        candidates = [i for i, p in enumerate(basket) if p.tier == tier]
+        if not candidates:
+            continue
+        i = max(candidates, key=lambda idx: basket[idx].price_rub)
+        new_basket = basket[:i] + basket[i + 1:]
+        return new_basket, sum(p.price_rub for p in new_basket), basket[i].routine_step
     return None
 
 
@@ -245,7 +253,6 @@ def _downgrade_pass(
     note: Optional[str] = None
     dropped: list[str] = []
 
-    # Step 1: greedy swaps — replace products with cheaper alternatives
     while total > hi:
         swap = _best_downgrade(basket, pool, concerns)
         if swap is None:
@@ -255,12 +262,10 @@ def _downgrade_pass(
         total = sum(p.price_rub for p in basket)
 
     if total > hi:
-        # Step 2: go to absolute cheapest per step (last swap resort)
         basket, total = _fallback_min_price(basket, pool)
 
-    # Step 3: if still over ceiling, drop the most expensive step(s) (§8 empty_steps)
     while total > hi:
-        result = _try_drop_step(basket, hi)
+        result = _try_drop_step(basket)
         if result is None:
             break
         basket, total, step_name = result
@@ -298,7 +303,6 @@ def _best_upgrade(
 
         matching = [p for p in candidates if _concern_match(p, concerns) >= current_match]
         working = matching if matching else candidates
-
         high_seg = [p for p in working if p.segment == "high"]
         final = high_seg if high_seg else working
         candidate = max(final, key=lambda p: p.price_rub)
@@ -316,7 +320,6 @@ def _upgrade_pass(
 ) -> tuple[list[Product], float]:
     basket = list(basket)
     total = sum(p.price_rub for p in basket)
-
     while total < lo:
         swap = _best_upgrade(basket, pool, concerns)
         if swap is None:
@@ -324,7 +327,6 @@ def _upgrade_pass(
         i, replacement = swap
         basket[i] = replacement
         total = sum(p.price_rub for p in basket)
-
     return basket, total
 
 
@@ -337,6 +339,7 @@ def _upgrade_pass(
 async def recommend(request: RecommendRequest):
     db = get_database()
 
+    # Hard filters: vegan and cruelty-free (no segment filter here)
     query: dict = {}
     if request.vegan:
         query["vegan"] = True
@@ -355,6 +358,10 @@ async def recommend(request: RecommendRequest):
         ]
     else:
         pool = all_products
+
+    # Segment floor: mid excludes low-segment products; high excludes low+mid
+    allowed_segs = SEGMENT_FLOOR[request.budget]
+    pool = [p for p in pool if p.segment in allowed_segs]
 
     lo, hi = BUDGET_TARGETS[request.budget]
 
@@ -423,20 +430,15 @@ async def recommend(request: RecommendRequest):
     bag: list[BagItem] = [
         BagItem(
             product=_to_out(p),
-            routine_step=p.routine_step,
-            order_index=p.order_index,
             concern_match=_concern_match(p, concerns_set),
             justification=_build_justification(
-                p,
-                concerns_set,
-                request.vegan,
-                request.cruelty_free,
-                req_has_allergens,
+                p, concerns_set,
+                request.vegan, request.cruelty_free, req_has_allergens,
             ),
         )
         for p in basket
     ]
-    bag.sort(key=lambda item: (item.order_index is None, item.order_index or 0))
+    bag.sort(key=lambda item: (item.product.order_index is None, item.product.order_index or 0))
 
     budget_range_hi: Optional[float] = None if hi == float("inf") else hi
 

@@ -7,7 +7,7 @@ class Product(BaseModel):
     name: str
     brand: str
     price_rub: float
-    segment: str  # low/mid/high — used for budget guard/upgrade logic
+    segment: str  # low/mid/high — used for segment-floor filter and upgrade logic
     vegan: bool
     cruelty_free: str
     routine_step: str
@@ -16,25 +16,27 @@ class Product(BaseModel):
     concerns_addressed: list[str] = []
     allergens_norm: list[str] = []
     link: Optional[str] = None
+    image_url: Optional[str] = None
     main_actives_short: list[str] = []
-    functional_category: str = ""  # needed for justification building
+    functional_category: str = ""  # used for justification, not in ProductOut
 
 
 class Justification(BaseModel):
     role: str               # "Шаг 1 из 5 — Очищение" / "2–3 раза в неделю — Отшелушивание"
-    what_it_does: list[str] # first 2–3 phrases from functional_category
+    what_it_does: list[str] # first 2–3 phrases from functional_category (before first "(")
     key_actives: list[str]  # first 2–3 names from main_actives_short
     why_for_you: list[str]  # concern matches + vegan/CF/allergen flags
 
 
 class ProductOut(BaseModel):
-    """Public-facing product: segment and frequency added, internal fields excluded."""
+    """Public-facing product. No internal fields; routine_step/order_index live here only."""
     id: str
     name: str
     brand: str
     price_rub: float
     segment: str
     link: Optional[str] = None
+    image_url: Optional[str] = None
     routine_step: str
     tier: str
     order_index: Optional[int] = None
@@ -54,8 +56,6 @@ class RecommendRequest(BaseModel):
 
 class BagItem(BaseModel):
     product: ProductOut
-    routine_step: str
-    order_index: Optional[int] = None
     concern_match: int
     justification: Justification
 
