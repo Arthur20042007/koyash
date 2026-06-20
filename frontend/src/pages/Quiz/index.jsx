@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import QuizScreen1 from './QuizScreen1';
 import QuizScreen2 from './QuizScreen2';
+import QuizScreen3 from './QuizScreen3';
 
 export default function Quiz() {
   const [step, setStep] = useState(1);
@@ -24,6 +25,9 @@ export default function Quiz() {
 
     case 2:
       return <QuizScreen2 onNext={goNext} onBack={goBack} />;
+
+    case 3:
+      return <QuizScreen3 onNext={goNext} onBack={goBack} />;
 
     default:
       return <p>Следующий экран анкеты пока не готов</p>;
