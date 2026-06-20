@@ -1,5 +1,5 @@
-import styles from './QuizScreen1.module.css';
-
+import './QuizScreen1.css';
+import Stage from './Stage';
 import logo from '../../assets/quiz/logo.png';
 import sceneOpening from '../../assets/quiz/scene-opening.png';
 import decorLeaf from '../../assets/quiz/decor-leaf.png';
@@ -11,38 +11,21 @@ const text = `— Заходи, солнышко. Садись поудобне�
 
 export default function QuizScreen1({ onNext, onBack }) {
   return (
-    <main className={styles.viewport}>
-      <section className={styles.screen} aria-label="Стартовая страница Koyash">
-        <img className={styles.logo} src={logo} alt="Koyash" />
-        <div className={styles.topLine} />
+    <Stage>
+      <div className="introRoot">
+        <img className="iLogo" src={logo} alt="Koyash" />
+        <div className="iTrack" />
 
-        <img
-          className={styles.openingScene}
-          src={sceneOpening}
-          alt="Уютное окно, чай и солнце"
-        />
+        <img className="iScene" src={sceneOpening} alt="" aria-hidden="true" />
+        <img className="iLeaf" src={decorLeaf} alt="" aria-hidden="true" />
 
-        <h1 className={styles.title}>{title}</h1>
-        <img className={styles.heart} src={heart} alt="" aria-hidden="true" />
+        <h1 className="iTitle">{title}</h1>
+        <img className="iHeart" src={heart} alt="" aria-hidden="true" />
+        <p className="iBody">{text}</p>
 
-        <p className={styles.bodyText}>{text}</p>
-        <img className={styles.leaf} src={decorLeaf} alt="" aria-hidden="true" />
-
-        <button
-          className={`${styles.button} ${styles.buttonBack}`}
-          type="button"
-          onClick={onBack}
-        >
-          Назад
-        </button>
-        <button
-          className={`${styles.button} ${styles.buttonNext}`}
-          type="button"
-          onClick={onNext}
-        >
-          Присесть за стол →
-        </button>
-      </section>
-    </main>
+        <button className="iBtn iBtnBack" type="button" onClick={onBack}>Назад</button>
+        <button className="iBtn iBtnNext" type="button" onClick={onNext}>Присесть за стол →</button>
+      </div>
+    </Stage>
   );
 }
