@@ -1,35 +1,95 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import QuizScreen1 from './QuizScreen1';
-import QuizScreen2 from './QuizScreen2';
-import QuizScreen3 from './QuizScreen3';
+import QuizStep from './QuizStep';
+import Loading from './Loading';
+import { ACTIVE_STEPS as STEPS, TOTAL_QUESTION_STEPS } from './quizConfig';
+import sceneLoading from '../../assets/quiz/scene-loading.png';
+
+const INTRO_STEP = 0;
+const LOADING_STEP = STEPS.length + 1;
 
 export default function Quiz() {
-  const [step, setStep] = useState(1);
   const navigate = useNavigate();
+  const [step, setStep] = useState(INTRO_STEP);
+  const [answers, setAnswers] = useState({
+    age: '',
+    skin_type: null,
+    concerns: [],
+    budget: null,
+    allergens: [],
+    values: [],
+    experience: null,
+    conditions: [],
+  });
 
-  const goNext = () => setStep((s) => s + 1);
+  // Warm the browser cache with every illustration up front so navigating
+  // between steps swaps the image instantly instead of fetching it late.
+  useEffect(() => {
+    [...STEPS.map((s) => s.scene), sceneLoading].forEach((src) => {
+      if (src) {
+        const img = new Image();
+        img.src = src;
+      }
+    });
+  }, []);
 
-  const goBack = () => {
-    if (step === 1) {
-      navigate('/');
-    } else {
-      setStep((s) => s - 1);
-    }
-  };
-
-  switch (step) {
-    case 1:
-      return <QuizScreen1 onNext={goNext} onBack={goBack} />;
-
-    case 2:
-      return <QuizScreen2 onNext={goNext} onBack={goBack} />;
-
-    case 3:
-      return <QuizScreen3 onNext={goNext} onBack={goBack} />;
-
-    default:
-      return <p>Следующий экран анкеты пока не готов</p>;
+  function setAnswer(stepId, value) {
+    setAnswers((prev) => ({ ...prev, [stepId]: value }));
   }
+
+  function goNext() {
+    if (step === INTRO_STEP) {
+      setStep(1);
+      return;
+    }
+    if (step >= STEPS.length) {
+      // last step done → loading
+      setStep(LOADING_STEP);
+      return;
+    }
+    setStep((s) => s + 1);
+  }
+
+  function goBack() {
+    if (step === INTRO_STEP) {
+      navigate('/');
+      return;
+    }
+    if (step === LOADING_STEP) return;
+    if (step === 1) {
+      setStep(INTRO_STEP);
+      return;
+    }
+    setStep((s) => s - 1);
+  }
+
+  // Intro
+  if (step === INTRO_STEP) {
+    return <QuizScreen1 onNext={goNext} onBack={goBack} />;
+  }
+
+  // Loading + API call
+  if (step === LOADING_STEP) {
+    return <Loading answers={answers} />;
+  }
+
+  // Quiz steps 1..STEPS.length (index in STEPS is step - 1)
+  const currentStep = STEPS[step - 1];
+  if (!currentStep) return null;
+
+  // Progress = how many question-steps reached so far (tips carry the last value)
+  const questionsReached = STEPS.slice(0, step).filter((s) => s.questionStep).length;
+  const progressPct = (questionsReached / TOTAL_QUESTION_STEPS) * 100;
+
+  return (
+    <QuizStep
+      step={currentStep}
+      answer={answers[currentStep.id]}
+      progressPct={progressPct}
+      onChange={(value) => setAnswer(currentStep.id, value)}
+      onNext={goNext}
+      onBack={goBack}
+    />
+  );
 }

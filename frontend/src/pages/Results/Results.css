@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@keyframes rFade { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes rCard { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Built at 1280px base width; WideStage scales it to the viewport. */
+.rPage {
+  width: 1280px;
+  background: #ffffff;
+  font-family: 'Manrope', Arial, sans-serif;
+  color: #634938;
+  padding: 0 50px 70px;
+  box-sizing: border-box;
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.rLogo { width: 175px; height: auto; display: block; margin-left: 0; margin-top: -11px; }
+.rTrack { height: 3px; background: #E9A563; margin-top: -4px; }
+
+.rNote {
+  display: inline-block; margin-top: 28px; background: #f8e1c0; border-radius: 10px; padding: 11px 24px;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #6b4e3d;
+  animation: rFade 0.4s ease 0.05s both;
+}
+.rNarrative { margin: 20px 0 0; font-size: 20px; line-height: 1.45; color: #6b4e3d; animation: rFade 0.45s ease 0.1s both; }
+.rTitle {
+  margin: 34px 0 0; text-align: center; font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600; font-size: 44px; color: #634938; animation: rFade 0.45s ease 0.15s both;
+}
+.rTitle .heart { color: #E9A563; margin-left: 8px; }
+
+/* ── Product list ───────────────────────────────────── */
+.rList { margin-top: 34px; display: flex; flex-direction: column; gap: 22px; }
+
+.rCard {
+  display: flex; gap: 30px; align-items: center;
+  background: #fffdfa; border: 1.5px solid #efd9bc; border-radius: 20px; padding: 24px 30px;
+  text-decoration: none; color: inherit; cursor: pointer;
+  animation: rCard 0.45s ease both;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+.rCard:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(99,73,56,0.12); border-color: #E9A563; }
+.rCard:nth-child(1){animation-delay:.2s}.rCard:nth-child(2){animation-delay:.27s}
+.rCard:nth-child(3){animation-delay:.34s}.rCard:nth-child(4){animation-delay:.41s}
+.rCard:nth-child(5){animation-delay:.48s}.rCard:nth-child(6){animation-delay:.55s}
+.rCard:nth-child(7){animation-delay:.62s}.rCard:nth-child(8){animation-delay:.69s}
+
+.rCardImg {
+  flex-shrink: 0; width: 200px; height: 200px; border-radius: 16px; background: #ffffff;
+  border: 1px solid #f3e4d0; display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.rCardImg img { width: 90%; height: 90%; object-fit: contain; }
+
+.rCardBody { flex: 1; min-width: 0; }
+.rCardRole {
+  margin: 0 0 6px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #cf8a3d;
+}
+.rCardName { margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 600; color: #5b4636; line-height: 1.2; }
+.rCardBrand { margin: 4px 0 0; font-size: 15px; color: #9e7d68; }
+.rCardCategory { margin: 12px 0 0; font-size: 17px; color: #8a6c54; }
+
+.rCardChips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+.rChip { background: #FDF3E9; border: 1px solid #E4C99A; border-radius: 20px; padding: 4px 13px; font-size: 13px; color: #7a5540; }
+
+.rCardWhy { margin: 14px 0 0; font-size: 16px; line-height: 1.5; color: #6b4e3d; }
+
+.rCardFooter { display: flex; align-items: baseline; justify-content: space-between; margin-top: 16px; gap: 16px; }
+.rCardPrice { font-size: 26px; font-weight: 700; color: #5b4636; }
+.rCardFreq { font-size: 14px; color: #9e7d68; }
+.rCardLink { font-size: 15px; font-weight: 600; color: #E9A563; white-space: nowrap; }
+
+/* ── Total ──────────────────────────────────────────── */
+.rTotal { margin-top: 36px; text-align: right; font-family: 'Playfair Display', Georgia, serif; font-size: 32px; font-weight: 600; color: #5b4636; }
+.rTotal .sum { color: #E9A563; }
+.rTotalNote { text-align: right; font-size: 15px; color: #9e7d68; margin-top: 6px; }
+.rMetaNote { text-align: right; font-size: 14px; color: #b08e72; margin-top: 12px; }
+
+/* ── Actions ────────────────────────────────────────── */
+.rActions { display: flex; gap: 16px; margin-top: 40px; }
+.rBtnPrimary, .rBtnGhost {
+  padding: 16px 34px; border-radius: 12px; font-family: 'Manrope', Arial, sans-serif;
+  font-size: 17px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+  transition: all 0.15s ease;
+}
+.rBtnPrimary { background: #E9A563; color: #fff; border: none; }
+.rBtnPrimary:hover { background: #e09547; transform: translateY(-2px); }
+.rBtnGhost { background: transparent; border: 1.5px solid #E4C99A; color: #634938; font-weight: 600; }
+.rBtnGhost:hover { background: #FDF3E9; border-color: #E9A563; }
+
+/* ════════ No-results ════════ */
+.noResultsPage {
+  min-height: 100vh; background: #fff; font-family: 'Manrope', Arial, sans-serif; color: #634938;
+  position: relative; overflow: hidden;
+}
+.nrHeader { padding: 0 50px; }
+.nrLogo { width: 175px; height: auto; margin-top: -11px; }
+.nrBar { height: 3px; background: #E9A563; margin-top: -4px; }
+.nrScene { position: absolute; right: 0; top: 50%; transform: translateY(-50%); height: 64%; width: auto; pointer-events: none; animation: rFade 0.6s ease 0.1s both; }
+.nrContent { max-width: 56%; padding: 70px 50px; }
+.nrNote {
+  display: inline-block; background: #f8e1c0; border-radius: 10px; padding: 11px 22px;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #6b4e3d; animation: rFade 0.4s ease 0.05s both;
+}
+.nrTitle { margin: 30px 0 16px; font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 42px; color: #634938; animation: rFade 0.45s ease 0.1s both; }
+.nrText { font-size: 18px; color: #9e7d68; line-height: 1.6; margin: 0 0 34px; max-width: 92%; animation: rFade 0.45s ease 0.15s both; }
+.nrActions { display: flex; gap: 14px; flex-wrap: wrap; animation: rFade 0.45s ease 0.2s both; }
+@media (max-width: 800px) {
+  .nrScene { display: none; }
+  .nrContent { max-width: 100%; padding: 40px 24px; }
+  .nrLogo { width: 130px; }
+  .nrTitle { font-size: 30px; }
+}

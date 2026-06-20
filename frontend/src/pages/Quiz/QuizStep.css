@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@keyframes anketaFade { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes optionIn  { from { opacity: 0; transform: translateY(8px); }  to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse     { 0% { transform: scale(1);} 45% { transform: scale(0.97);} 100% { transform: scale(1);} }
+
+.anketaRoot { animation: anketaFade 0.4s ease both; }
+
+/* generic absolutely-positioned element on the 1280×750 stage */
+.aPos { position: absolute; margin: 0; z-index: 3; }
+
+/* ── Header ──────────────────────────────────────────── */
+.aLogo  { position: absolute; left: 50px; top: -11px; width: 175px; height: auto; z-index: 5; }
+.aTrack { position: absolute; left: 0; top: 122px; width: 1280px; height: 3px; background: #f1e2cf; z-index: 3; }
+.aFill  { height: 100%; background: #E9A563; transition: width 0.45s ease; }
+
+/* ── Illustration ────────────────────────────────────── */
+.aScene { position: absolute; z-index: 1; pointer-events: none; object-fit: contain; animation: anketaFade 0.6s ease 0.1s both; }
+
+/* ── Note pill ──────────────────────────────────────── */
+.aNote {
+  display: inline-block; background: #f8e1c0; border-radius: 10px; padding: 10px 24px;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 20px; line-height: 1.25; color: #6b4e3d;
+  animation: anketaFade 0.4s ease 0.05s both;
+}
+
+/* ── Narrative ──────────────────────────────────────── */
+.aNarrative {
+  font-family: 'Manrope', Arial, sans-serif; font-size: 18px; line-height: 1.4; color: #6b4e3d;
+  animation: anketaFade 0.45s ease 0.1s both;
+}
+
+/* ── Heading ────────────────────────────────────────── */
+.aHeading {
+  font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 40px; line-height: 1.1; color: #634938;
+  animation: anketaFade 0.45s ease 0.15s both;
+}
+.aSub {
+  font-family: 'Manrope', Arial, sans-serif; font-size: 16px; color: #9e7d68;
+  animation: anketaFade 0.45s ease 0.18s both;
+}
+
+/* ── Options ────────────────────────────────────────── */
+.aOptions { display: flex; flex-direction: column; }
+.aOption {
+  display: flex; align-items: center; gap: 14px;
+  background: none; border: none; padding: 0; cursor: pointer; text-align: left;
+  font-family: 'Manrope', Arial, sans-serif; font-size: 20px; color: #6b4e3d; line-height: 1.2;
+  opacity: 0; animation: optionIn 0.3s ease forwards;
+  transition: color 0.15s ease, transform 0.12s ease;
+}
+.aOption:nth-child(1){animation-delay:.2s}.aOption:nth-child(2){animation-delay:.26s}
+.aOption:nth-child(3){animation-delay:.32s}.aOption:nth-child(4){animation-delay:.38s}
+.aOption:nth-child(5){animation-delay:.44s}.aOption:nth-child(6){animation-delay:.5s}
+.aOption:nth-child(7){animation-delay:.56s}
+.aOption:hover { color: #634938; transform: translateX(3px); }
+.aRadio {
+  flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #d8b78c;
+  display: inline-flex; align-items: center; justify-content: center; transition: border-color 0.15s ease;
+}
+.aOption:hover .aRadio { border-color: #E9A563; }
+.aOption.selected .aRadio { border-color: #E9A563; }
+.aOption.selected .aRadio::after { content: ''; width: 56%; height: 56%; border-radius: 50%; background: #E9A563; animation: pulse 0.25s ease; }
+
+/* square checkbox for multi-select */
+.aCheck {
+  flex-shrink: 0; width: 19px; height: 19px; border-radius: 4px; border: 2px solid #d8b78c;
+  display: inline-flex; align-items: center; justify-content: center; transition: border-color 0.15s ease, background 0.15s ease;
+}
+.aOption:hover .aCheck { border-color: #E9A563; }
+.aOption.selected .aCheck { border-color: #E9A563; background: #E9A563; animation: pulse 0.25s ease; }
+.aOption.selected .aCheck::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; line-height: 1; }
+
+.aOption.selected { color: #634938; font-weight: 500; }
+
+/* ── Input ──────────────────────────────────────────── */
+.aInput {
+  width: 380px; padding: 13px 20px; background: #FDF3E9; border: 1.5px solid #E4C99A; border-radius: 10px;
+  font-family: 'Manrope', Arial, sans-serif; font-size: 19px; color: #634938; outline: none; transition: border-color 0.15s ease;
+}
+.aInput:focus { border-color: #E9A563; }
+.aInput::placeholder { color: #c4a88a; }
+
+/* ── Tip ────────────────────────────────────────────── */
+.aTipTitle {
+  font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 32px; color: #634938;
+  animation: anketaFade 0.45s ease 0.15s both;
+}
+.aTipBody {
+  font-family: 'Manrope', Arial, sans-serif; font-size: 19px; line-height: 1.5; color: #6b4e3d;
+  animation: anketaFade 0.45s ease 0.2s both;
+}
+.aTipHi {
+  display: inline-block; background: #fff3e3; border: 2px solid #E9A563; border-radius: 10px; padding: 10px 22px;
+  font-family: 'Manrope', Arial, sans-serif; font-size: 18px; color: #7a5540; line-height: 1.35;
+  animation: anketaFade 0.45s ease 0.25s both;
+}
+
+/* ── Buttons ────────────────────────────────────────── */
+.aBtn {
+  position: absolute; top: 641px; height: 63px; border: none; border-radius: 12px;
+  background: #E9A563; color: #fff; font-family: 'Manrope', Arial, sans-serif; font-weight: 700; font-size: 24px;
+  cursor: pointer; z-index: 5; display: inline-flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+.aBtn:hover { background: #e09547; transform: translateY(-2px); }
+.aBtn:disabled { background: #eccfa6; cursor: not-allowed; transform: none; }
+.aBtnBack { left: 52px;  width: 118px; }
+.aBtnNext { left: 624px; width: 282px; }
