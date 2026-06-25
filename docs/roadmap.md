@@ -14,15 +14,17 @@ Sprint-by-Sprint delivery plan. For story-level detail, current status, and acce
   - Frontend: [PBI-107](https://github.com/Dasha365/koyash/issues/38) (decomposed into [PBI-110](https://github.com/Dasha365/koyash/issues/44)–[PBI-117](https://github.com/Dasha365/koyash/issues/51)), [PBI-108](https://github.com/Dasha365/koyash/issues/39), [PBI-116](https://github.com/Dasha365/koyash/issues/50)
   - Docs & process: [PBI-105](https://github.com/Dasha365/koyash/issues/34), [PBI-106](https://github.com/Dasha365/koyash/issues/35), [PBI-109](https://github.com/Dasha365/koyash/issues/41)
 
-## Sprint 2 — Complete the MVP and personalize by skin type
+## Sprint 2 — Polish the MVP, personalize by skin type, raise quality and automation
 
-- **Milestone:** Sprint 2 *(milestone to be created)*
-- **Dates:** 2026-06-22 – 2026-06-28 *(planned, Mon–Sun cadence)*
-- **Sprint Goal:** Make the MVP v1 flow robust for live use, personalize recommendations by skin type once the `skintype` data is populated, and deliver the selling landing page that brings users into the selection. *(draft — confirm at Sprint Planning)*
-- **Focus:** Harden the rule-based flow against edge cases, extend personalization with skin type, and add the deferred landing page.
-- **Planned items** *(issue links to be added when assigned to the milestone)*:
-  - User stories: [US-09](https://github.com/Dasha365/koyash/issues/13) (account for skin type), [US-01](https://github.com/Dasha365/koyash/issues/5) (landing page)
-  - Supporting PBIs (to refine): populate `skintype` markup for the 69 products (DB task); integrate skin-type as a selection signal; frozen allergen controlled vocabulary + checklist UI + patch-test disclaimer; edge-case handling (empty core step, high-segment fallback).
+- **Milestone:** [Sprint 2](https://github.com/Dasha365/koyash/milestone/2)
+- **Dates:** 2026-06-22 – 2026-06-28 (Mon–Sun)
+- **Sprint Goal:** Polish the MVP for real customer use: apply the customer's requested design and copy changes on the frontend, add automated tests for the product-recommendation (matching) logic and fix any defects they surface, and extend the recommendation engine with skin type as a new filtering criterion (database markup, questionnaire step, and matching logic).
+- **Focus:** Customer-feedback-driven design/copy fixes, skin-type personalization, a short non-storytelling questionnaire variant, automated testing of the recommendation engine, and the Assignment 4 quality/automation baseline (Quality Requirements, QRTs, CI gates, Definition of Done, testing and UAT docs).
+- **Planned items:**
+  - User stories: [US-01](https://github.com/Dasha365/koyash/issues/5) (landing page), [US-09](https://github.com/Dasha365/koyash/issues/13) (skin type), [US-18](https://github.com/Dasha365/koyash/issues/69) (short questionnaire variant)
+  - Skin type: [PBI-201](https://github.com/Dasha365/koyash/issues/70), [PBI-202](https://github.com/Dasha365/koyash/issues/71)
+  - Design/frontend: [PBI-203](https://github.com/Dasha365/koyash/issues/72), [PBI-204](https://github.com/Dasha365/koyash/issues/73), [PBI-205](https://github.com/Dasha365/koyash/issues/74)
+  - Testing and quality automation: [PBI-206](https://github.com/Dasha365/koyash/issues/75), [PBI-207](https://github.com/Dasha365/koyash/issues/76), [PBI-208](https://github.com/Dasha365/koyash/issues/77), [PBI-209](https://github.com/Dasha365/koyash/issues/78), [PBI-210](https://github.com/Dasha365/koyash/issues/79), [PBI-211](https://github.com/Dasha365/koyash/issues/80), [PBI-212](https://github.com/Dasha365/koyash/issues/81)
 
 ## Sprint 3 — LLM-based reasoning (direction)
 
