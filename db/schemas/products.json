@@ -62,7 +62,7 @@
       "skintype": {
         "bsonType": "array",
         "items": { "bsonType": "string" },
-        "description": "empty for all 69 products today; future skin-type tags go here (plan B-19, F)"
+        "description": "per-product skin-type tags sourced from db/data/Koyash.xlsx 'skintype' sheet (plan B-19, F); vocabulary: normal, dry, oily, combination, sensitive, any"
       },
       "status": {
         "bsonType": "bool",
