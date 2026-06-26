@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Skin-type preference in `POST /recommend`: within the user's budget segment, products matching the
+  stated `skin_type` (or tagged `any`) are preferred over mismatched ones. If a step has no product of
+  the user's skin type, the engine falls back to `any`-type products in the same segment; if neither
+  exists the step is left empty instead of taking a mismatched product. `RecommendRequest` accepts an
+  optional `skin_type` (normal / dry / oily / combination / sensitive); `Product` carries the `skintype`
+  tags. Hard filters (vegan, cruelty-free, allergens) run first and are never relaxed by skin-type matching.
+
 ## [1.0.0] - 2026-06-21
 
 ### Added
