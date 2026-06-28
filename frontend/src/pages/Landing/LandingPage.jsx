@@ -39,6 +39,18 @@ const T = ({ x, y, w, cls = 'lBody', align = 'left', reveal = true, style, child
   <p className={`lAbs ${reveal ? 'reveal' : ''} ${cls}`.trim()}
     style={{ left: x, top: y, width: w, textAlign: align, ...style }}>{children}</p>
 );
+const Btn = ({ x, y, onClick, children }) => (
+  <button className="lBtn reveal" style={{ left: x, top: y }} onClick={onClick}>{children}</button>
+);
+
+// Section title sitting on a smear: text is centered (H+V) over the brush.
+const SmearTitle = ({ x, y, w, h, flip = false, children }) => (
+  <>
+    <img className={`lAbs lSmear reveal${flip ? ' lFlip' : ''}`} src={smear} alt="" aria-hidden="true"
+      style={{ left: x, top: y, width: w, height: h }} />
+    <div className="lAbs lSmearTitle reveal" style={{ left: x, top: y, width: w, height: h }}>{children}</div>
+  </>
+);
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -82,19 +94,6 @@ export function LandingPage() {
   // The three upper "Подобрать уход" buttons scroll to the choice section
   // (story vs quick) instead of jumping straight into a quiz.
   const toChoice = scrollTo('choice');
-
-  const Btn = ({ x, y, onClick, children }) => (
-    <button className="lBtn reveal" style={{ left: x, top: y }} onClick={onClick}>{children}</button>
-  );
-
-  // Section title sitting on a smear: text is centered (H+V) over the brush.
-  const SmearTitle = ({ x, y, w, h, flip = false, children }) => (
-    <>
-      <img className={`lAbs lSmear reveal${flip ? ' lFlip' : ''}`} src={smear} alt="" aria-hidden="true"
-        style={{ left: x, top: y, width: w, height: h }} />
-      <div className="lAbs lSmearTitle reveal" style={{ left: x, top: y, width: w, height: h }}>{children}</div>
-    </>
-  );
 
   return (
     <Stage w={1633} h={5601} mode="page">
