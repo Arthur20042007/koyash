@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   tags. Hard filters (vegan, cruelty-free, allergens) run first and are never relaxed by skin-type matching.
 - The storytelling questionnaire now sends the user's `skin_type` answer to `POST /recommend`
   (the question existed on screen already; the request payload didn't include it before).
+- Short, non-storytelling questionnaire variant at `/quick`: same questions as the
+  storytelling flow (including skin type), without the narrative framing; shares the
+  same `/recommend` request-building and results screen, so identical answers produce
+  an identical cosmetic bag regardless of which variant the user takes.
 
 ### Changed
 
