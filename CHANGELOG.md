@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   exists the step is left empty instead of taking a mismatched product. `RecommendRequest` accepts an
   optional `skin_type` (normal / dry / oily / combination / sensitive); `Product` carries the `skintype`
   tags. Hard filters (vegan, cruelty-free, allergens) run first and are never relaxed by skin-type matching.
+- Short, non-storytelling questionnaire variant at `/quick`: same questions as the
+  storytelling flow (including skin type), without the narrative framing; shares the
+  same `/recommend` request-building and results screen, so identical answers produce
+  an identical cosmetic bag regardless of which variant the user takes.
 
 ## [1.0.0] - 2026-06-21
 
