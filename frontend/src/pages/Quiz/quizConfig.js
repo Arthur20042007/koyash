@@ -10,7 +10,6 @@ import sceneActives from '../../assets/quiz/scene-actives.png';
 import sceneProblems from '../../assets/quiz/scene-problems.png';
 import sceneExperience from '../../assets/quiz/scene-experience.png';
 import decorCupLeaf from '../../assets/quiz/decor-cup-leaf.png';
-import adviceImg from '../../assets/quiz/advice.png';
 
 // Main "story" quiz — Figma Prototype ("История"). Canvas 1307×738 (≈16:9),
 // small logo top-left on every screen, note shown as a #f8e1c0 pill, tip

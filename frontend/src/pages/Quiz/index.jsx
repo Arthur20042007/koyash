@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import QuizScreen1 from './QuizScreen1';
 import QuizStep from './QuizStep';
 import Loading from './Loading';
-import { STEPS, TOTAL_QUESTION_STEPS } from './quizConfig';
+import { STEPS } from './quizConfig';
 import sceneLoading from '../../assets/quiz/scene-loading.png';
 
 const INTRO_STEP = 0;
