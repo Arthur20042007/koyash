@@ -54,6 +54,10 @@ plugins:
 # than failing the build.
 validation:
   links:
+    # Maintained docs link to repo source files outside docs/ (../backend,
+    # ../.github, ../db, ../reports, …). Those resolve on GitHub and are
+    # validated repo-wide by Lychee, so don't fail the site build on them.
+    not_found: ignore
     absolute_links: ignore
     unrecognized_links: ignore
   nav:
