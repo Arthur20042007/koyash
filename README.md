@@ -63,6 +63,7 @@ source dataset, JSON-schema validators, sanity checks) — see
 - [docs/user-stories.md](docs/user-stories.md) — current user-story index.
 - [docs/roadmap.md](docs/roadmap.md) — Sprint-by-Sprint roadmap.
 - [docs/architecture/README.md](docs/architecture/README.md) — architecture overview (static / dynamic / deployment views and ADRs).
+- [docs/development-process.md](docs/development-process.md) — team development process, git/review workflow, and configuration management.
 - [docs/definition-of-done.md](docs/definition-of-done.md) — team Definition of Done.
 - [docs/Process_Requirements.md](docs/Process_Requirements.md) — shared Scrum/workflow requirements (course-provided).
 - `frontend/` — React + Vite frontend: questionnaire and results screens, wired to the backend API.

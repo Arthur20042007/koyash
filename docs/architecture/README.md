@@ -12,13 +12,13 @@ lives in **MongoDB Atlas**. In MVP v2 an **LLM justification layer**
 (gpt-4o-mini, justification-only) is being added on top of the existing
 rule-based engine.
 
-This document is built up across the Sprint 3 architecture PBIs:
+This document covers the maintained architecture views and decisions:
 
-- **Static view** — component diagram + commentary (this PR, PBI-305) ✅
-- **Dynamic view** — `/recommend` sequence diagram (PBI-306) — _in progress_
-- **Deployment view** — Railway + MongoDB Atlas (PBI-307) — _in progress_
-- **Architecture Decision Records (ADRs)** — at least three, linked to quality
-  requirements (PBI-308) — _in progress_
+- **Static view** — component diagram + commentary
+- **Dynamic view** — `POST /recommend` sequence diagram
+- **Deployment view** — Railway + MongoDB Atlas
+- **Architecture Decision Records (ADRs)** — three records, each linked to a
+  quality requirement
 
 Maintained architecture assets live under:
 
