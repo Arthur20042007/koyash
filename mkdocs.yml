@@ -1,0 +1,60 @@
+site_name: KOYASH Documentation
+site_description: Maintained documentation for the KOYASH skincare recommendation service.
+site_url: https://koyash-team.github.io/koyash/
+repo_url: https://github.com/Koyash-team/koyash
+repo_name: Koyash-team/koyash
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: pink
+      accent: pink
+
+nav:
+  - Home: index.md
+  - Architecture:
+      - Overview: architecture/README.md
+      - ADR-001 — Rule-based engine + LLM justification: architecture/adr/ADR-001-rule-based-engine-llm-justification-only.md
+      - ADR-002 — MongoDB Atlas datastore: architecture/adr/ADR-002-mongodb-atlas-datastore.md
+      - ADR-003 — Budget segments + fallback: architecture/adr/ADR-003-discrete-budget-segments-nearest-fallback.md
+  - Development process: development-process.md
+  - Roadmap: roadmap.md
+  - Quality:
+      - Quality requirements: quality-requirements.md
+      - Quality requirement tests: quality-requirement-tests.md
+      - Testing status: testing.md
+  - User acceptance tests: user-acceptance-tests.md
+  - Definition of Done: definition-of-done.md
+  - User stories: user-stories.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+plugins:
+  - search
+
+# Maintained docs cross-link to source files outside docs/ (e.g. ../backend, ../.github).
+# Those resolve on GitHub; on the hosted site they are intentionally left as-is rather
+# than failing the build.
+validation:
+  links:
+    absolute_links: ignore
+    unrecognized_links: ignore
+  nav:
+    omitted_files: ignore

@@ -56,6 +56,10 @@ source dataset, JSON-schema validators, sanity checks) — see
 
 ## Documentation
 
+📖 **Hosted documentation site:** <https://koyash-team.github.io/koyash/> —
+browsable version of the maintained docs below (architecture, development
+process, quality, testing, roadmap).
+
 - [db/README.md](db/README.md) — data layer: imports, validators, sanity checks, dataset handling.
 - [db/docs/KOYASH_data_transformation_plan.md](db/docs/KOYASH_data_transformation_plan.md) — spec for transforming the source Excel data into MongoDB.
 - [reports/week2/README.md](reports/week2/README.md) — week 2 reports index.
