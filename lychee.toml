@@ -34,6 +34,15 @@ exclude = [
   # to a real Innopolis University SSO login page in a browser, not a dead
   # domain.
   '^https://gitlab\.pg\.innopolis\.university',
+
+  # The hosted documentation site is published by this repository's own GitHub
+  # Pages workflow (.github/workflows/docs.yml) on pushes to main. On PRs and
+  # right at merge time the site may not be deployed yet, so lychee can 404 it
+  # in a race with the deploy job. Pattern matches the project's Pages root.
+  # Affects: README.md "Documentation" section (hosted docs link). Verified
+  # manually after the first deploy that https://koyash-team.github.io/koyash/
+  # serves the site.
+  '^https://koyash-team\.github\.io/koyash',
 ]
 
 # Be lenient with slow or flaky external hosts (e.g. the Railway deployment,
