@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Optional LLM-generated product justifications: when enabled, `POST /recommend` passes each
+  already-selected product's context (skin type, concerns, step, translated key actives,
+  concern_match) to an LLM (default `gpt-4o-mini`) to reword the "why" text
+  (`justification.summary_ru`) in a warmer, human style. The LLM only verbalizes the rule-based
+  decision — it never changes what is selected (ADR-001) — is called per product concurrently,
+  and falls back to the rule-based text on any error. Off by default (`LLM_ENABLED=false`); the
+  customer-authored system prompt is loaded from config and not committed to the repository.
+
 ### Changed
 
 - Budget step in both questionnaires (storytelling and short) now describes each budget as a

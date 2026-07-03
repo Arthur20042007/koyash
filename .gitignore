@@ -22,6 +22,10 @@ backend/.venv/
 # Customer-provided dataset — not ours to redistribute, see db/README.md
 db/data/Koyash.xlsx
 
+# Customer-authored LLM system prompt — not published in the repo (see
+# backend/llm_system_prompt.example.txt). Provide via this file or LLM_SYSTEM_PROMPT env.
+backend/llm_system_prompt.txt
+
 # macOS
 .DS_Store
 

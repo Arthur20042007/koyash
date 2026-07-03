@@ -30,7 +30,7 @@ Sprint-by-Sprint delivery plan. For story-level detail, current status, and acce
 
 - **Milestone:** [Sprint 3](https://github.com/Koyash-team/koyash/milestone/3)
 - **Dates:** 2026-06-29 – 2026-07-05 (Mon–Sun)
-- **Sprint Goal:** Make the assembled cosmetic bag reliably fall within the user's selected budget range; let users who don't know their skin type get a personalized result through a short skin-type mini-quiz; integrate LLM-generated justifications for the recommended products; and apply the customer's design and copy feedback. In parallel, document the product architecture (static/dynamic/deployment views and ADRs) and the development process.
+- **Sprint Goal:** Make the budget expectation honest — present budget as a tier with an approximate total instead of promising an exact ₽ range; let users who don't know their skin type get a personalized result through a short skin-type mini-quiz; integrate LLM-generated justifications for the recommended products; and apply the customer's design and copy feedback. In parallel, document the product architecture (static/dynamic/deployment views and ADRs) and the development process.
 - **Focus:** Customer-feedback-driven product improvements (budget precision, design/copy), the skin-type mini-quiz, LLM justifications (justification-only — model and prompt provided by the customer), and the Assignment 5 maintained documentation (architecture, ADRs, development process, hosted docs).
 - **Delivered increment:** MVP v2, mapped to release `v1.2.0`.
 - **Planned items:**
