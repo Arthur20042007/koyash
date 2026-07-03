@@ -1,7 +1,9 @@
+import asyncio
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 
+from app.core import llm
 from app.core.active_translations import translate_active
 from app.core.database import get_database
 from app.models.product import (
@@ -60,6 +62,16 @@ CONCERN_PHRASE_RU: dict[str, str] = {
     "aging":        "Поддерживает упругость и снижает видимость морщин",
     "dryness":      "Обеспечивает интенсивное увлажнение",
     "sensitivity":  "Успокаивает и восстанавливает чувствительную кожу",
+}
+
+# Short RU names used only when passing the user context to the LLM layer.
+SKIN_TYPE_RU: dict[str, str] = {
+    "normal": "нормальная", "dry": "сухая", "oily": "жирная",
+    "combination": "комбинированная", "sensitive": "чувствительная",
+}
+CONCERN_NAME_RU: dict[str, str] = {
+    "acne": "акне", "oiliness": "жирность", "pigmentation": "пигментация",
+    "aging": "возрастные изменения", "dryness": "сухость", "sensitivity": "чувствительность",
 }
 
 # ---------------------------------------------------------------------------
@@ -304,6 +316,29 @@ async def recommend(request: RecommendRequest):
         for p in basket
     ]
     bag.sort(key=lambda item: (item.product.order_index is None, item.product.order_index or 0))
+
+    # LLM justification layer (ADR-001): verbalize the already-made decision.
+    # Runs only when enabled+configured; each product is called concurrently and
+    # any failure keeps that item's rule-based text. Selection is never changed.
+    if llm.is_enabled():
+        skin_ru = SKIN_TYPE_RU.get(request.skin_type or "", "не указан")
+        concerns_ru = ", ".join(CONCERN_NAME_RU.get(c, c) for c in request.concerns) or "не указаны"
+
+        async def _fill(item: BagItem) -> None:
+            text = await asyncio.to_thread(
+                llm.generate_justification,
+                skin_type=skin_ru,
+                concerns=concerns_ru,
+                name=item.product.name,
+                brand=item.product.brand,
+                step=STEP_ROLE_RU.get(item.product.routine_step, item.product.routine_step),
+                ingredients=", ".join(item.product.main_actives_short),
+                concern_match=item.concern_match,
+            )
+            if text:
+                item.justification.summary_ru = text
+
+        await asyncio.gather(*(_fill(item) for item in bag))
 
     return RecommendResponse(
         bag=bag,

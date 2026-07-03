@@ -1,0 +1,10 @@
+PLACEHOLDER — the real system prompt is customer-owned and is not committed here.
+
+To enable the LLM justification layer, provide the actual system prompt either:
+  * in the LLM_SYSTEM_PROMPT environment variable, or
+  * in a git-ignored file next to this one named `llm_system_prompt.txt`.
+
+The prompt instructs the model to only reword the already-made rule-based
+recommendation (verbalize, do not analyze or decide). See ADR-001 and
+docs/architecture. If no prompt (or no API key, or LLM_ENABLED=false) is present,
+`/recommend` returns the rule-based justification unchanged.
