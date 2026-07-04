@@ -18,7 +18,7 @@ required status checks on all 11 jobs below — 6 backend/Lychee + 5 frontend ad
 
 | Critical module | Why critical | Required line coverage | Current line coverage | Evidence |
 |---|---|---:|---:|---|
-| `backend/app/api/recommend.py` | Owns the core product value: hard filtering (vegan/cruelty-free/allergens), segment fallback, skin-type preference, basket assembly, and per-product justification (US-04, US-05, US-08, US-09). | 30% | 100% | [Backend tests + QRTs + coverage run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978389) |
+| `backend/app/api/recommend.py` | Owns the core product value: hard filtering (vegan/cruelty-free/allergens), segment fallback, skin-type preference, basket assembly, per-product justification, the special-condition safety filter (US-20), and the optional LLM justification overlay (US-14) (US-04, US-05, US-08, US-09, US-14, US-20). | 30% | 100% | [Backend tests + QRTs + coverage run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978389) |
 | `frontend/src/pages/Quiz/quizConfig.js` (`buildRequest`) | Assembles the questionnaire answers into the `/recommend` request payload; shared by both the storytelling (`Quiz`) and short (`Quick`) flows — a defect here silently breaks every recommendation request. | 30% | 100% | [Frontend tests + coverage run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978392) |
 | `frontend/src/pages/Quiz/Loading.jsx` | Calls `POST /recommend`, branches on success/422 (`NO_PRODUCTS_AVAILABLE`)/error, and navigates to the results screen with the right state — the only place the frontend talks to the recommendation API. | 30% | 96% | [Frontend tests + coverage run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978392) |
 
@@ -37,13 +37,20 @@ untested.
 | Backend unit tests | Recommendation/matching logic: segment fallback, hard filters, skin-type preference, justification, ranking (`backend/tests/test_recommend_unit.py`) | `cd backend && python -m pytest tests/test_recommend_unit.py` | Passing | [CI run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978389) |
 | Backend integration tests | `POST /recommend` end-to-end via FastAPI `TestClient` against an in-memory catalog, plus the QRT suite below | `cd backend && python -m pytest` | Passing | [CI run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978389) |
 | Backend automated QRTs | QR-001 (allergen exclusion), QR-002 (input-space robustness), QR-003 (`/recommend` latency) | `cd backend && python -m pytest -m qrt` | Passing | [CI run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978389) |
+| Backend unit + integration tests | Special-condition safety filter: a product with a contraindicated ingredient (e.g. a retinoid for pregnancy) is hard-excluded; case-insensitive; empty = no-op (`backend/tests/test_conditions.py`) | `cd backend && python -m pytest tests/test_conditions.py` | Passing | [CI run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978389) |
+| Backend unit + integration tests | LLM justification layer: disabled by default (no network call), overlays `summary_ru` when enabled, and falls back to the rule-based text on error (`backend/tests/test_llm_justification.py`) | `cd backend && python -m pytest tests/test_llm_justification.py` | Passing | [CI run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978389) |
 | Frontend unit tests | `buildRequest` request-shape logic (`frontend/src/pages/Quiz/quizConfig.test.js`, 11 tests) | `cd frontend && npx vitest run src/pages/Quiz/quizConfig.test.js` | Passing | [CI run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978392) |
 | Frontend integration tests | `Loading` <-> `/recommend` boundary: success, 422 (`NO_PRODUCTS_AVAILABLE`), and network-error paths, with `fetch`/`useNavigate` mocked (`frontend/src/pages/Quiz/Loading.test.jsx`, 4 tests) | `cd frontend && npx vitest run src/pages/Quiz/Loading.test.jsx` | Passing | [CI run](https://github.com/Koyash-team/koyash/actions/runs/28328682771/job/83922978392) |
 
-322 backend tests, 100% line coverage on `backend/app/api/recommend.py` (required ≥30%).
-15 frontend tests, 100%/96% line coverage on `quizConfig.js`/`Loading.jsx` (required ≥30%
-per file). No automated frontend quality-requirement test exists separately — see the note
+The backend suite (now including the special-condition filter and LLM-layer tests above)
+keeps 100% line coverage on `backend/app/api/recommend.py` (required ≥30%). The frontend
+suite keeps 100%/96% line coverage on `quizConfig.js`/`Loading.jsx` (required ≥30% per
+file). No automated frontend quality-requirement test exists separately — see the note
 below the next table.
+
+> The exact test counts and the CI-run / job links on this page are refreshed with the
+> `v1.2.0` (MVP v2) release once all Sprint 3 PRs are merged, so they point at the final
+> `main` run.
 
 ## CI and QA Check Status
 

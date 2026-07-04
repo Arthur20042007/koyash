@@ -11,9 +11,11 @@ criteria **and** every applicable item below are satisfied.
 - [ ] Required tests/checks pass (CI green, including link checking where it applies).
 - [ ] Relevant [quality requirements and quality requirement tests](quality-requirements.md)
       are satisfied, or the PBI explicitly documents why none apply.
-- [ ] Relevant architecture documentation is satisfied, or explicitly documented as not
-      applicable — not yet required; architecture documentation and ADRs start in
-      Assignment 5.
+- [ ] Relevant architecture documentation is updated when the change affects the
+      system structure, runtime flow, deployment, or an architecture decision — the
+      maintained views ([docs/architecture/README.md](architecture/README.md)) and
+      ADRs ([docs/architecture/adr/](architecture/adr/)) are kept current, or the PBI
+      explicitly documents why none apply.
 - [ ] CI quality gates configured for the repository (lint, type-check, build, unit and
       integration tests, coverage, quality requirement tests, and the additional QA
       check) pass before merge, when that CI is configured.
