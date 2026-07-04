@@ -33,17 +33,32 @@ OCCASIONAL_STEPS = ["exfoliant", "mask"]
 
 # Special-condition safety filter (US-20). Products whose key actives or allergen
 # tokens contain any contraindicated token for a declared condition are hard-
-# excluded, like the allergen filter — deterministic, not an LLM judgement.
-# This is a conservative, best-effort starting mapping (matched case-insensitively
-# as substrings); replace/extend it with the customer's ingredient guide. It is
-# best-effort filtering, not medical advice.
+# excluded before selection, like the allergen filter — deterministic, not an LLM
+# judgement. The mapping below is our maintained list, based on common cosmetic
+# safety guidance for each condition. Tokens are matched case-insensitively as
+# substrings against the product's key actives and normalized allergen tokens.
+# This is ingredient-level filtering, not medical advice (the UI shows a note).
 CONDITION_EXCLUDED_TOKENS: dict[str, set[str]] = {
+    # Vitamin A derivatives (retinoids), skin-lightening hydroquinone, and
+    # salicylic acid / salicylates are commonly advised against in pregnancy.
     "pregnancy": {
         "retinol", "retinal", "retinaldehyde", "retinyl", "retinoic",
-        "tretinoin", "adapalene", "retinoid",
+        "tretinoin", "isotretinoin", "adapalene", "retinoid",
+        "hydroquinone", "salicyl",
     },
-    "dermatitis": {"fragrance", "parfum", "alcohol denat", "menthol"},
-    "rosacea": {"fragrance", "parfum", "alcohol denat", "menthol"},
+    # Rosacea / couperose skin reacts to irritants and vasodilators: fragrance,
+    # drying alcohol, menthol/camphor and cooling essential oils, witch hazel.
+    "rosacea": {
+        "fragrance", "parfum", "alcohol", "menthol", "camphor",
+        "eucalyptus", "peppermint", "witch hazel", "hamamelis",
+    },
+    # Dermatitis / eczema-prone skin avoids fragrance, drying alcohol, essential
+    # oils, and common contact sensitizers (lanolin, isothiazolinone preservatives).
+    "dermatitis": {
+        "fragrance", "parfum", "alcohol", "menthol", "camphor",
+        "eucalyptus", "peppermint", "essential oil", "lanolin",
+        "methylisothiazolinone", "methylchloroisothiazolinone",
+    },
 }
 
 # ---------------------------------------------------------------------------
