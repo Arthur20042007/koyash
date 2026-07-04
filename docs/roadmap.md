@@ -34,8 +34,8 @@ Sprint-by-Sprint delivery plan. For story-level detail, current status, and acce
 - **Focus:** Customer-feedback-driven product improvements (budget precision, design/copy), the skin-type mini-quiz, LLM justifications (justification-only — model and prompt provided by the customer), and the Assignment 5 maintained documentation (architecture, ADRs, development process, hosted docs).
 - **Delivered increment:** MVP v2, mapped to release `v1.2.0`.
 - **Planned items:**
-  - User stories: [US-19](https://github.com/Koyash-team/koyash/issues/101) (skin-type mini-quiz), [US-14](https://github.com/Koyash-team/koyash/issues/18) (LLM justification)
-  - Product: [PBI-301](https://github.com/Koyash-team/koyash/issues/102) (mini-quiz), [PBI-302](https://github.com/Koyash-team/koyash/issues/103) (budget precision), [PBI-303](https://github.com/Koyash-team/koyash/issues/104) (LLM justifications), [PBI-304](https://github.com/Koyash-team/koyash/issues/105) (design/copy polish)
+  - User stories: [US-19](https://github.com/Koyash-team/koyash/issues/101) (skin-type mini-quiz), [US-14](https://github.com/Koyash-team/koyash/issues/18) (LLM justification), [US-20](https://github.com/Koyash-team/koyash/issues/124) (special-condition safety)
+  - Product: [PBI-301](https://github.com/Koyash-team/koyash/issues/102) (mini-quiz), [PBI-302](https://github.com/Koyash-team/koyash/issues/103) (budget precision), [PBI-303](https://github.com/Koyash-team/koyash/issues/104) (LLM justifications), [PBI-304](https://github.com/Koyash-team/koyash/issues/105) (design/copy polish), [PBI-312](https://github.com/Koyash-team/koyash/issues/125) (special-condition filter)
   - Architecture & process: [PBI-305](https://github.com/Koyash-team/koyash/issues/106)–[PBI-308](https://github.com/Koyash-team/koyash/issues/109) (static/dynamic/deployment views, ADRs), [PBI-309](https://github.com/Koyash-team/koyash/issues/110) (development process), [PBI-310](https://github.com/Koyash-team/koyash/issues/111) (hosted docs), [PBI-311](https://github.com/Koyash-team/koyash/issues/112) (tests, UATs, Definition of Done)
 
 ## Sprint 4 and beyond (direction, not yet scheduled)

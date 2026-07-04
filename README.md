@@ -12,11 +12,13 @@ moisturize → spf, plus occasional treatments such as exfoliants and masks).
 their own and want a skincare routine that fits their budget and
 constraints (allergies, vegan/cruelty-free preferences).
 
-**Current status:** MVP v1 — a FastAPI backend with rule-based filtering on
-top of MongoDB Atlas (`GET /products`, `POST /recommend`) and a React +
-Vite frontend (questionnaire and results screens), deployed and wired
-end-to-end. LLM-based recommendations, skin-type personalization, and
-authentication are planned for later Sprints — see
+**Current status:** MVP v2 — a FastAPI backend with rule-based recommendation on
+top of MongoDB Atlas (`GET /products`, `POST /recommend`): skin-type matching, an
+honest budget presentation, a special-condition safety filter (e.g. no retinoids
+in pregnancy), and an optional LLM justification layer (gpt-4o-mini,
+justification-only, off by default). A React + Vite frontend (storytelling and
+short questionnaires, results screens) is deployed and wired end-to-end.
+Authentication and saved cosmetic-bag history are planned for a later Sprint — see
 [docs/roadmap.md](docs/roadmap.md).
 
 ## Running locally

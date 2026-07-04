@@ -9,8 +9,8 @@ frontend collects the user's budget, ethical preferences, allergens, skin
 concerns, and skin type, and a **FastAPI** backend turns that into a structured
 "cosmetic bag" of real products with a per-product justification. Product data
 lives in **MongoDB Atlas**. In MVP v2 an **LLM justification layer**
-(gpt-4o-mini, justification-only) is being added on top of the existing
-rule-based engine.
+(gpt-4o-mini, justification-only) sits on top of the existing rule-based engine —
+implemented and off by default, enabled by configuration.
 
 This document covers the maintained architecture views and decisions:
 

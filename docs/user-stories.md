@@ -15,7 +15,7 @@
 | US-11 | Get a warning about a potential irritant in a suitable product | Should Have | [#15](https://github.com/Koyash-team/koyash/issues/15) | Active | To Do | — |
 | US-12 | Save my cosmetic bag to history | Should Have | [#16](https://github.com/Koyash-team/koyash/issues/16) | Active | To Do | — |
 | US-13 | Leave "worked / didn't work" feedback on products | Should Have | [#17](https://github.com/Koyash-team/koyash/issues/17) | Active | To Do | — |
-| US-14 | Get deeper LLM-based justification and ingredient analysis | Must Have | [#18](https://github.com/Koyash-team/koyash/issues/18) | Active | To Do | [Sprint 3](https://github.com/Koyash-team/koyash/milestone/3) |
+| US-14 | Get deeper LLM-based justification and ingredient analysis | Must Have | [#18](https://github.com/Koyash-team/koyash/issues/18) | Active | Done | [Sprint 3](https://github.com/Koyash-team/koyash/milestone/3) |
 | US-10 | See a product photo on each card | Could Have | [#14](https://github.com/Koyash-team/koyash/issues/14) | Active | To Do | — |
 | US-15 | Pay for premium features / paid expert consultations | Won't Have | [#19](https://github.com/Koyash-team/koyash/issues/19) | Active | To Do | — |
 | US-16 | Get product recommendations from a photo of my skin | Won't Have | [#20](https://github.com/Koyash-team/koyash/issues/20) | Active | To Do | — |
