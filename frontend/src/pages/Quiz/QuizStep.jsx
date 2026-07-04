@@ -4,7 +4,7 @@ import logo from '../../assets/landing/logo.png';
 import advice from '../../assets/quiz/advice.png';
 import heart from '../../assets/landing/heart.png';
 
-export default function QuizStep({ step, answer, progressPct, onChange, onNext, onBack }) {
+export default function QuizStep({ step, answer, progressPct, onChange, onNext, onBack, onSkinTest }) {
   const isTip = step.type === 'tip';
   const f = step.fig;
 
@@ -188,6 +188,16 @@ export default function QuizStep({ step, answer, progressPct, onChange, onNext, 
         >
           Назад
         </button>
+        {step.skinTestBtn && (
+          <button
+            className="qBtn qSkinTest"
+            type="button"
+            style={{ left: step.skinTestBtn.x, top: step.skinTestBtn.y, width: step.skinTestBtn.w }}
+            onClick={onSkinTest}
+          >
+            {step.skinTestBtn.label}
+          </button>
+        )}
         <button
           className="qBtn qNext"
           type="button"

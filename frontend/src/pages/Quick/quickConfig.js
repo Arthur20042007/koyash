@@ -41,6 +41,8 @@ export const STEPS = [
       { label: 'Чувствительная — легко реагирует на новые средства', value: 'sensitive' },
       { label: 'Не знаю — не уверена', value: 'unknown' },
     ],
+    skinTestOption: 'unknown',
+    skinTestBtn: { label: 'Узнать свой тип кожи', x: 285, y: 610, w: 259 },
     scene: sceneSkinType,
     fig: { scene: { x: 666, y: 67, w: 579, h: 579 }, head: { x: 58, y: 149, w: 560 }, helper: { x: 58, y: 256, w: 600 }, opts: { x: 64, y: 385, rowGap: 27 }, back: { x: 58, y: 610 }, next: { x: 635, y: 610 } },
   },

@@ -38,7 +38,7 @@ export const STEPS = [
     id: 'skin_type',
     type: 'single',
     questionStep: 2,
-    note: 'Солнце подсвечивает маленькое зеркало на столе.',
+    note: 'Koyash подсвечивает маленькое зеркало на столе.',
     noteBody:
       '— Жирная кожа может быть обезвоженной, а сухая — одновременно чувствительной. Поэтому по ощущениям не всегда понятно, что ей действительно нужно. Чтобы не гадать и не советовать универсальные средства, сначала определим твой тип кожи.',
     question: 'Какая у тебя кожа?',
@@ -50,12 +50,15 @@ export const STEPS = [
       { label: 'Чувствительная — легко реагирует на новые средства', value: 'sensitive' },
       { label: 'Не знаю — не уверена', value: 'unknown' },
     ],
+    // "Не знаю" and this button both launch the skin-type sub-quiz
+    skinTestOption: 'unknown',
+    skinTestBtn: { label: 'Узнать свой тип кожи', x: 278, y: 647, w: 259 },
     scene: sceneSkinType,
     fig: {
       scene: { x: 610, y: 68, w: 644, h: 644 },
-      notePill: { x: 56, y: 122, w: 507 }, narr: { x: 56, y: 195, w: 659 },
-      head: { x: 71, y: 330, w: 460 },
-      opts: { x: 71, y: 416, rowGap: 27 },
+      notePill: { x: 71, y: 117, w: 507 }, narr: { x: 71, y: 217, w: 659 },
+      head: { x: 71, y: 360, w: 460 },
+      opts: { x: 71, y: 448, rowGap: 27 },
       back: { x: 60, y: 647 }, next: { x: 637, y: 647 },
     },
   },

@@ -2,7 +2,7 @@ import './QuickStep.css';
 import Stage from '../Quiz/Stage';
 import logo from '../../assets/landing/logo.png';
 
-export default function QuickStep({ step, answer, progressPct, onChange, onNext, onBack }) {
+export default function QuickStep({ step, answer, progressPct, onChange, onNext, onBack, onSkinTest }) {
   const f = step.fig;
 
   function handleOptionClick(value) {
@@ -122,6 +122,16 @@ export default function QuickStep({ step, answer, progressPct, onChange, onNext,
         >
           Назад
         </button>
+        {step.skinTestBtn && (
+          <button
+            className="kBtn kSkinTest"
+            type="button"
+            style={{ left: step.skinTestBtn.x, top: step.skinTestBtn.y, width: step.skinTestBtn.w }}
+            onClick={onSkinTest}
+          >
+            {step.skinTestBtn.label}
+          </button>
+        )}
         <button
           className="kBtn kNext"
           type="button"
