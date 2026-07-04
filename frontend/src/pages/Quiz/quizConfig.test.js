@@ -15,7 +15,12 @@ describe('buildRequest', () => {
       minimalism: false,
       allergens: [],
       skin_type: null,
+      conditions: [],
     });
+  });
+
+  it('passes declared conditions through and drops the null "none" sentinel', () => {
+    expect(buildRequest({ conditions: ['pregnancy', null] }).conditions).toEqual(['pregnancy']);
   });
 
   it('passes through the chosen budget and concerns', () => {

@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Special-condition safety filter: the questionnaire's condition answers (pregnancy / rosacea /
+  dermatitis) are now sent to `POST /recommend`, which hard-excludes products whose ingredients are
+  contraindicated for a declared condition (e.g. retinoids during pregnancy), like the allergen
+  filter. Deterministic ingredient-level filtering (not medical advice); the ingredient mapping is
+  maintained from common cosmetic-safety guidance per condition. `age`/`experience` remain
+  statistics-only and are not used in selection.
 - Optional LLM-generated product justifications: when enabled, `POST /recommend` passes each
   already-selected product's context (skin type, concerns, step, translated key actives,
   concern_match) to an LLM (default `gpt-4o-mini`) to reword the "why" text

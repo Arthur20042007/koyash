@@ -31,6 +31,36 @@ SEGMENT_PRIORITY: dict[str, list[str]] = {
 CORE_STEPS = ["cleanse", "tone", "serum", "moisturize", "spf"]
 OCCASIONAL_STEPS = ["exfoliant", "mask"]
 
+# Special-condition safety filter (US-20). Products whose key actives or allergen
+# tokens contain any contraindicated token for a declared condition are hard-
+# excluded before selection, like the allergen filter — deterministic, not an LLM
+# judgement. The mapping below is our maintained list, based on common cosmetic
+# safety guidance for each condition. Tokens are matched case-insensitively as
+# substrings against the product's key actives and normalized allergen tokens.
+# This is ingredient-level filtering, not medical advice (the UI shows a note).
+CONDITION_EXCLUDED_TOKENS: dict[str, set[str]] = {
+    # Vitamin A derivatives (retinoids), skin-lightening hydroquinone, and
+    # salicylic acid / salicylates are commonly advised against in pregnancy.
+    "pregnancy": {
+        "retinol", "retinal", "retinaldehyde", "retinyl", "retinoic",
+        "tretinoin", "isotretinoin", "adapalene", "retinoid",
+        "hydroquinone", "salicyl",
+    },
+    # Rosacea / couperose skin reacts to irritants and vasodilators: fragrance,
+    # drying alcohol, menthol/camphor and cooling essential oils, witch hazel.
+    "rosacea": {
+        "fragrance", "parfum", "alcohol", "menthol", "camphor",
+        "eucalyptus", "peppermint", "witch hazel", "hamamelis",
+    },
+    # Dermatitis / eczema-prone skin avoids fragrance, drying alcohol, essential
+    # oils, and common contact sensitizers (lanolin, isothiazolinone preservatives).
+    "dermatitis": {
+        "fragrance", "parfum", "alcohol", "menthol", "camphor",
+        "eucalyptus", "peppermint", "essential oil", "lanolin",
+        "methylisothiazolinone", "methylchloroisothiazolinone",
+    },
+}
+
 # ---------------------------------------------------------------------------
 # Justification dictionaries (§9)
 # ---------------------------------------------------------------------------
@@ -81,6 +111,18 @@ CONCERN_NAME_RU: dict[str, str] = {
 
 def _concern_match(product: Product, concerns: set[str]) -> int:
     return len(set(product.concerns_addressed) & concerns)
+
+
+def _condition_excluded(product: Product, conditions: set[str]) -> bool:
+    """True if the product carries an ingredient contraindicated for any declared
+    condition. Matches contraindicated tokens (case-insensitive substring) against
+    the product's key actives and normalized allergen tokens."""
+    haystack = " ".join(product.main_actives_short + product.allergens_norm).lower()
+    for cond in conditions:
+        for token in CONDITION_EXCLUDED_TOKENS.get(cond, set()):
+            if token in haystack:
+                return True
+    return False
 
 
 def _to_out(p: Product) -> ProductOut:
@@ -274,6 +316,12 @@ async def recommend(request: RecommendRequest):
         ]
     else:
         pool = all_products
+
+    # Special-condition filter (US-20): hard-exclude products with ingredients
+    # contraindicated for a declared condition (e.g. retinoids during pregnancy).
+    if request.conditions:
+        conditions_set = {c.lower() for c in request.conditions}
+        pool = [p for p in pool if not _condition_excluded(p, conditions_set)]
 
     concerns_set = set(request.concerns)
     basket, missing_steps, substituted_steps = _base_select(

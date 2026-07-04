@@ -62,6 +62,7 @@ describe('Loading', () => {
       minimalism: false,
       allergens: ['Fragrance'],
       skin_type: 'oily',
+      conditions: [],
     });
   });
 

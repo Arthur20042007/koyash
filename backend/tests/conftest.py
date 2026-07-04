@@ -106,7 +106,8 @@ SAMPLE_CATALOG = [
     # serum (two low serums so the "up to 2 serums" branch can fire)
     _p(_id="P-SE-LOW", name="Retinal 0.1", brand="A", price_rub=600, segment="low",
        routine_step="serum", tier="core", order_index=3, vegan=True,
-       cruelty_free="yes", concerns_addressed=["aging"]),
+       cruelty_free="yes", concerns_addressed=["aging"],
+       main_actives_short=["Retinal"]),
     _p(_id="P-SE-LOW2", name="Vitamin C 10", brand="A", price_rub=550,
        segment="low", routine_step="serum", tier="core", order_index=3, vegan=True,
        cruelty_free="yes", concerns_addressed=["pigmentation", "aging"]),

@@ -57,6 +57,10 @@ class RecommendRequest(BaseModel):
     # stated skin type: normal/dry/oily/combination/sensitive. None or "unknown"
     # means no skin-type preference is applied.
     skin_type: Optional[str] = None
+    # declared special conditions: pregnancy / rosacea / dermatitis. Products with
+    # ingredients contraindicated for a declared condition are hard-excluded.
+    # (age / experience are collected for statistics only and never sent here.)
+    conditions: list[str] = Field(default_factory=list)
 
 
 class BagItem(BaseModel):

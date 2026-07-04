@@ -271,6 +271,10 @@ export function buildRequest(answers) {
   const allergens = [...new Set((answers.allergens || []).filter(Boolean).flatMap((a) => ALLERGEN_TOKENS[a] || [a]))];
   const values = answers.values || [];
   const skinType = answers.skin_type && answers.skin_type !== 'unknown' ? answers.skin_type : null;
+  // Special conditions (pregnancy / rosacea / dermatitis) drive a safety filter.
+  // "Ничего из перечисленного" is stored as null and filtered out here.
+  // age / experience are collected for statistics only and are not sent.
+  const conditions = [...new Set((answers.conditions || []).filter(Boolean))];
   return {
     budget: answers.budget || 'low',
     concerns,
@@ -279,5 +283,6 @@ export function buildRequest(answers) {
     minimalism: values.includes('minimalism'),
     allergens,
     skin_type: skinType,
+    conditions,
   };
 }
