@@ -43,6 +43,13 @@ exclude = [
   # manually after the first deploy that https://koyash-team.github.io/koyash/
   # serves the site.
   '^https://koyash-team\.github\.io/koyash',
+
+  # Google Drive share links serve an HTML consent/login interstitial and
+  # rate-limit automated clients rather than returning a clean 200 for the file
+  # itself, so lychee can't reliably verify them from CI. Pattern matches the
+  # Drive host. Affects: reports/week5/README.md (public demo video link,
+  # verified manually 2026-07-05 to open the sanitized MVP v2 demo).
+  '^https://drive\.google\.com/',
 ]
 
 # Be lenient with slow or flaky external hosts (e.g. the Railway deployment,
