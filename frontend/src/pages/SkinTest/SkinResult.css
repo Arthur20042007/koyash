@@ -32,9 +32,10 @@
   font-family: 'Manrope', Arial, sans-serif; font-size: 20px; color: #634938;
   animation: srFade .45s ease .2s both;
 }
-.srBullets li { position: relative; padding-left: 24px; }
+.srBullets li { position: relative; padding-left: 24px; line-height: 1.4; }
 .srBullets li::before {
-  content: '•'; position: absolute; left: 5px; top: -1px; color: #634938; font-size: 22px; line-height: 1;
+  content: '•'; position: absolute; left: 5px; top: 0; height: 1.4em;
+  display: flex; align-items: center; color: #634938; font-size: 20px;
 }
 
 .srBtn {
