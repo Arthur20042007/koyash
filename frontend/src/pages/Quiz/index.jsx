@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import QuizScreen1 from './QuizScreen1';
 import QuizStep from './QuizStep';
 import Loading from './Loading';
+import SkinTest from '../SkinTest';
 import { STEPS } from './quizConfig';
 import sceneLoading from '../../assets/quiz/scene-loading.png';
 
@@ -12,6 +13,7 @@ const LOADING_STEP = STEPS.length + 1;
 export default function Quiz() {
   const navigate = useNavigate();
   const [step, setStep] = useState(INTRO_STEP);
+  const [skinTest, setSkinTest] = useState(false);
   const [answers, setAnswers] = useState({
     age: '',
     skin_type: null,
@@ -78,18 +80,39 @@ export default function Quiz() {
   const currentStep = STEPS[step - 1];
   if (!currentStep) return null;
 
+  // Skin-type sub-quiz overlay (launched from the skin_type screen). On done,
+  // pre-select the detected type on the skin_type step but don't auto-advance.
+  if (skinTest) {
+    return (
+      <SkinTest
+        onDone={(type) => { setAnswer('skin_type', type); setSkinTest(false); }}
+        onCancel={() => setSkinTest(false)}
+      />
+    );
+  }
+
   // Progress advances on every screen (including tip-only screens), so the
   // bar keeps moving even when the step isn't a counted question.
   const progressPct = (step / STEPS.length) * 100;
+
+  function handleChange(value) {
+    // clicking the "Не знаю" option launches the skin-type sub-quiz instead
+    if (currentStep.skinTestOption && value === currentStep.skinTestOption) {
+      setSkinTest(true);
+      return;
+    }
+    setAnswer(currentStep.id, value);
+  }
 
   return (
     <QuizStep
       step={currentStep}
       answer={answers[currentStep.id]}
       progressPct={progressPct}
-      onChange={(value) => setAnswer(currentStep.id, value)}
+      onChange={handleChange}
       onNext={goNext}
       onBack={goBack}
+      onSkinTest={() => setSkinTest(true)}
     />
   );
 }
