@@ -34,6 +34,17 @@
 }
 .kInput:focus { border-color: #e9a563; }
 .kInput::placeholder { color: #c4a88a; }
+.kInputErr, .kInputErr:focus { border-color: #d98a6b; background: #fdeee4; }
+.kInputError {
+  position: absolute; z-index: 3; margin: 0;
+  font-family: 'Manrope', Arial, sans-serif; font-size: 15px; color: #c0563f;
+  animation: kFade .3s ease both;
+}
+.kSubNote {
+  position: absolute; z-index: 3; margin: 0;
+  font-family: 'Playfair Display', Georgia, serif; font-weight: 400; font-size: 20px; color: #8a6c54;
+  animation: kFade .45s ease .2s both;
+}
 
 .kOpts { position: absolute; z-index: 3; display: flex; flex-direction: column; animation: kFade .4s ease .2s both; }
 .kOptsGrid { display: grid; }

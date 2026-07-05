@@ -1,10 +1,30 @@
 import './QuizStep.css';
 import Stage from './Stage';
 import logo from '../../assets/landing/logo.png';
-import advice from '../../assets/quiz/advice.png';
+import advice from '../../assets/landing/advice-cta.png';
 import heart from '../../assets/landing/heart.png';
 
-export default function QuizStep({ step, answer, progressPct, onChange, onNext, onBack }) {
+// age input accepts 10–100 only
+const AGE_MIN = 10;
+const AGE_MAX = 100;
+function ageError(value) {
+  if (value === '' || value === undefined || value === null) return '';
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 'Введите возраст числом';
+  if (n < AGE_MIN) return `Возраст должен быть не меньше ${AGE_MIN}`;
+  if (n > AGE_MAX) return `Возраст должен быть не больше ${AGE_MAX}`;
+  return '';
+}
+
+export default function QuizStep({
+  step,
+  answer,
+  progressPct,
+  onChange,
+  onNext,
+  onBack,
+  onSkinTest,
+}) {
   const isTip = step.type === 'tip';
   const f = step.fig;
 
@@ -30,9 +50,13 @@ export default function QuizStep({ step, answer, progressPct, onChange, onNext, 
   const isSelected = (value) =>
     step.type === 'single' ? answer === value : Array.isArray(answer) && answer.includes(value);
 
+  const isAge = step.id === 'age';
+  const ageErr = isAge ? ageError(answer) : '';
+
   function canProceed() {
     if (isTip) return true;
-    if (step.type === 'input') return Boolean(answer && String(answer).trim());
+    if (step.type === 'input')
+      return Boolean(answer && String(answer).trim()) && !(isAge && ageErr);
     if (step.type === 'single') return answer !== null && answer !== undefined;
     if (step.type === 'multi') return Array.isArray(answer) && answer.length > 0;
     return true;
@@ -135,18 +159,36 @@ export default function QuizStep({ step, answer, progressPct, onChange, onNext, 
               {step.question}
               {step.subQuestion && <span className="qHeadSub"> {step.subQuestion}</span>}
             </h2>
+            {step.subNote && f.subNote && (
+              <div
+                className="qSubNote"
+                style={{ left: f.subNote.x, top: f.subNote.y, width: f.subNote.w }}
+              >
+                {step.subNote}
+              </div>
+            )}
 
             {step.type === 'input' && (
-              <input
-                className="qInput"
-                style={{ left: f.input.x, top: f.input.y, width: f.input.w }}
-                type="number"
-                min="10"
-                max="100"
-                placeholder={step.placeholder}
-                value={answer || ''}
-                onChange={(e) => onChange(e.target.value)}
-              />
+              <>
+                <input
+                  className={`qInput${isAge && ageErr ? ' qInputErr' : ''}`}
+                  style={{ left: f.input.x, top: f.input.y, width: f.input.w }}
+                  type="number"
+                  min="10"
+                  max="100"
+                  placeholder={step.placeholder}
+                  value={answer || ''}
+                  onChange={(e) => onChange(e.target.value)}
+                />
+                {isAge && ageErr && (
+                  <div
+                    className="qInputError"
+                    style={{ left: f.input.x, top: f.input.y + 56, width: f.input.w }}
+                  >
+                    {ageErr}
+                  </div>
+                )}
+              </>
             )}
 
             {(step.type === 'single' || step.type === 'multi') && (
@@ -188,6 +230,16 @@ export default function QuizStep({ step, answer, progressPct, onChange, onNext, 
         >
           Назад
         </button>
+        {step.skinTestBtn && (
+          <button
+            className="qBtn qSkinTest"
+            type="button"
+            style={{ left: step.skinTestBtn.x, top: step.skinTestBtn.y, width: step.skinTestBtn.w }}
+            onClick={onSkinTest}
+          >
+            {step.skinTestBtn.label}
+          </button>
+        )}
         <button
           className="qBtn qNext"
           type="button"

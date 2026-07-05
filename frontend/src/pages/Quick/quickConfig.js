@@ -1,11 +1,12 @@
-import sceneAge from '../../assets/quiz/scene-age.png';
-import sceneSkinType from '../../assets/quiz/scene-skin-type.png';
-import sceneProblems from '../../assets/quiz/scene-problems.png';
-import sceneBudget from '../../assets/quiz/scene-budget.png';
-import sceneAllergens from '../../assets/quiz/scene-allergens.png';
-import sceneImportance from '../../assets/quiz/scene-importance.png';
+// Short quiz uses its own distinct illustrations (Figma "Короткая анкета").
+import sceneAge from '../../assets/quiz/scene-quick-age.png';
+import sceneSkinType from '../../assets/quiz/scene-quick-skin.png';
+import sceneProblems from '../../assets/quiz/scene-quick-concerns.png';
+import sceneBudget from '../../assets/quiz/scene-quick-budget.png';
+import sceneAllergens from '../../assets/quiz/scene-quick-allergens.png';
+import sceneImportance from '../../assets/quiz/scene-quick-values.png';
 import sceneExperience from '../../assets/quiz/scene-experience.png';
-import sceneIssues from '../../assets/quiz/scene-issues.png';
+import sceneIssues from '../../assets/quiz/scene-quick-conditions.png';
 import decorCupLeaf from '../../assets/quiz/decor-cup-leaf.png';
 
 export { buildRequest } from '../Quiz/quizConfig';
@@ -13,7 +14,7 @@ export { buildRequest } from '../Quiz/quizConfig';
 // Short quiz — Figma Prototype "Короткая анкета с картинками". Logo top-left,
 // short helper text, no narrative/tip screens. Canvas 1307×738.
 
-export const STEPS = [
+const RAW_STEPS = [
   {
     id: 'age',
     type: 'input',
@@ -39,8 +40,9 @@ export const STEPS = [
       { label: 'Комбинированная — Т-зона жирная, щёки сухие', value: 'combination' },
       { label: 'Нормальная — в целом всё хорошо', value: 'normal' },
       { label: 'Чувствительная — легко реагирует на новые средства', value: 'sensitive' },
-      { label: 'Не знаю — не уверена', value: 'unknown' },
+      { label: 'Не знаю', value: 'unknown' },
     ],
+    skinTestBtn: { label: 'Узнать свой тип кожи', x: 285, y: 610, w: 259 },
     scene: sceneSkinType,
     fig: { scene: { x: 666, y: 67, w: 579, h: 579 }, head: { x: 58, y: 149, w: 560 }, helper: { x: 58, y: 256, w: 600 }, opts: { x: 64, y: 385, rowGap: 27 }, back: { x: 58, y: 610 }, next: { x: 635, y: 610 } },
   },
@@ -70,6 +72,7 @@ export const STEPS = [
     type: 'single',
     questionStep: 4,
     question: 'На сколько ориентируемся?',
+    subNote: '(одной косметички хватит на 3-6 месяцев)',
     helper:
       'Бюджет помогает подобрать средства, которые будут комфортны не только для кожи, но и для кошелька. Мы ориентируемся на примерную стоимость полного набора ухода, которого обычно хватает на 2–3 месяца.',
     options: [
@@ -78,7 +81,7 @@ export const STEPS = [
       { label: 'Премиум · от 3 000 ₽/шт · набор ≈ от 12 000 ₽', value: 'high' },
     ],
     scene: sceneBudget,
-    fig: { scene: { x: 695, y: 133, w: 548, h: 548 }, head: { x: 71, y: 168, w: 654 }, helper: { x: 71, y: 290, w: 701 }, opts: { x: 71, y: 444, rowGap: 38 }, back: { x: 90, y: 650 }, next: { x: 444, y: 650 } },
+    fig: { scene: { x: 695, y: 133, w: 548, h: 548 }, head: { x: 71, y: 168, w: 654 }, subNote: { x: 71, y: 220, w: 654 }, helper: { x: 71, y: 290, w: 701 }, opts: { x: 71, y: 444, rowGap: 38 }, back: { x: 90, y: 650 }, next: { x: 444, y: 650 } },
   },
   {
     id: 'allergens',
@@ -146,5 +149,11 @@ export const STEPS = [
     fig: { scene: { x: 618, y: 65, w: 633, h: 633 }, head: { x: 77, y: 120, w: 660 }, helper: { x: 77, y: 215, w: 659 }, opts: { x: 70, y: 367, rowGap: 47 }, back: { x: 72, y: 614 }, next: { x: 449, y: 614 } },
   },
 ];
+
+// Screen order shown to the user in the short quiz.
+const STEP_ORDER = [
+  'age', 'skin_type', 'concerns', 'allergens', 'conditions', 'values', 'budget', 'experience',
+];
+export const STEPS = STEP_ORDER.map((id) => RAW_STEPS.find((s) => s.id === id));
 
 export const TOTAL_QUESTION_STEPS = STEPS.filter((s) => s.questionStep).length;

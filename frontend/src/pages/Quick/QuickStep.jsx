@@ -2,8 +2,29 @@ import './QuickStep.css';
 import Stage from '../Quiz/Stage';
 import logo from '../../assets/landing/logo.png';
 
-export default function QuickStep({ step, answer, progressPct, onChange, onNext, onBack }) {
+const AGE_MIN = 10;
+const AGE_MAX = 100;
+function ageError(value) {
+  if (value === '' || value === undefined || value === null) return '';
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 'Введите возраст числом';
+  if (n < AGE_MIN) return `Возраст должен быть не меньше ${AGE_MIN}`;
+  if (n > AGE_MAX) return `Возраст должен быть не больше ${AGE_MAX}`;
+  return '';
+}
+
+export default function QuickStep({
+  step,
+  answer,
+  progressPct,
+  onChange,
+  onNext,
+  onBack,
+  onSkinTest,
+}) {
   const f = step.fig;
+  const isAge = step.id === 'age';
+  const ageErr = isAge ? ageError(answer) : '';
 
   function handleOptionClick(value) {
     if (step.type === 'single') {
@@ -27,7 +48,8 @@ export default function QuickStep({ step, answer, progressPct, onChange, onNext,
     step.type === 'single' ? answer === value : Array.isArray(answer) && answer.includes(value);
 
   function canProceed() {
-    if (step.type === 'input') return Boolean(answer && String(answer).trim());
+    if (step.type === 'input')
+      return Boolean(answer && String(answer).trim()) && !(isAge && ageErr);
     if (step.type === 'single') return answer !== null && answer !== undefined;
     if (step.type === 'multi') return Array.isArray(answer) && answer.length > 0;
     return true;
@@ -68,21 +90,39 @@ export default function QuickStep({ step, answer, progressPct, onChange, onNext,
           {step.question}
           {step.subQuestion && <span className="kHeadSub"> {step.subQuestion}</span>}
         </h2>
+        {step.subNote && f.subNote && (
+          <div
+            className="kSubNote"
+            style={{ left: f.subNote.x, top: f.subNote.y, width: f.subNote.w }}
+          >
+            {step.subNote}
+          </div>
+        )}
         <p className="kHelper" style={{ left: f.helper.x, top: f.helper.y, width: f.helper.w }}>
           {step.helper}
         </p>
 
         {step.type === 'input' && (
-          <input
-            className="kInput"
-            style={{ left: f.input.x, top: f.input.y, width: f.input.w }}
-            type="number"
-            min="10"
-            max="100"
-            placeholder={step.placeholder}
-            value={answer || ''}
-            onChange={(e) => onChange(e.target.value)}
-          />
+          <>
+            <input
+              className={`kInput${isAge && ageErr ? ' kInputErr' : ''}`}
+              style={{ left: f.input.x, top: f.input.y, width: f.input.w }}
+              type="number"
+              min="10"
+              max="100"
+              placeholder={step.placeholder}
+              value={answer || ''}
+              onChange={(e) => onChange(e.target.value)}
+            />
+            {isAge && ageErr && (
+              <div
+                className="kInputError"
+                style={{ left: f.input.x, top: f.input.y + 56, width: f.input.w }}
+              >
+                {ageErr}
+              </div>
+            )}
+          </>
         )}
 
         {(step.type === 'single' || step.type === 'multi') && (
@@ -122,6 +162,16 @@ export default function QuickStep({ step, answer, progressPct, onChange, onNext,
         >
           Назад
         </button>
+        {step.skinTestBtn && (
+          <button
+            className="kBtn kSkinTest"
+            type="button"
+            style={{ left: step.skinTestBtn.x, top: step.skinTestBtn.y, width: step.skinTestBtn.w }}
+            onClick={onSkinTest}
+          >
+            {step.skinTestBtn.label}
+          </button>
+        )}
         <button
           className="kBtn kNext"
           type="button"

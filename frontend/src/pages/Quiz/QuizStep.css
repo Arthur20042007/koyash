@@ -37,7 +37,7 @@
 
 /* narrative + heading */
 .qNarr {
-  position: absolute; z-index: 3; margin: 0;
+  position: absolute; z-index: 3; margin: 0; white-space: pre-line;
   font-family: 'Manrope', Arial, sans-serif; font-size: 19px; line-height: 1.45; color: #634938;
   animation: qFade .45s ease .1s both;
 }
@@ -47,6 +47,11 @@
   animation: qFade .45s ease .15s both;
 }
 .qHeadSub { font-family: 'Manrope', Arial, sans-serif; font-weight: 400; font-size: 19px; color: #9e7d68; }
+.qSubNote {
+  position: absolute; z-index: 3; margin: 0;
+  font-family: 'Playfair Display', Georgia, serif; font-weight: 400; font-size: 20px; color: #8a6c54;
+  animation: qFade .45s ease .18s both;
+}
 
 /* input */
 .qInput {
@@ -57,6 +62,12 @@
 }
 .qInput:focus { border-color: #e9a563; }
 .qInput::placeholder { color: #c4a88a; }
+.qInputErr, .qInputErr:focus { border-color: #d98a6b; background: #fdeee4; }
+.qInputError {
+  position: absolute; z-index: 3; margin: 0;
+  font-family: 'Manrope', Arial, sans-serif; font-size: 15px; color: #c0563f;
+  animation: qFade .3s ease both;
+}
 
 /* options */
 .qOpts { position: absolute; z-index: 3; display: flex; flex-direction: column; animation: qFade .4s ease .15s both; }

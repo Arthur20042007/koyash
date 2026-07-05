@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Skin-type mini-quiz: on the skin-type question, a "Узнать свой тип кожи" button opens a
+  self-contained 4-question mini-quiz that deterministically infers one of the 5 supported skin
+  types and shows a short result screen, then returns the user to the skin-type question with the
+  inferred type pre-selected (still editable before continuing). Wired into both the storytelling
+  and the short questionnaire flows.
 - Special-condition safety filter: the questionnaire's condition answers (pregnancy / rosacea /
   dermatitis) are now sent to `POST /recommend`, which hard-excludes products whose ingredients are
   contraindicated for a declared condition (e.g. retinoids during pregnancy), like the allergen
@@ -30,6 +35,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   that the assembled bag rarely matched. The recommendation/selection logic is unchanged.
 - Results screen now notes that prices are approximate and may differ in store — the current
   price is available via each product's link.
+- Landing page rebuilt to the updated Figma: shorter canvas, gradient/background removed,
+  duplicated blocks dropped, contacts moved into a casual footer (the abrupt "hat" block removed),
+  and the brand voice unified to a masculine "Koyash …" (instead of "Солнце/Солнечный луч").
+  The short-questionnaire slides were trimmed and assets re-exported at higher resolution.
+- Age input in both questionnaires is now bounded to 10–100 with an inline validation error
+  (`age`/`experience` remain statistics-only and do not affect selection).
 
 ## [1.1.0] - 2026-06-28
 

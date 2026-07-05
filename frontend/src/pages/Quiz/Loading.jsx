@@ -61,7 +61,9 @@ export default function Loading({ answers }) {
         <div className="loadTrack" />
         <div className="loadFill" style={{ width: `${(progress / 100) * 1307}px` }} />
 
-        <span className="loadNote">Солнце собирает твои ответы в маленькие подсказки.</span>
+        <span className="loadNote">
+          Koyash собирает твои ответы в маленькие карточки и раскладывает их по столу.
+        </span>
         <img className="loadScene" src={sceneLoading} alt="" aria-hidden="true" />
         <h1 className="loadTitle">Подбираю уход именно для тебя...</h1>
 

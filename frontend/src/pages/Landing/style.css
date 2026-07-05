@@ -4,7 +4,7 @@
 .landingCanvas {
   position: relative;
   width: 1633px;
-  height: 5601px;
+  height: 4149px;
   background: #ffffff;
   color: #634938;
   font-family: 'Manrope', Arial, sans-serif;
@@ -30,6 +30,9 @@ img.lAbs { pointer-events: none; object-fit: contain; }
   background: none; border: none; padding: 0; }
 .lNav:hover { color: #E9A563; }
 .lFooter { font-family: 'Manrope',Arial,sans-serif; font-weight: 400; font-size: 20px; color: #634938; }
+.lContact { text-decoration: none; color: #634938; cursor: pointer; transition: color .15s ease; }
+.lContact:hover { color: #E9A563; }
+.lContact img { pointer-events: none; object-fit: contain; }
 
 /* button */
 .lBtn {
