@@ -9,9 +9,6 @@
   color: #634938;
   font-family: 'Manrope', Arial, sans-serif;
   overflow: hidden;
-  /* the Figma content sits ~12px left of centre in the 1633 frame — nudge the
-     whole block right so the left/right white margins match */
-  transform: translateX(12px);
 }
 
 .lAbs { position: absolute; margin: 0; }

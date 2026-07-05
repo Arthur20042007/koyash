@@ -176,8 +176,8 @@ export function LandingPage() {
         <Img src={problemArrow} x={712} y={735} w={230} h={230} cls="lFloat" />
         <Img src={problemNote} x={920} y={711} w={457} h={457} />
         {/* heart-lines: line-heart under the cloud (left), line-heart-2 under the parchment (right) */}
-        <Img src={lineHeart} x={272} y={898} w={384} h={84} cls="lLine" reveal={false} />
-        <Img src={lineHeart2} x={990} y={853} w={336} h={77} cls="lLine" reveal={false} />
+        <Img src={lineHeart} x={255} y={884} w={410} h={102} cls="lLine" reveal={false} />
+        <Img src={lineHeart2} x={985} y={852} w={335} h={84} cls="lLine" reveal={false} />
         <T x={320} y={858} w={280} cls="lNote" align="center">
           С уходом бывает непросто, солнышко
         </T>
@@ -250,8 +250,8 @@ export function LandingPage() {
         <SmearTitle x={331} y={2674} w={943} h={119} flip>
           Почему Koyash можно доверять?
         </SmearTitle>
-        <Img src={trustSun} x={145} y={2802} w={176} h={190} />
-        <Img src={trustSun} x={819} y={2790} w={176} h={190} />
+        <Img src={trustSun} x={133} y={2789} w={200} h={216} />
+        <Img src={trustSun} x={807} y={2777} w={200} h={216} />
         <T x={305} y={2841} w={507} cls="lCardTitleLg">
           Проверенные, а не придуманные составы
         </T>
@@ -268,8 +268,8 @@ export function LandingPage() {
           отсеивает то, что тебе не подходит. Ты получаешь понятное объяснение к каждому средству:
           почему именно оно и в каком порядке применять.
         </T>
-        <Img src={trustSun} x={137} y={3020} w={176} h={190} />
-        <Img src={trustSun} x={818} y={3012} w={176} h={190} />
+        <Img src={trustSun} x={125} y={3007} w={200} h={216} />
+        <Img src={trustSun} x={806} y={2999} w={200} h={216} />
         <T x={305} y={3068} w={384} cls="lCardTitleLg">
           Не продаём место в подборке
         </T>
@@ -313,7 +313,7 @@ export function LandingPage() {
         </Btn>
 
         {/* Disclaimer */}
-        <div className="lFootLine" style={{ left: -12, top: 3843, width: 1633 }} />
+        <div className="lFootLine" style={{ left: 0, top: 3843, width: 1633 }} />
         <T x={44} y={3860} w={674} cls="lCardTitle" style={{ fontSize: 17 }}>
           Кoyash не делает медицинских заявлений об излечении
         </T>
