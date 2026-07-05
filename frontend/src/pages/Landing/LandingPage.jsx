@@ -288,7 +288,7 @@ export function LandingPage() {
         {/* CTA «Войти в историю» / «Быстрый подбор» — scroll target for the
             three upper "Подобрать уход" buttons. */}
         <span id="choice" className="lAbs" style={{ left: 0, top: 3170, width: 1, height: 1 }} />
-        <Img src={imagePhotoroom} x={140} y={3205} w={1480} h={366} reveal={false} />
+        <Img src={imagePhotoroom} x={95} y={3205} w={1480} h={366} reveal={false} />
         <T x={206} y={3335} w={495} cls="lCardTitleLg">
           Окунись в мир ухода вместе с Koyash
         </T>
