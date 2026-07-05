@@ -93,13 +93,13 @@ All CI gates (backend + frontend lint/format/type-check/build/tests/coverage/QRT
 scan + Lychee link check) are required on the protected `main` branch and pass.
 
 - **CI pipeline:** [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)
-- **Latest `main` CI run:** _TODO: link the post-merge `main` run for the release commit._
+- **Latest `main` CI run:** [CI on `main` — release commit `e2c18a3`, all gates green](https://github.com/Koyash-team/koyash/actions/runs/28753356056)
 - **Testing status:** [docs/testing.md](../../docs/testing.md)
 - **CHANGELOG:** [CHANGELOG.md](../../CHANGELOG.md)
 
 ## Release, demo, UAT
 
-- **SemVer release mapped to MVP v2 (`v1.2.0`):** _TODO: create the release and link it._
+- **SemVer release mapped to MVP v2 (`v1.2.0`):** <https://github.com/Koyash-team/koyash/releases/tag/v1.2.0>
 - **Public sanitized demo video (< 2 min):** <https://drive.google.com/file/d/1KJDDMHF7wXQlArii5dnuEkP6_xhZMCQW/view?usp=sharing>
 - **Public UAT results summary:** UAT-004 (honest budget) and UAT-005 (LLM justification) were
   customer-executed and passed at the 2026-07-03 recorded review; UAT-001/002/003 remain
@@ -134,17 +134,31 @@ scan + Lychee link check) are required on the protected `main` branch and pass.
 
 ## Screenshots
 
-Add the following PNGs to the `images/` folder next to this README and they will be embedded
-here (filenames are fixed so the embeds resolve):
+**Sprint 3 milestone**
 
-- `images/sprint-milestone.png` — the Sprint 3 milestone page (issues + progress).
-- `images/board.png` — the Product/Sprint board view.
-- `images/ci-run.png` — the latest green `main` CI run for the release commit.
-- `images/release.png` — the `v1.2.0` release page.
-- `images/example-pr.png` — one reviewed, issue-linked PR (e.g. #132) showing the review + green checks.
-- `images/hosted-docs.png` — the hosted docs site (`koyash-team.github.io/koyash`).
+![Sprint 3 milestone — issues and progress](images/sprint-milestone.png)
 
-_TODO: capture the six PNGs above into `images/` (I'll embed them once they're committed)._
+**Product / Sprint board**
+
+![Product and Sprint board view](images/board.png)
+
+**Latest `main` CI run (release commit `e2c18a3`, all gates green)**
+
+![Latest main CI run, all checks green](images/ci-run.png)
+
+**Example reviewed, issue-linked PR ([#132](https://github.com/Koyash-team/koyash/pull/132) — review + green checks)**
+
+![Reviewed issue-linked PR (1/2)](images/example-pr1.png)
+
+![Reviewed issue-linked PR (2/2)](images/example-pr2.png)
+
+**Hosted documentation site**
+
+![Hosted documentation site](images/hosted-docs.png)
+
+**SemVer release `v1.2.0`**
+
+![v1.2.0 release page](images/release.png)
 
 ## Deviations
 
