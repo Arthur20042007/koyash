@@ -134,8 +134,8 @@ scan + Lychee link check) are required on the protected `main` branch and pass.
 
 ## Screenshots
 
-Add the following PNGs to [`images/`](images/) and they will be embedded here (filenames are
-fixed so the embeds resolve):
+Add the following PNGs to the `images/` folder next to this README and they will be embedded
+here (filenames are fixed so the embeds resolve):
 
 - `images/sprint-milestone.png` — the Sprint 3 milestone page (issues + progress).
 - `images/board.png` — the Product/Sprint board view.
