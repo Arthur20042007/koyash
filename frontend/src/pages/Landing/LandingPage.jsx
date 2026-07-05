@@ -176,8 +176,8 @@ export function LandingPage() {
         <Img src={problemArrow} x={712} y={735} w={230} h={230} cls="lFloat" />
         <Img src={problemNote} x={920} y={711} w={457} h={457} />
         {/* heart-lines: line-heart under the cloud (left), line-heart-2 under the parchment (right) */}
-        <Img src={lineHeart} x={255} y={884} w={410} h={102} cls="lLine" reveal={false} />
-        <Img src={lineHeart2} x={985} y={852} w={335} h={84} cls="lLine" reveal={false} />
+        <Img src={lineHeart} x={233} y={865} w={470} h={118} cls="lLine" reveal={false} />
+        <Img src={lineHeart2} x={953} y={834} w={400} h={100} cls="lLine" reveal={false} />
         <T x={320} y={858} w={280} cls="lNote" align="center">
           С уходом бывает непросто, солнышко
         </T>
