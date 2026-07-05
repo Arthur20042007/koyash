@@ -100,7 +100,7 @@ scan + Lychee link check) are required on the protected `main` branch and pass.
 ## Release, demo, UAT
 
 - **SemVer release mapped to MVP v2 (`v1.2.0`):** _TODO: create the release and link it._
-- **Public sanitized demo video (< 2 min):** _TODO: record and link._
+- **Public sanitized demo video (< 2 min):** <https://drive.google.com/file/d/1KJDDMHF7wXQlArii5dnuEkP6_xhZMCQW/view?usp=sharing>
 - **Public UAT results summary:** UAT-004 (honest budget) and UAT-005 (LLM justification) were
   customer-executed and passed at the 2026-07-03 recorded review; UAT-001/002/003 remain
   valid. The special-condition filter (delivered post-review) is covered by automated tests

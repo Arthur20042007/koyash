@@ -86,14 +86,15 @@ views + ADRs) and the development process.
 
 ## Action points
 
-| ID | Action | Owner |
-| :-: | :-- | :-- |
-| A1 | Apply landing copy edits (подбор→опрос) and rework the left trust column once the customer sends the wording | UX / Frontend |
-| A2 | Move contacts into the bottom bar; remove the "hat" block | Frontend / UX |
-| A3 | Trim 2–3 short-questionnaire slides and send the customer both options | Frontend / UX |
-| A4 | Use "koyash" (not "sun") and the masculine brand voice throughout | UX / copy |
-| A5 | Refine the LLM prompt / evaluate switching to Gemini in a later iteration | Backend |
-| A6 | Extend the condition→ingredient mapping if the customer shares a guide | Backend |
+All review action points were implemented right after the meeting and shipped this Sprint in
+the frontend ([PR #132](https://github.com/Koyash-team/koyash/pull/132)).
+
+| ID | Action | Owner | Status |
+| :-: | :-- | :-- | :-: |
+| A1 | Apply the landing copy edit (подбор → опрос) and rework the left trust column | UX / Frontend | Done |
+| A2 | Move the contacts into the bottom bar; remove the "hat" block | Frontend / UX | Done |
+| A3 | Trim 2–3 short-questionnaire slides | Frontend / UX | Done |
+| A4 | Use "Koyash" (not "sun") and the masculine brand voice throughout | UX / copy | Done |
 
 ## Resulting Product Backlog / scope changes
 

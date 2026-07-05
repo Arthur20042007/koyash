@@ -1,44 +1,29 @@
 # LLM Usage Report — Week 5
 
-This report discloses how AI / LLM tools were used during Assignment 5, both inside the
-product and as development assistance.
+This report discloses how AI / LLM tools were used **as development assistance** during
+Assignment 5.
 
-## LLM inside the product (delivered feature)
+## AI tool used
 
-MVP v2 adds an optional **LLM justification layer**: when enabled, `POST /recommend` sends
-each already-selected product's context (skin type, concerns, routine step, translated key
-actives, `concern_match`) to **gpt-4o-mini** (via an OpenAI-compatible endpoint provided by
-the customer) and shows the reworded "why" text on each product card.
+The team used **Claude Code** (an AI coding/writing assistant) during the Sprint. It was used
+to help with:
 
-- The model **only verbalizes the already-made rule-based recommendation** — it does not
-  analyze ingredients or decide whether a product fits (ADR-001). Selection stays
-  deterministic.
-- It is **off by default** (`LLM_ENABLED=false`) and falls back to the rule-based text on any
-  error, so it never changes which products are recommended and never blocks the response.
-- The system prompt was authored by the customer and iterated with her over several spike
-  runs before integration; it is treated as customer-owned configuration and is not
-  committed to the repository. The API key is a secret supplied via the environment.
-- The customer expects to change the model (e.g. to Gemini) later, which will require
-  re-adapting the prompt.
+- **Code** — writing application code, including the LLM justification integration on the
+  backend and the frontend work (the skin-type mini-quiz and the landing rework), together
+  with the accompanying tests.
+- **Architecture diagrams** — drafting the diagrams-as-code (the PlantUML component / sequence
+  / deployment sources and the Mermaid `gitGraph`), which were then rendered and reviewed.
+- **Documentation and reports** — structuring and editing the text of the maintained
+  documentation (architecture views, ADRs, development process, testing/UAT/DoD) and this
+  week's reports.
 
-## AI tools used for development
+## How it was controlled
 
-The team used an AI coding/writing assistant during the Sprint to help with:
-
-- **Writing and editing documentation** — drafting the architecture views commentary, ADRs,
-  the development-process document, testing/UAT/DoD updates, and this week's reports.
-- **Diagrams-as-code** — drafting the PlantUML sources (component / sequence / deployment)
-  and the Mermaid `gitGraph`, which were then rendered and reviewed.
-- **Code** — drafting the budget-label changes, the LLM integration layer, and the
-  special-condition safety filter, together with their tests.
-- **Planning and analysis** — refining backlog items, and a throwaway measurement script used
-  to sample real bag totals for the budget decision.
-
-All AI-assisted output was **reviewed by the team and merged through the normal
-issue-linked, peer-reviewed PR workflow** with the CI quality gates (lint, type-check,
-build, tests, coverage, quality-requirement tests, dependency scan, link check) enforced on
-the protected `main` branch. Product and process decisions were made by the team; the AI was
-used as an assistant, not an authority.
+All AI-assisted output was **reviewed by the team and merged through the normal issue-linked,
+peer-reviewed PR workflow**, with the CI quality gates (lint, type-check, build, tests,
+coverage, quality-requirement tests, dependency scan, link check) enforced on the protected
+`main` branch. Every change was verified by the team before it was accepted. Product and
+process decisions were made by the team; the AI was used as an assistant, not an authority.
 
 ## Transcription / translation
 
