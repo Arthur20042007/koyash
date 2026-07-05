@@ -15,7 +15,7 @@ import decorCupLeaf from '../../assets/quiz/decor-cup-leaf.png';
 // small logo top-left on every screen, note shown as a #f8e1c0 pill, tip
 // highlight on the advice.png card. `fig` = exact Figma pixel geometry.
 
-export const STEPS = [
+const RAW_STEPS = [
   {
     id: 'age',
     type: 'input',
@@ -254,6 +254,13 @@ export const STEPS = [
     },
   },
 ];
+
+// Screen order shown to the user (the intro is rendered first by QuizScreen1).
+const STEP_ORDER = [
+  'age', 'skin_type', 'tip_spf', 'concerns', 'allergens', 'tip_cleanser',
+  'conditions', 'values', 'tip_actives', 'budget', 'experience',
+];
+export const STEPS = STEP_ORDER.map((id) => RAW_STEPS.find((s) => s.id === id));
 
 export const TOTAL_QUESTION_STEPS = STEPS.filter((s) => s.questionStep).length;
 

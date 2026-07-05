@@ -14,7 +14,7 @@ export { buildRequest } from '../Quiz/quizConfig';
 // Short quiz — Figma Prototype "Короткая анкета с картинками". Logo top-left,
 // short helper text, no narrative/tip screens. Canvas 1307×738.
 
-export const STEPS = [
+const RAW_STEPS = [
   {
     id: 'age',
     type: 'input',
@@ -149,5 +149,11 @@ export const STEPS = [
     fig: { scene: { x: 618, y: 65, w: 633, h: 633 }, head: { x: 77, y: 120, w: 660 }, helper: { x: 77, y: 215, w: 659 }, opts: { x: 70, y: 367, rowGap: 47 }, back: { x: 72, y: 614 }, next: { x: 449, y: 614 } },
   },
 ];
+
+// Screen order shown to the user in the short quiz.
+const STEP_ORDER = [
+  'age', 'skin_type', 'concerns', 'allergens', 'conditions', 'values', 'budget', 'experience',
+];
+export const STEPS = STEP_ORDER.map((id) => RAW_STEPS.find((s) => s.id === id));
 
 export const TOTAL_QUESTION_STEPS = STEPS.filter((s) => s.questionStep).length;
