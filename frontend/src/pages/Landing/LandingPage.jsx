@@ -24,7 +24,7 @@ import step1 from '../../assets/landing/step-icon-1.png';
 import step2 from '../../assets/landing/step-icon-2.png';
 import step3 from '../../assets/landing/step-icon-3.png';
 import trustSun from '../../assets/landing/trust-sun.png';
-import imagePhotoroom from '../../assets/landing/advice copy.png';
+import imagePhotoroom from '../../assets/landing/advice-cta.png';
 import endCloud from '../../assets/landing/end-cloud.png';
 import endEmail from '../../assets/landing/end-email.png';
 import endTelegram from '../../assets/landing/end-telegram.png';
@@ -159,7 +159,7 @@ export function LandingPage() {
 
         {/* Hero */}
         <Img src={mascot} x={881} y={104} w={575} h={575} cls="lFloat" />
-        <Img src={heart} x={637} y={272} w={135} h={135} cls="lHeart" />
+        <Img src={heart} x={637} y={250} w={135} h={135} cls="lHeart" />
         <p className="lAbs reveal lHeroTitle" style={{ left: 191, top: 181, width: 510 }}>
           Косметика должна <span className="accent">служить тебе</span>,<br />а не ты — косметике
         </p>
@@ -287,8 +287,8 @@ export function LandingPage() {
 
         {/* CTA «Войти в историю» / «Быстрый подбор» — scroll target for the
             three upper "Подобрать уход" buttons. */}
-        <span id="choice" className="lAbs" style={{ left: 0, top: 3190, width: 1, height: 1 }} />
-        <Img src={imagePhotoroom} x={110} y={3220} w={1413} h={349} reveal={false} />
+        <span id="choice" className="lAbs" style={{ left: 0, top: 3170, width: 1, height: 1 }} />
+        <Img src={imagePhotoroom} x={21} y={3205} w={1480} h={366} reveal={false} />
         <T x={206} y={3335} w={495} cls="lCardTitleLg">
           Окунись в мир ухода вместе с Koyash
         </T>
@@ -332,18 +332,28 @@ export function LandingPage() {
         >
           {'Остались вопросы?\nСвяжитесь с нами'}
         </div>
-        <Img src={heart} x={701} y={3988} w={36} h={48} cls="lHeart" reveal={false} />
+        <Img src={heart} x={699} y={3980} w={58} h={58} cls="lHeart" reveal={false} />
         <T x={951} y={3924} w={220} cls="lCardTitleLg">
           Контакты:
         </T>
-        <Img src={endEmail} x={939} y={3970} w={51} h={52} reveal={false} />
-        <T x={1008} y={3979} w={470} cls="lFooter">
-          d.minnakhmetova@innopolis.university
-        </T>
-        <Img src={endTelegram} x={940} y={4030} w={51} h={51} reveal={false} />
-        <T x={1008} y={4042} w={470} cls="lFooter">
-          @diana_minn
-        </T>
+        <a
+          className="lAbs lFooter lContact"
+          href="mailto:d.minnakhmetova@innopolis.university"
+          style={{ left: 939, top: 3970, display: 'flex', alignItems: 'center', gap: 18 }}
+        >
+          <img src={endEmail} alt="" width={51} height={52} />
+          <span>d.minnakhmetova@innopolis.university</span>
+        </a>
+        <a
+          className="lAbs lFooter lContact"
+          href="https://t.me/diana_minn"
+          target="_blank"
+          rel="noreferrer"
+          style={{ left: 940, top: 4028, display: 'flex', alignItems: 'center', gap: 18 }}
+        >
+          <img src={endTelegram} alt="" width={51} height={51} />
+          <span>@diana_minn</span>
+        </a>
         <T x={-40} y={4102} w={560} cls="lFooter" align="center" reveal={false}>
           Политика конфиденциальности
         </T>
