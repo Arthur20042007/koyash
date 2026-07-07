@@ -1,16 +1,44 @@
-# React + Vite
+# Koyash frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite single-page app: the landing page, the storytelling and short
+questionnaire flows, the skin-type mini-quiz, and the results screen that renders
+the recommended cosmetic bag. It talks to the backend `POST /recommend` API.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20+ and npm
 
-## React Compiler
+## Run locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev          # http://localhost:5173
+```
 
-## Expanding the ESLint configuration
+By default the app calls the backend at `http://localhost:8000`. To use a
+different API (for example the deployed one), create a `.env` file in this
+folder:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+VITE_API_URL=http://localhost:8000
+```
+
+Make sure the backend is running (see the root [README](../README.md#running-locally))
+or point `VITE_API_URL` at the deployed API.
+
+## Scripts
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the Vite dev server with HMR |
+| `npm run build` | Production build into `dist/` |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint |
+| `npm run format:check` | Check Prettier formatting |
+| `npm test` | Run the Vitest unit tests |
+| `npm run test:coverage` | Run tests with a coverage report |
+
+## Deployment
+
+The frontend is deployed on Railway. Current URLs and the demo video are listed
+in the root [README](../README.md#deployment).

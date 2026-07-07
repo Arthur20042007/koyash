@@ -1,0 +1,5 @@
+# Disable blank issue creation so every issue goes through a structured template
+# (User Story, Other PBI, Bug report, or Course Task). This keeps workflow
+# traceability — implementer, reviewer, acceptance criteria and evidence —
+# consistent across the Product Backlog.
+blank_issues_enabled: false

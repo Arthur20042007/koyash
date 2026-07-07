@@ -28,6 +28,32 @@ body:
     attributes:
       label: Acceptance Criteria
   - type: input
+    id: implementer
+    attributes:
+      label: Implementer
+      description: GitHub @handle who implements this. Also set the issue Assignee to match.
+      placeholder: "@handle"
+    validations:
+      required: true
+  - type: input
+    id: reviewer
+    attributes:
+      label: Reviewer
+      description: A different team member's @handle who reviews the PR. Must differ from the implementer.
+      placeholder: "@handle"
+    validations:
+      required: true
+  - type: input
+    id: story-points
+    attributes:
+      label: Story Points
+      placeholder: e.g. 3
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Verification evidence
+      description: Link the PR, CI run, tests, or screenshots that show the acceptance criteria are met.
+  - type: input
     id: moscow
     attributes:
       label: MoSCoW Priority (if applicable)

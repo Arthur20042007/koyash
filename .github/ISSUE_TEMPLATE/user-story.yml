@@ -28,6 +28,18 @@ body:
         - Won't Have
     validations:
       required: true
+  - type: input
+    id: implementer
+    attributes:
+      label: Implementer(s)
+      description: GitHub @handle(s) who own delivery of this story. Also set the issue Assignee to match.
+      placeholder: "@handle"
+  - type: input
+    id: reviewer
+    attributes:
+      label: Reviewer
+      description: A different team member's @handle who will review the delivering PR(s). Must differ from the implementer.
+      placeholder: "@handle"
   - type: textarea
     id: notes
     attributes:
@@ -37,3 +49,8 @@ body:
     attributes:
       label: Acceptance Criteria
       description: Specific, testable criteria. Use Given/When/Then if applicable.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Verification evidence
+      description: Once delivered, link the supporting PBIs/PRs, CI runs, tests or screenshots that show the acceptance criteria are met.

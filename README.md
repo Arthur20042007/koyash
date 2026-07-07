@@ -50,6 +50,26 @@ copy .env.example .env   # then fill in MONGODB_URI
 uvicorn app.main:app --reload
 ```
 
+### Frontend (local dev)
+
+Requirements: Node.js 20+, npm.
+
+```bash
+cd frontend
+npm install
+npm run dev          # serves the app on http://localhost:5173
+```
+
+The frontend calls the backend at `http://localhost:8000` by default. To point
+it at a different API (for example the deployed one), create `frontend/.env`:
+
+```bash
+VITE_API_URL=http://localhost:8000
+```
+
+Start the backend first (see above), or set `VITE_API_URL` to the deployed API.
+See [frontend/README.md](frontend/README.md) for more detail.
+
 ### Database layer (`db/`)
 
 Scripts for loading and checking the MongoDB Atlas data (import from the
