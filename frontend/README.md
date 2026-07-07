@@ -28,15 +28,15 @@ or point `VITE_API_URL` at the deployed API.
 
 ## Scripts
 
-| Command | What it does |
-|---|---|
-| `npm run dev` | Start the Vite dev server with HMR |
-| `npm run build` | Production build into `dist/` |
-| `npm run preview` | Preview the production build locally |
-| `npm run lint` | Run ESLint |
-| `npm run format:check` | Check Prettier formatting |
-| `npm test` | Run the Vitest unit tests |
-| `npm run test:coverage` | Run tests with a coverage report |
+| Command                 | What it does                         |
+| ----------------------- | ------------------------------------ |
+| `npm run dev`           | Start the Vite dev server with HMR   |
+| `npm run build`         | Production build into `dist/`        |
+| `npm run preview`       | Preview the production build locally |
+| `npm run lint`          | Run ESLint                           |
+| `npm run format:check`  | Check Prettier formatting            |
+| `npm test`              | Run the Vitest unit tests            |
+| `npm run test:coverage` | Run tests with a coverage report     |
 
 ## Deployment
 
