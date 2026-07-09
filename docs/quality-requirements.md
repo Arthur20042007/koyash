@@ -21,6 +21,7 @@ product value (US-04, US-05, US-08) and is the focus of the requirements below.
 | QR-001 | Allergen-safe recommendations | Functional correctness | [QRT-001](quality-requirement-tests.md#qrt-001-allergen-exclusion) |
 | QR-002 | Robust recommendation across the valid input space | Fault tolerance | [QRT-002](quality-requirement-tests.md#qrt-002-recommendation-input-space-robustness) |
 | QR-003 | Recommendation response time | Time behaviour | [QRT-003](quality-requirement-tests.md#qrt-003-recommend-latency) |
+| QR-004 | Credential confidentiality | Confidentiality (Security) | [QRT-004](quality-requirement-tests.md#qrt-004-credential-confidentiality) |
 
 -----
 
@@ -95,3 +96,29 @@ logic are caught in CI before they reach the customer-facing deployment.
 **Linked quality requirement tests:** [QRT-003](quality-requirement-tests.md#qrt-003-recommend-latency)
 
 **Related ADRs:** [ADR-001](architecture/adr/ADR-001-rule-based-engine-llm-justification-only.md) — keeping selection deterministic and the variable-latency LLM call optional and off the critical path bounds the engine's own computation cost.
+
+-----
+
+## QR-004: Credential confidentiality
+
+**ISO/IEC 25010 sub-characteristic:** Confidentiality (Security)
+
+**Scenario:** When a user registers, signs in, or reads their account under the
+standard service configuration, **no** authentication endpoint response
+(`/auth/register`, `/auth/login`, `/auth/me`) shall contain a password or a
+password hash, and the stored user record shall retain the password **only as a
+bcrypt hash** (never plain text), for **100%** of auth responses and stored
+records.
+
+**Why this matters:** MVP v3 introduces the account layer (ADR-004), so the
+authentication code (`backend/app/api/auth.py`, `app/core/security.py`) becomes
+a second critical module alongside the recommendation engine. Passwords are the
+most sensitive data the product holds; a password or hash leaking into an API
+response, or a password persisted in plain text, is a critical security failure
+that would break the trust the brand is built on. Because this guarantee is easy
+to regress (a widened response model, a debug field), it must be verified
+continuously rather than assumed.
+
+**Linked quality requirement tests:** [QRT-004](quality-requirement-tests.md#qrt-004-credential-confidentiality)
+
+**Related ADRs:** [ADR-004](architecture/adr/ADR-004-authentication-guest-first-jwt.md) — passwords are bcrypt-hashed and the public `UserOut` model deliberately excludes the hash, so credentials never leave the backend.

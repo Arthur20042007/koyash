@@ -110,8 +110,15 @@ never through direct commits.
   reads them through a pydantic `Settings` object
   ([`backend/app/core/config.py`](../backend/app/core/config.py)) — `MONGODB_URI`,
   `MONGO_DB_NAME`, and `APP_*`. The MVP v2 LLM API key is supplied the same way
-  (environment variable), never committed. The frontend reads `VITE_API_URL` at
-  build time to point at the backend.
+  (environment variable), never committed. In MVP v3 the account layer
+  (ADR-004) adds **`JWT_SECRET`**, the secret used to sign JWT access tokens —
+  it has a dev-only default in config and **must be overridden** with a strong
+  random value in production. The frontend reads `VITE_API_URL` at build time to
+  point at the backend.
+- **Account data lives in Mongo alongside the catalog.** The MVP v3 account
+  layer adds the `users` (with an embedded profile snapshot), `care` (the single
+  saved bag), and `tracker` collections in the same MongoDB Atlas database
+  (ADR-002); a unique index on `users.email` is created on startup.
 - **Sanitized examples are committed.** `backend/.env.example` and
   `db/.env.example` document the required variable names with placeholder values.
 - **CI/deployment configuration.** CI is defined in
