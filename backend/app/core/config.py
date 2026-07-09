@@ -9,6 +9,13 @@ class Settings(BaseSettings):
     MONGODB_URI: str
     MONGO_DB_NAME: str = "koyash"
 
+    # Authentication (ADR-004). Access tokens are JWTs signed with HS256.
+    # JWT_SECRET must be overridden in production via the environment; the
+    # default below is for local development only.
+    JWT_SECRET: str = "dev-only-insecure-secret-change-in-production"
+    JWT_ALG: str = "HS256"
+    JWT_EXPIRE_DAYS: int = 7
+
     # LLM justification layer (ADR-001). Off by default: when disabled or
     # unconfigured, /recommend returns the rule-based justification unchanged.
     LLM_ENABLED: bool = False
