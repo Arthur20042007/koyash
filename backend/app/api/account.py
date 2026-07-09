@@ -20,6 +20,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.auth import get_current_user
 from app.api.recommend import make_bag_item, single_step_alternatives
 from app.core.database import get_database
+from app.core.tracker import build_tracker_doc
 from app.models.account import (
     AlternativesOut,
     CareOut,
@@ -76,6 +77,11 @@ async def persist_recommendation(
         "updated_at": now,
     }
     await db["care"].replace_one({"user_id": user_id}, care, upsert=True)
+
+    # A new bag starts a new 12-week result tracker (the previous one is reset).
+    await db["tracker"].replace_one(
+        {"user_id": user_id}, build_tracker_doc(user_id, request, now), upsert=True
+    )
 
 
 @router.get("/profile", response_model=ProfileOut)
