@@ -116,6 +116,24 @@ async def get_current_user(
     return doc
 
 
+async def get_optional_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
+) -> dict[str, Any] | None:
+    """Like get_current_user but returns None instead of raising when the
+    request carries no valid token. Used by guest-first endpoints such as
+    /recommend, which must keep working for anonymous visitors."""
+    if credentials is None:
+        return None
+    user_id = decode_token(credentials.credentials)
+    if user_id is None:
+        return None
+    try:
+        oid = ObjectId(user_id)
+    except (InvalidId, TypeError):
+        return None
+    return await get_database()["users"].find_one({"_id": oid})
+
+
 @router.get("/me", response_model=UserOut)
 async def me(user: dict[str, Any] = Depends(get_current_user)) -> UserOut:
     return _to_user_out(user)

@@ -59,8 +59,10 @@ class RecommendRequest(BaseModel):
     skin_type: Optional[str] = None
     # declared special conditions: pregnancy / rosacea / dermatitis. Products with
     # ingredients contraindicated for a declared condition are hard-excluded.
-    # (age / experience are collected for statistics only and never sent here.)
     conditions: list[str] = Field(default_factory=list)
+    # age is not used by the engine; when an authenticated user submits the
+    # questionnaire it is persisted to their profile (statistics only).
+    age: Optional[int] = Field(default=None, ge=10, le=100)
 
 
 class BagItem(BaseModel):

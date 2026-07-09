@@ -1,8 +1,10 @@
 import asyncio
-from typing import Optional
+from typing import Any, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.api.account import persist_recommendation
+from app.api.auth import get_optional_user
 from app.core import llm
 from app.core.active_translations import translate_active
 from app.core.database import get_database
@@ -294,7 +296,10 @@ def _base_select(
 
 
 @router.post("/recommend", response_model=RecommendResponse)
-async def recommend(request: RecommendRequest):
+async def recommend(
+    request: RecommendRequest,
+    current_user: Optional[dict[str, Any]] = Depends(get_optional_user),
+):
     db = get_database()
 
     # Hard filters: vegan and cruelty-free (no segment filter here)
@@ -388,7 +393,7 @@ async def recommend(request: RecommendRequest):
 
         await asyncio.gather(*(_fill(item) for item in bag))
 
-    return RecommendResponse(
+    response = RecommendResponse(
         bag=bag,
         meta=RecommendMeta(
             total_price_rub=round(total, 2),
@@ -397,3 +402,9 @@ async def recommend(request: RecommendRequest):
             empty_steps=missing_steps,
         ),
     )
+
+    # Guest-first: only an authenticated user persists a profile + saved bag.
+    if current_user is not None:
+        await persist_recommendation(current_user["_id"], request, response)
+
+    return response
