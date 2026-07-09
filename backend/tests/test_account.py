@@ -102,6 +102,12 @@ class _Coll:
         if upsert:
             self.docs.append(dict(doc))
 
+    async def delete_one(self, flt):
+        for i, d in enumerate(self.docs):
+            if self._match(d, flt):
+                del self.docs[i]
+                return
+
     async def create_index(self, *args, **kwargs):
         return "idx"
 
@@ -127,8 +133,8 @@ def db():
 def app_client(monkeypatch, db):
     # The endpoints resolve the DB through their own module reference, so patch
     # each one to share the same in-memory database.
-    from app.api import account, auth, recommend, tracker
-    for mod in (auth, account, recommend, tracker):
+    from app.api import account, account_security, auth, recommend, tracker
+    for mod in (auth, account, account_security, recommend, tracker):
         monkeypatch.setattr(mod, "get_database", lambda: db)
     from app.main import app
     return TestClient(app)
@@ -599,3 +605,83 @@ def test_new_bag_resets_tracker(app_client, db):
     body = app_client.get("/tracker", headers=_auth(token)).json()
     assert body["criteria"] == ["Сухость и стянутость"]
     assert all(c["filled_at"] is None for c in body["checkpoints"])
+
+
+# --------------------------------------------------------------------------
+# Account management & security (PBI-418)
+# --------------------------------------------------------------------------
+
+def test_edit_personal_data(app_client):
+    token = _register(app_client)
+    r = app_client.patch(
+        "/account",
+        json={"name": "Анна", "phone": "+79990001122", "age": 31},
+        headers=_auth(token),
+    )
+    assert r.status_code == 200
+    me = app_client.get("/auth/me", headers=_auth(token)).json()
+    assert me["name"] == "Анна" and me["phone"] == "+79990001122" and me["age"] == 31
+
+
+def test_edit_email_normalized_and_unique(app_client):
+    token = _register(app_client, email="anya@mail.com")
+    _register(app_client, email="other@mail.com")
+    # taking another user's email is rejected
+    assert app_client.patch("/account", json={"email": "OTHER@mail.com"}, headers=_auth(token)).status_code == 409
+    # changing to a free email, normalized to lowercase
+    r = app_client.patch("/account", json={"email": "New.Email@Mail.COM"}, headers=_auth(token))
+    assert r.status_code == 200 and r.json()["email"] == "new.email@mail.com"
+
+
+def test_edit_requires_auth(app_client):
+    assert app_client.patch("/account", json={"name": "X"}).status_code == 401
+
+
+def test_change_password(app_client):
+    token = _register(app_client)
+    # wrong current password
+    assert app_client.put(
+        "/account/password",
+        json={"current_password": "wrongpass1", "new_password": "brandnew123"},
+        headers=_auth(token),
+    ).status_code == 400
+    # correct current password
+    assert app_client.put(
+        "/account/password",
+        json={"current_password": "password123", "new_password": "brandnew123"},
+        headers=_auth(token),
+    ).status_code == 204
+    # old password no longer works, new one does
+    assert app_client.post("/auth/login", json={"email": "anya@mail.com", "password": "password123"}).status_code == 401
+    assert app_client.post("/auth/login", json={"email": "anya@mail.com", "password": "brandnew123"}).status_code == 200
+
+
+def test_change_password_min_length(app_client):
+    token = _register(app_client)
+    r = app_client.put(
+        "/account/password",
+        json={"current_password": "password123", "new_password": "short"},
+        headers=_auth(token),
+    )
+    assert r.status_code == 422
+
+
+def test_delete_account_requires_correct_password(app_client, db):
+    token = _register(app_client)
+    app_client.post("/recommend", json={"budget": "low", "concerns": ["acne"]}, headers=_auth(token))
+    assert len(db.collections["users"].docs) == 1
+    # wrong password
+    assert app_client.post("/account/delete", json={"password": "nope12345"}, headers=_auth(token)).status_code == 400
+    assert len(db.collections["users"].docs) == 1
+    # correct password -> cascades to care + tracker
+    assert app_client.post("/account/delete", json={"password": "password123"}, headers=_auth(token)).status_code == 204
+    assert db.collections["users"].docs == []
+    assert db.collections["care"].docs == []
+    assert db.collections["tracker"].docs == []
+    # token no longer resolves to a user
+    assert app_client.get("/auth/me", headers=_auth(token)).status_code == 401
+
+
+def test_security_endpoints_require_auth(app_client):
+    assert app_client.put("/account/password", json={"current_password": "a", "new_password": "brandnew123"}).status_code == 401
+    assert app_client.post("/account/delete", json={"password": "x"}).status_code == 401

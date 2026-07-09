@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import connect_db, close_db, get_database
-from app.api import products, recommend, auth, account, tracker
+from app.api import products, recommend, auth, account, tracker, account_security
 
 
 @asynccontextmanager
@@ -34,6 +34,7 @@ app.include_router(recommend.router)
 app.include_router(auth.router)
 app.include_router(account.router)
 app.include_router(tracker.router)
+app.include_router(account_security.router)
 
 
 @app.get("/health", status_code=200)
