@@ -68,3 +68,16 @@ class CareOut(BaseModel):
     empty_steps: list[str] = []
     replacements: dict[str, int] = {}
     updated_at: datetime
+
+
+class AlternativesOut(BaseModel):
+    """Replacement candidates for one product's routine step."""
+
+    step: str
+    alternatives: list[ProductOut]
+    replacements_used: int
+    replacements_left: int
+
+
+class ReplaceIn(BaseModel):
+    new_product_id: str

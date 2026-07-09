@@ -18,11 +18,21 @@ from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.auth import get_current_user
+from app.api.recommend import make_bag_item, single_step_alternatives
 from app.core.database import get_database
-from app.models.account import CareOut, FeedbackIn, ProfileOut
+from app.models.account import (
+    AlternativesOut,
+    CareOut,
+    FeedbackIn,
+    ProfileOut,
+    ReplaceIn,
+)
 from app.models.product import RecommendRequest, RecommendResponse
 
 router = APIRouter(tags=["account"])
+
+# Maximum number of times a single routine-step product can be replaced.
+MAX_REPLACEMENTS = 2
 
 
 async def persist_recommendation(
@@ -142,6 +152,92 @@ async def clear_feedback(
     item = _find_item(care, product_id)
     item["feedback"] = None
     item["comment"] = None
+    care["updated_at"] = datetime.now(timezone.utc)
+    await get_database()["care"].replace_one({"user_id": user["_id"]}, care)
+    return _to_care_out(care)
+
+
+def _assert_replaceable(care: dict[str, Any], item: dict[str, Any]) -> tuple[str, int]:
+    """Replacement is allowed only for an active product marked 'не подошло',
+    and at most MAX_REPLACEMENTS times per routine step."""
+    if item["status"] != "active" or item.get("feedback") != "disliked":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Замена доступна только после «Не подошло»",
+        )
+    step = item["product"]["routine_step"]
+    used = care.get("replacements", {}).get(step, 0)
+    if used >= MAX_REPLACEMENTS:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Лимит замен для этой категории исчерпан",
+        )
+    return step, used
+
+
+@router.get("/care/items/{product_id}/alternatives", response_model=AlternativesOut)
+async def get_alternatives(
+    product_id: str,
+    user: dict[str, Any] = Depends(get_current_user),
+) -> AlternativesOut:
+    """Similar products for a disliked item's routine step."""
+    care = await _load_care(user)
+    item = _find_item(care, product_id)
+    step, used = _assert_replaceable(care, item)
+    request = RecommendRequest(**care["request"])
+    exclude = {it["product"]["id"] for it in care["items"] if it["product"]["routine_step"] == step}
+    products = await single_step_alternatives(
+        get_database(), request, step, item["product"]["tier"], exclude
+    )
+    concerns_set = set(request.concerns)
+    has_allergens = bool(request.allergens)
+    alternatives = [
+        make_bag_item(p, concerns_set, request.vegan, request.cruelty_free, has_allergens).product
+        for p in products
+    ]
+    return AlternativesOut(
+        step=step,
+        alternatives=alternatives,
+        replacements_used=used,
+        replacements_left=MAX_REPLACEMENTS - used,
+    )
+
+
+@router.post("/care/items/{product_id}/replace", response_model=CareOut)
+async def replace_item(
+    product_id: str,
+    payload: ReplaceIn,
+    user: dict[str, Any] = Depends(get_current_user),
+) -> CareOut:
+    """Swap a disliked product for a chosen similar alternative. The old product
+    is kept (dimmed, moved to the bottom) with its comment preserved."""
+    care = await _load_care(user)
+    old = _find_item(care, product_id)
+    step, used = _assert_replaceable(care, old)
+    request = RecommendRequest(**care["request"])
+    exclude = {it["product"]["id"] for it in care["items"] if it["product"]["routine_step"] == step}
+    products = await single_step_alternatives(
+        get_database(), request, step, old["product"]["tier"], exclude
+    )
+    chosen = next((p for p in products if p.id == payload.new_product_id), None)
+    if chosen is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Это средство недоступно для замены",
+        )
+
+    new_item = make_bag_item(
+        chosen, set(request.concerns), request.vegan, request.cruelty_free, bool(request.allergens)
+    )
+    new_entry = {**new_item.model_dump(), "status": "active", "feedback": None, "comment": None}
+
+    old["status"] = "replaced"
+    actives = [it for it in care["items"] if it["status"] == "active"] + [new_entry]
+    actives.sort(key=lambda it: (it["product"]["order_index"] is None, it["product"]["order_index"] or 0))
+    replaced = [it for it in care["items"] if it["status"] == "replaced"]
+    care["items"] = actives + replaced
+    care["replacements"] = {**care.get("replacements", {}), step: used + 1}
+    care["total_price_rub"] = round(sum(it["product"]["price_rub"] for it in actives), 2)
     care["updated_at"] = datetime.now(timezone.utc)
     await get_database()["care"].replace_one({"user_id": user["_id"]}, care)
     return _to_care_out(care)

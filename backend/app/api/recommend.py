@@ -3,7 +3,6 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.api.account import persist_recommendation
 from app.api.auth import get_optional_user
 from app.core import llm
 from app.core.active_translations import translate_active
@@ -291,28 +290,22 @@ def _base_select(
 
 
 # ---------------------------------------------------------------------------
-# Endpoint
+# Shared building blocks (reused by /recommend and single-step replacement)
 # ---------------------------------------------------------------------------
 
 
-@router.post("/recommend", response_model=RecommendResponse)
-async def recommend(
-    request: RecommendRequest,
-    current_user: Optional[dict[str, Any]] = Depends(get_optional_user),
-):
-    db = get_database()
-
-    # Hard filters: vegan and cruelty-free (no segment filter here)
-    query: dict = {}
+async def build_pool(db: Any, request: RecommendRequest) -> list[Product]:
+    """Fetch the catalog and apply the hard filters (vegan, cruelty-free,
+    allergens, special conditions). Segment and skin-type preferences are
+    applied later, per routine step."""
+    query: dict[str, Any] = {}
     if request.vegan:
         query["vegan"] = True
     if request.cruelty_free:
         query["cruelty_free"] = "yes"  # "unknown" excluded per spec §4.3
 
-    cursor = db["products"].find(query)
-    all_products = [doc_to_product(doc) async for doc in cursor]
+    all_products = [doc_to_product(doc) async for doc in db["products"].find(query)]
 
-    # Allergen filter: case-insensitive, done in Python
     if request.allergens:
         allergens_lower = {a.lower() for a in request.allergens}
         pool = [
@@ -327,7 +320,51 @@ async def recommend(
     if request.conditions:
         conditions_set = {c.lower() for c in request.conditions}
         pool = [p for p in pool if not _condition_excluded(p, conditions_set)]
+    return pool
 
+
+def make_bag_item(
+    p: Product, concerns_set: set[str], req_vegan: bool,
+    req_cruelty_free: bool, req_has_allergens: bool,
+) -> BagItem:
+    """Build one bag item (product + concern match + rule-based justification)."""
+    return BagItem(
+        product=_to_out(p),
+        concern_match=_concern_match(p, concerns_set),
+        justification=_build_justification(
+            p, concerns_set, req_vegan, req_cruelty_free, req_has_allergens
+        ),
+    )
+
+
+async def single_step_alternatives(
+    db: Any, request: RecommendRequest, step: str, tier: str,
+    exclude_ids: set[str], limit: int = 3,
+) -> list[Product]:
+    """Ranked replacement candidates for a single routine step, using the same
+    profile filters as /recommend and excluding the given product ids."""
+    pool = await build_pool(db, request)
+    candidates, _ = _pick_segment_candidates(pool, step, tier, request.budget)
+    candidates = _apply_skin_preference(candidates, request.skin_type)
+    candidates = [c for c in candidates if c.id not in exclude_ids]
+    concerns_set = set(request.concerns)
+    candidates.sort(key=lambda p: (-_concern_match(p, concerns_set), p.price_rub))
+    return candidates[:limit]
+
+
+# ---------------------------------------------------------------------------
+# Endpoint
+# ---------------------------------------------------------------------------
+
+
+@router.post("/recommend", response_model=RecommendResponse)
+async def recommend(
+    request: RecommendRequest,
+    current_user: Optional[dict[str, Any]] = Depends(get_optional_user),
+):
+    db = get_database()
+
+    pool = await build_pool(db, request)
     concerns_set = set(request.concerns)
     basket, missing_steps, substituted_steps = _base_select(
         pool, concerns_set, request.minimalism, request.budget, request.skin_type
@@ -358,14 +395,7 @@ async def recommend(
     req_has_allergens = bool(request.allergens)
 
     bag: list[BagItem] = [
-        BagItem(
-            product=_to_out(p),
-            concern_match=_concern_match(p, concerns_set),
-            justification=_build_justification(
-                p, concerns_set,
-                request.vegan, request.cruelty_free, req_has_allergens,
-            ),
-        )
+        make_bag_item(p, concerns_set, request.vegan, request.cruelty_free, req_has_allergens)
         for p in basket
     ]
     bag.sort(key=lambda item: (item.product.order_index is None, item.product.order_index or 0))
@@ -404,7 +434,11 @@ async def recommend(
     )
 
     # Guest-first: only an authenticated user persists a profile + saved bag.
+    # Imported lazily to avoid a circular import (account imports this module's
+    # engine helpers for replacement).
     if current_user is not None:
+        from app.api.account import persist_recommendation
+
         await persist_recommendation(current_user["_id"], request, response)
 
     return response

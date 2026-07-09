@@ -28,6 +28,11 @@ CATALOG = [
        routine_step="tone", tier="core", order_index=2),
     _p(_id="P-SE", name="Serum", brand="A", price_rub=600, segment="low",
        routine_step="serum", tier="core", order_index=3, concerns_addressed=["acne"]),
+    # extra serums so a serum has replacement alternatives (2 per step -> up to 2 swaps)
+    _p(_id="P-SE2", name="Serum2", brand="A", price_rub=650, segment="low",
+       routine_step="serum", tier="core", order_index=3, concerns_addressed=["acne"]),
+    _p(_id="P-SE3", name="Serum3", brand="A", price_rub=700, segment="low",
+       routine_step="serum", tier="core", order_index=3, concerns_addressed=["acne"]),
     _p(_id="P-MO", name="Cream", brand="A", price_rub=500, segment="low",
        routine_step="moisturize", tier="core", order_index=4),
     _p(_id="P-SP", name="SPF", brand="A", price_rub=700, segment="low",
@@ -317,3 +322,129 @@ def test_feedback_before_questionnaire_404(app_client):
 
 def test_feedback_requires_auth(app_client):
     assert app_client.put("/care/items/P-CL/feedback", json={"feedback": "liked"}).status_code == 401
+
+
+# --------------------------------------------------------------------------
+# Replacement (PBI-414)
+# --------------------------------------------------------------------------
+
+def _serum_id(items):
+    # works on both the /recommend response (no status) and stored care items
+    return next(
+        it["product"]["id"]
+        for it in items
+        if it["product"]["routine_step"] == "serum" and it.get("status", "active") == "active"
+    )
+
+
+def _setup_disliked_serum(app_client):
+    token = _register(app_client)
+    bag = app_client.post(
+        "/recommend", json={"budget": "low", "concerns": ["acne"]}, headers=_auth(token)
+    ).json()["bag"]
+    pid = _serum_id(bag)
+    app_client.put(
+        f"/care/items/{pid}/feedback",
+        json={"feedback": "disliked", "comment": "не подошло"},
+        headers=_auth(token),
+    )
+    return token, pid
+
+
+def _alternatives(app_client, token, pid):
+    return app_client.get(f"/care/items/{pid}/alternatives", headers=_auth(token)).json()["alternatives"]
+
+
+def test_alternatives_for_disliked_item(app_client):
+    token, pid = _setup_disliked_serum(app_client)
+    r = app_client.get(f"/care/items/{pid}/alternatives", headers=_auth(token))
+    assert r.status_code == 200
+    body = r.json()
+    assert body["step"] == "serum"
+    assert body["replacements_left"] == 2
+    ids = [a["id"] for a in body["alternatives"]]
+    assert pid not in ids and len(ids) >= 1
+
+
+def test_alternatives_require_disliked(app_client):
+    token = _register(app_client)
+    bag = app_client.post(
+        "/recommend", json={"budget": "low", "concerns": ["acne"]}, headers=_auth(token)
+    ).json()["bag"]
+    pid = _serum_id(bag)
+    assert app_client.get(f"/care/items/{pid}/alternatives", headers=_auth(token)).status_code == 400
+
+
+def test_replace_swaps_and_keeps_old_dimmed(app_client):
+    token, pid = _setup_disliked_serum(app_client)
+    new_id = _alternatives(app_client, token, pid)[0]["id"]
+    r = app_client.post(
+        f"/care/items/{pid}/replace", json={"new_product_id": new_id}, headers=_auth(token)
+    )
+    assert r.status_code == 200
+    body = r.json()
+    by_id = {it["product"]["id"]: it for it in body["items"]}
+    assert by_id[new_id]["status"] == "active"
+    assert by_id[pid]["status"] == "replaced"
+    assert by_id[pid]["comment"] == "не подошло"       # comment preserved
+    assert body["items"][-1]["product"]["id"] == pid   # moved to the bottom
+    assert body["replacements"]["serum"] == 1
+
+
+def test_replace_rejects_non_alternative(app_client):
+    token, pid = _setup_disliked_serum(app_client)
+    r = app_client.post(
+        f"/care/items/{pid}/replace", json={"new_product_id": "P-CL"}, headers=_auth(token)
+    )
+    assert r.status_code == 400
+
+
+def test_replacement_limited_to_two_per_step(app_client):
+    token, pid = _setup_disliked_serum(app_client)
+    # 1st replacement
+    r1 = app_client.post(
+        f"/care/items/{pid}/replace",
+        json={"new_product_id": _alternatives(app_client, token, pid)[0]["id"]},
+        headers=_auth(token),
+    ).json()
+    s1 = _serum_id(r1["items"])
+    app_client.put(
+        f"/care/items/{s1}/feedback",
+        json={"feedback": "disliked", "comment": "again"},
+        headers=_auth(token),
+    )
+    # 2nd replacement
+    r2 = app_client.post(
+        f"/care/items/{s1}/replace",
+        json={"new_product_id": _alternatives(app_client, token, s1)[0]["id"]},
+        headers=_auth(token),
+    ).json()
+    assert r2["replacements"]["serum"] == 2
+    s2 = _serum_id(r2["items"])
+    app_client.put(
+        f"/care/items/{s2}/feedback",
+        json={"feedback": "disliked", "comment": "third"},
+        headers=_auth(token),
+    )
+    # 3rd is blocked
+    assert app_client.get(f"/care/items/{s2}/alternatives", headers=_auth(token)).status_code == 409
+    assert app_client.post(
+        f"/care/items/{s2}/replace", json={"new_product_id": "x"}, headers=_auth(token)
+    ).status_code == 409
+
+
+def test_replace_requires_disliked(app_client):
+    token = _register(app_client)
+    bag = app_client.post(
+        "/recommend", json={"budget": "low", "concerns": ["acne"]}, headers=_auth(token)
+    ).json()["bag"]
+    pid = _serum_id(bag)
+    r = app_client.post(
+        f"/care/items/{pid}/replace", json={"new_product_id": "P-SE2"}, headers=_auth(token)
+    )
+    assert r.status_code == 400
+
+
+def test_replace_requires_auth(app_client):
+    assert app_client.get("/care/items/P-SE/alternatives").status_code == 401
+    assert app_client.post("/care/items/P-SE/replace", json={"new_product_id": "x"}).status_code == 401
