@@ -231,3 +231,89 @@ def test_expired_or_invalid_token_falls_back_to_guest(app_client, db):
     )
     assert r.status_code == 200
     assert db.collections["care"].docs == []
+
+
+# --------------------------------------------------------------------------
+# Feedback (PBI-406)
+# --------------------------------------------------------------------------
+
+def _setup_bag(app_client):
+    token = _register(app_client)
+    bag = app_client.post(
+        "/recommend", json={"budget": "low", "concerns": ["acne"]}, headers=_auth(token)
+    ).json()["bag"]
+    return token, bag[0]["product"]["id"]
+
+
+def _feedback_of(care_json, product_id):
+    item = next(it for it in care_json["items"] if it["product"]["id"] == product_id)
+    return item["feedback"], item["comment"]
+
+
+def test_set_disliked_with_comment(app_client):
+    token, pid = _setup_bag(app_client)
+    r = app_client.put(
+        f"/care/items/{pid}/feedback",
+        json={"feedback": "disliked", "comment": "сушит кожу"},
+        headers=_auth(token),
+    )
+    assert r.status_code == 200
+    assert _feedback_of(r.json(), pid) == ("disliked", "сушит кожу")
+
+
+def test_disliked_requires_comment(app_client):
+    token, pid = _setup_bag(app_client)
+    for body in ({"feedback": "disliked"}, {"feedback": "disliked", "comment": "  "}):
+        r = app_client.put(f"/care/items/{pid}/feedback", json=body, headers=_auth(token))
+        assert r.status_code == 422
+
+
+def test_liked_drops_comment(app_client):
+    token, pid = _setup_bag(app_client)
+    r = app_client.put(
+        f"/care/items/{pid}/feedback",
+        json={"feedback": "liked", "comment": "ignored"},
+        headers=_auth(token),
+    )
+    assert r.status_code == 200
+    assert _feedback_of(r.json(), pid) == ("liked", None)
+
+
+def test_change_then_clear_feedback(app_client):
+    token, pid = _setup_bag(app_client)
+    app_client.put(
+        f"/care/items/{pid}/feedback",
+        json={"feedback": "disliked", "comment": "не то"},
+        headers=_auth(token),
+    )
+    # change to liked
+    r = app_client.put(
+        f"/care/items/{pid}/feedback", json={"feedback": "liked"}, headers=_auth(token)
+    )
+    assert _feedback_of(r.json(), pid) == ("liked", None)
+    # clear
+    r = app_client.delete(f"/care/items/{pid}/feedback", headers=_auth(token))
+    assert r.status_code == 200
+    assert _feedback_of(r.json(), pid) == (None, None)
+
+
+def test_feedback_unknown_product_404(app_client):
+    token, _ = _setup_bag(app_client)
+    r = app_client.put(
+        "/care/items/NOPE/feedback",
+        json={"feedback": "liked"},
+        headers=_auth(token),
+    )
+    assert r.status_code == 404
+
+
+def test_feedback_before_questionnaire_404(app_client):
+    token = _register(app_client)
+    r = app_client.put(
+        "/care/items/P-CL/feedback", json={"feedback": "liked"}, headers=_auth(token)
+    )
+    assert r.status_code == 404
+
+
+def test_feedback_requires_auth(app_client):
+    assert app_client.put("/care/items/P-CL/feedback", json={"feedback": "liked"}).status_code == 401

@@ -9,7 +9,7 @@ state that later PBIs fill in (feedback in PBI-406, replacement in PBI-414).
 from datetime import datetime
 from typing import Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 from app.models.product import Justification, ProductOut, RecommendRequest
 
@@ -38,6 +38,24 @@ class CareItem(BaseModel):
     status: Literal["active", "replaced"] = "active"
     feedback: Optional[Literal["liked", "disliked"]] = None
     comment: Optional[str] = None
+
+
+class FeedbackIn(BaseModel):
+    """Setting 'подошло / не подошло' on a product. A comment is required for
+    'disliked' and dropped for 'liked'."""
+
+    feedback: Literal["liked", "disliked"]
+    comment: Optional[str] = None
+
+    @model_validator(mode="after")
+    def _check_comment(self) -> "FeedbackIn":
+        if self.feedback == "disliked":
+            if self.comment is None or not self.comment.strip():
+                raise ValueError("Для «Не подошло» нужно оставить комментарий")
+            self.comment = self.comment.strip()
+        else:
+            self.comment = None
+        return self
 
 
 class CareOut(BaseModel):
