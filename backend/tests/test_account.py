@@ -5,6 +5,8 @@ saved bag; a guest triggers no persistence. Uses a small multi-collection fake
 (products + users + care) so the whole flow runs without a live Mongo.
 """
 
+from datetime import datetime, timedelta, timezone
+
 import pytest
 from bson import ObjectId
 from fastapi.testclient import TestClient
@@ -125,8 +127,8 @@ def db():
 def app_client(monkeypatch, db):
     # The endpoints resolve the DB through their own module reference, so patch
     # each one to share the same in-memory database.
-    from app.api import account, auth, recommend
-    for mod in (auth, account, recommend):
+    from app.api import account, auth, recommend, tracker
+    for mod in (auth, account, recommend, tracker):
         monkeypatch.setattr(mod, "get_database", lambda: db)
     from app.main import app
     return TestClient(app)
@@ -448,3 +450,152 @@ def test_replace_requires_disliked(app_client):
 def test_replace_requires_auth(app_client):
     assert app_client.get("/care/items/P-SE/alternatives").status_code == 401
     assert app_client.post("/care/items/P-SE/replace", json={"new_product_id": "x"}).status_code == 401
+
+
+# --------------------------------------------------------------------------
+# Result tracker (PBI-416)
+# --------------------------------------------------------------------------
+
+def test_derive_criteria_unit():
+    from app.core.tracker import derive_criteria
+    # oily skin + acne -> two negative criteria, deduped
+    assert derive_criteria("oily", ["acne"], []) == ["Жирный блеск", "Высыпания"]
+    # dry skin + dryness concern dedupe to one criterion
+    assert derive_criteria("dry", ["dryness"], []) == ["Сухость и стянутость"]
+    # capped at four
+    assert len(derive_criteria("sensitive", ["acne", "pigmentation", "aging", "oiliness"], [])) == 4
+    # normal skin, no concerns -> fallback trio
+    assert derive_criteria("normal", [], []) == ["Сухость и стянутость", "Жирный блеск", "Высыпания"]
+
+
+def _start_tracker(app_client):
+    token = _register(app_client)
+    app_client.post(
+        "/recommend",
+        json={"budget": "low", "concerns": ["acne"], "skin_type": "oily"},
+        headers=_auth(token),
+    )
+    return token
+
+
+def _open_checkpoint(db, index):
+    tracker = db.collections["tracker"].docs[0]
+    tracker["checkpoints"][index - 1]["due_date"] = datetime.now(timezone.utc) - timedelta(days=1)
+
+
+def test_tracker_created_with_six_locked_checkpoints(app_client):
+    token = _start_tracker(app_client)
+    r = app_client.get("/tracker", headers=_auth(token))
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total_checkpoints"] == 6
+    assert body["criteria"] == ["Жирный блеск", "Высыпания"]
+    assert all(c["status"] == "locked" for c in body["checkpoints"])  # all future at creation
+
+
+def test_tracker_404_before_questionnaire(app_client):
+    token = _register(app_client)
+    assert app_client.get("/tracker", headers=_auth(token)).status_code == 404
+
+
+def test_tracker_requires_auth(app_client):
+    assert app_client.get("/tracker").status_code == 401
+    assert app_client.put("/tracker/checkpoints/1", json={"scores": {}, "overall": "same"}).status_code == 401
+
+
+def test_submit_locked_checkpoint_rejected(app_client):
+    token = _start_tracker(app_client)
+    r = app_client.put(
+        "/tracker/checkpoints/1",
+        json={"scores": {"Жирный блеск": 3, "Высыпания": 2}, "overall": "better"},
+        headers=_auth(token),
+    )
+    assert r.status_code == 400  # not opened yet
+
+
+def test_submit_open_checkpoint(app_client, db):
+    token = _start_tracker(app_client)
+    _open_checkpoint(db, 1)
+    r = app_client.put(
+        "/tracker/checkpoints/1",
+        json={"scores": {"Жирный блеск": 2, "Высыпания": 1}, "overall": "better", "comment": "лучше"},
+        headers=_auth(token),
+    )
+    assert r.status_code == 200
+    cp1 = r.json()["checkpoints"][0]
+    assert cp1["status"] == "done"
+    assert cp1["scores"] == {"Жирный блеск": 2, "Высыпания": 1}
+    assert cp1["overall"] == "better" and cp1["comment"] == "лучше"
+
+
+def test_submit_requires_all_criteria(app_client, db):
+    token = _start_tracker(app_client)
+    _open_checkpoint(db, 1)
+    r = app_client.put(
+        "/tracker/checkpoints/1",
+        json={"scores": {"Жирный блеск": 3}, "overall": "same"},  # missing "Высыпания"
+        headers=_auth(token),
+    )
+    assert r.status_code == 422
+
+
+def test_submit_score_out_of_range(app_client, db):
+    token = _start_tracker(app_client)
+    _open_checkpoint(db, 1)
+    r = app_client.put(
+        "/tracker/checkpoints/1",
+        json={"scores": {"Жирный блеск": 6, "Высыпания": 2}, "overall": "same"},
+        headers=_auth(token),
+    )
+    assert r.status_code == 422
+
+
+def test_filled_checkpoint_is_read_only(app_client, db):
+    token = _start_tracker(app_client)
+    _open_checkpoint(db, 1)
+    payload = {"scores": {"Жирный блеск": 3, "Высыпания": 3}, "overall": "same"}
+    assert app_client.put("/tracker/checkpoints/1", json=payload, headers=_auth(token)).status_code == 200
+    # second submit is blocked
+    assert app_client.put("/tracker/checkpoints/1", json=payload, headers=_auth(token)).status_code == 409
+
+
+def test_submit_unknown_checkpoint(app_client, db):
+    token = _start_tracker(app_client)
+    r = app_client.put(
+        "/tracker/checkpoints/99",
+        json={"scores": {"Жирный блеск": 3, "Высыпания": 3}, "overall": "same"},
+        headers=_auth(token),
+    )
+    assert r.status_code == 404
+
+
+def test_missed_checkpoint_still_fillable(app_client, db):
+    # week 2 opened and missed, week 4 also opened -> both fillable (soft schedule)
+    token = _start_tracker(app_client)
+    _open_checkpoint(db, 1)
+    _open_checkpoint(db, 2)
+    r = app_client.put(
+        "/tracker/checkpoints/1",
+        json={"scores": {"Жирный блеск": 4, "Высыпания": 4}, "overall": "worse"},
+        headers=_auth(token),
+    )
+    assert r.status_code == 200
+
+
+def test_new_bag_resets_tracker(app_client, db):
+    token = _start_tracker(app_client)
+    _open_checkpoint(db, 1)
+    app_client.put(
+        "/tracker/checkpoints/1",
+        json={"scores": {"Жирный блеск": 3, "Высыпания": 3}, "overall": "same"},
+        headers=_auth(token),
+    )
+    # re-take the questionnaire -> fresh tracker
+    app_client.post(
+        "/recommend",
+        json={"budget": "low", "concerns": ["dryness"], "skin_type": "dry"},
+        headers=_auth(token),
+    )
+    body = app_client.get("/tracker", headers=_auth(token)).json()
+    assert body["criteria"] == ["Сухость и стянутость"]
+    assert all(c["filled_at"] is None for c in body["checkpoints"])

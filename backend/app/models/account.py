@@ -81,3 +81,39 @@ class AlternativesOut(BaseModel):
 
 class ReplaceIn(BaseModel):
     new_product_id: str
+
+
+class CheckpointOut(BaseModel):
+    index: int
+    due_date: datetime
+    status: Literal["locked", "active", "done"]
+    scores: dict[str, int] = {}
+    overall: Optional[Literal["better", "same", "worse"]] = None
+    comment: Optional[str] = None
+    filled_at: Optional[datetime] = None
+
+
+class TrackerOut(BaseModel):
+    start_date: datetime
+    criteria: list[str]
+    total_checkpoints: int
+    checkpoints: list[CheckpointOut]
+
+
+class CheckpointIn(BaseModel):
+    """Submitting one checkpoint. Scores are 1–5 per criterion (lower = better)."""
+
+    scores: dict[str, int]
+    overall: Literal["better", "same", "worse"]
+    comment: Optional[str] = None
+
+    @model_validator(mode="after")
+    def _check(self) -> "CheckpointIn":
+        if not self.scores:
+            raise ValueError("Нужно оценить критерии")
+        for value in self.scores.values():
+            if not 1 <= value <= 5:
+                raise ValueError("Оценка должна быть от 1 до 5")
+        if self.comment is not None:
+            self.comment = self.comment.strip() or None
+        return self

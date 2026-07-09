@@ -6,7 +6,9 @@ _client: AsyncIOMotorClient | None = None
 
 async def connect_db() -> None:
     global _client
-    _client = AsyncIOMotorClient(settings.MONGODB_URI)
+    # tz_aware so datetimes read back from Mongo are timezone-aware UTC and can
+    # be compared against datetime.now(timezone.utc) (used by the tracker).
+    _client = AsyncIOMotorClient(settings.MONGODB_URI, tz_aware=True)
 
 
 async def close_db() -> None:
