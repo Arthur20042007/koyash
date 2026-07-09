@@ -19,7 +19,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.auth import get_current_user
 from app.core.database import get_database
-from app.models.account import CareOut, ProfileOut
+from app.models.account import CareOut, FeedbackIn, ProfileOut
 from app.models.product import RecommendRequest, RecommendResponse
 
 router = APIRouter(tags=["account"])
@@ -79,14 +79,7 @@ async def get_profile(user: dict[str, Any] = Depends(get_current_user)) -> Profi
     return ProfileOut(age=user.get("age"), **profile)
 
 
-@router.get("/care", response_model=CareOut)
-async def get_care(user: dict[str, Any] = Depends(get_current_user)) -> CareOut:
-    doc = await get_database()["care"].find_one({"user_id": user["_id"]})
-    if doc is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Косметичка пока не сохранена — пройдите анкету",
-        )
+def _to_care_out(doc: dict[str, Any]) -> CareOut:
     return CareOut(
         request=doc["request"],
         items=doc["items"],
@@ -96,3 +89,59 @@ async def get_care(user: dict[str, Any] = Depends(get_current_user)) -> CareOut:
         replacements=doc.get("replacements", {}),
         updated_at=doc["updated_at"],
     )
+
+
+async def _load_care(user: dict[str, Any]) -> dict[str, Any]:
+    doc = await get_database()["care"].find_one({"user_id": user["_id"]})
+    if doc is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Косметичка пока не сохранена — пройдите анкету",
+        )
+    return doc
+
+
+def _find_item(care: dict[str, Any], product_id: str) -> dict[str, Any]:
+    for item in care["items"]:
+        if item["product"]["id"] == product_id:
+            return item
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Такого средства нет в косметичке",
+    )
+
+
+@router.get("/care", response_model=CareOut)
+async def get_care(user: dict[str, Any] = Depends(get_current_user)) -> CareOut:
+    return _to_care_out(await _load_care(user))
+
+
+@router.put("/care/items/{product_id}/feedback", response_model=CareOut)
+async def set_feedback(
+    product_id: str,
+    payload: FeedbackIn,
+    user: dict[str, Any] = Depends(get_current_user),
+) -> CareOut:
+    """Set 'подошло / не подошло' (with a required comment for 'не подошло')."""
+    care = await _load_care(user)
+    item = _find_item(care, product_id)
+    item["feedback"] = payload.feedback
+    item["comment"] = payload.comment
+    care["updated_at"] = datetime.now(timezone.utc)
+    await get_database()["care"].replace_one({"user_id": user["_id"]}, care)
+    return _to_care_out(care)
+
+
+@router.delete("/care/items/{product_id}/feedback", response_model=CareOut)
+async def clear_feedback(
+    product_id: str,
+    user: dict[str, Any] = Depends(get_current_user),
+) -> CareOut:
+    """Remove the reaction and comment from a product."""
+    care = await _load_care(user)
+    item = _find_item(care, product_id)
+    item["feedback"] = None
+    item["comment"] = None
+    care["updated_at"] = datetime.now(timezone.utc)
+    await get_database()["care"].replace_one({"user_id": user["_id"]}, care)
+    return _to_care_out(care)
