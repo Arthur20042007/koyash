@@ -1,5 +1,5 @@
 @startuml component-diagram
-title KOYASH — Component Diagram (static view, MVP v2)
+title KOYASH — Component Diagram (static view, MVP v3)
 
 skinparam componentStyle rectangle
 skinparam shadowing false
@@ -24,9 +24,11 @@ package "Backend — FastAPI service\n(Uvicorn, on Railway)" as be {
   [LLM justification layer\n<<MVP v2 · ADR-001>>] as llm
   [Data access\nMotor async client] as data
   [Config / settings\nenv · pydantic] as cfg
+  [Accounts API\n/auth · /account · /tracker\nregister · login · profile ·\nsaved bag · feedback · replace ·\nresult tracker · security] as acct
+  [Security\nbcrypt · JWT (HS256)\n<<ADR-004>>] as sec
 }
 
-database "MongoDB Atlas\nproducts collection" as mongo
+database "MongoDB Atlas\nproducts · users ·\ncare · tracker" as mongo
 cloud "LLM provider\nOpenAI-compatible\ngpt-4o-mini" as llmapi
 component "Data seed scripts\ndb/ · offline import" as seed
 
@@ -39,6 +41,7 @@ results --> user : renders bag
 
 api ..> recrouter
 api ..> prodrouter
+api ..> acct
 recrouter --> engine
 engine --> just
 just ..> llm : <<planned>>\nenrich text
@@ -49,5 +52,14 @@ llm --> llmapi : HTTPS REST
 recrouter ..> cfg
 data ..> cfg
 seed --> mongo : offline import\n(PyMongo)
+
+' Accounts layer (ADR-004): guest-first — /recommend works without a token;
+' a signed-in request additionally persists the profile + saved bag.
+recrouter ..> acct : persist profile + bag\n(only if signed in)
+acct --> sec
+acct ..> engine : single-step\nalternatives (replace)
+acct --> data
+acct ..> cfg
+sec ..> cfg
 
 @enduml

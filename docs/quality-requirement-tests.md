@@ -109,6 +109,35 @@ requests is ≤ 300 ms; every request returns HTTP 200. Pass = QR satisfied.
 
 -----
 
+## QRT-004: Credential confidentiality
+
+**Linked quality requirement:** [QR-004](quality-requirements.md#qr-004-credential-confidentiality)
+
+**Verification method:** Automated integration test (pytest + FastAPI
+`TestClient`), marked `qrt`.
+
+**Test data, setup, or environment:** An in-memory `users` collection injected
+in place of MongoDB Atlas (the auth module's `get_database` is monkeypatched), so
+the test needs no database or network. A user registers, signs in, and reads
+`/auth/me` with a known password.
+
+**Automated command or CI check:**
+
+```bash
+cd backend && python -m pytest tests/quality/test_qrt_004_credential_confidentiality.py
+```
+
+**Expected measurable result:** None of the `/auth/register`, `/auth/login`, or
+`/auth/me` response bodies contains the plaintext password, a `password` field,
+or a `password_hash` field; the stored user record keeps the password only as a
+bcrypt hash (it differs from the plaintext and `bcrypt.checkpw` verifies it).
+100% pass = QR satisfied.
+
+**Evidence link:** [`backend/tests/quality/test_qrt_004_credential_confidentiality.py`](../backend/tests/quality/test_qrt_004_credential_confidentiality.py)
+· latest protected-branch CI run of the `backend-tests` job.
+
+-----
+
 ## Evidence-type classification
 
 | ID | Type | Verifies a measurable QR scenario? | Counts as QRT? |
@@ -116,6 +145,7 @@ requests is ≤ 300 ms; every request returns HTTP 200. Pass = QR satisfied.
 | QRT-001 | Integration test | Yes — QR-001 | Yes |
 | QRT-002 | Integration test | Yes — QR-002 | Yes |
 | QRT-003 | Performance test | Yes — QR-003 | Yes |
+| QRT-004 | Integration test | Yes — QR-004 | Yes |
 
 The unit/integration tests in `backend/tests/test_recommend_unit.py` provide
 baseline coverage of the critical module but are not, on their own, QRTs unless

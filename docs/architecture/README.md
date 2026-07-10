@@ -10,14 +10,18 @@ concerns, and skin type, and a **FastAPI** backend turns that into a structured
 "cosmetic bag" of real products with a per-product justification. Product data
 lives in **MongoDB Atlas**. In MVP v2 an **LLM justification layer**
 (gpt-4o-mini, justification-only) sits on top of the existing rule-based engine —
-implemented and off by default, enabled by configuration.
+implemented and off by default, enabled by configuration. In MVP v3 a
+**guest-first account layer** (ADR-004) is added on top: the questionnaire and
+`/recommend` stay usable anonymously, while a signed-in user gets a saved
+profile, one saved cosmetic bag with feedback and replacement, and a result
+tracker — all persisted in MongoDB Atlas.
 
 This document covers the maintained architecture views and decisions:
 
 - **Static view** — component diagram + commentary
 - **Dynamic view** — `POST /recommend` sequence diagram
 - **Deployment view** — Railway + MongoDB Atlas
-- **Architecture Decision Records (ADRs)** — three records, each linked to a
+- **Architecture Decision Records (ADRs)** — four records, each linked to a
   quality requirement
 
 Maintained architecture assets live under:
@@ -61,9 +65,15 @@ talk to, and the protocols between them.
   produces the per-product explanation today; in MVP v2 the **LLM justification
   layer** (ADR-001) enriches that text using gpt-4o-mini, with a fallback to the
   rule-based text. **Data access** is a thin Motor (async MongoDB) client, and
-  **config** is centralized in pydantic settings read from the environment.
-- **External systems.** **MongoDB Atlas** stores the `products` collection,
-  reached over the MongoDB wire protocol (TLS) via Motor. The **LLM provider**
+  **config** is centralized in pydantic settings read from the environment. In
+  MVP v3 an **Accounts API** (`/auth`, `/account`, `/tracker`) and a **Security**
+  component (bcrypt + JWT, ADR-004) sit alongside the engine: `/recommend` takes
+  an *optional* auth dependency, so it persists the profile and saved bag for a
+  signed-in user while staying fully guest-usable, and the Accounts API reuses
+  the engine's single-step selection to offer product replacements.
+- **External systems.** **MongoDB Atlas** stores the `products` collection (plus
+  the MVP v3 `users`, `care`, and `tracker` collections), reached over the
+  MongoDB wire protocol (TLS) via Motor. The **LLM provider**
   (OpenAI-compatible endpoint, gpt-4o-mini) is reached over HTTPS REST. The
   **data seed scripts** in [`db/`](../../db/) populate Atlas offline from the
   source dataset and are not part of the request path.
@@ -119,6 +129,10 @@ talk to, and the protocols between them.
   selection with no per-product external calls. The LLM layer is the main
   latency risk, which is exactly why ADR-001 keeps it off the selection path and
   optional.
+- **[QR-004 — Credential confidentiality](../quality-requirements.md#qr-004-credential-confidentiality)
+  (Security).** The account layer keeps passwords as bcrypt hashes in the
+  Security component and excludes them from the public `UserOut` model, so
+  credentials never leave the backend (ADR-004).
 
 ---
 
@@ -206,7 +220,8 @@ flow to reason about correctness, robustness, and latency.
   `VITE_API_URL`.
 - **Stateful infrastructure.** Product data lives in **MongoDB Atlas** (managed
   cloud), reached from the backend over the MongoDB wire protocol (TLS,
-  `mongodb+srv`) via the async Motor driver.
+  `mongodb+srv`) via the async Motor driver. In MVP v3 the account data
+  (`users`, `care`, `tracker`) lives in the same Atlas database.
 - **External service (MVP v2).** The backend calls the external **LLM provider**
   (OpenAI-compatible, gpt-4o-mini) over HTTPS REST, using an API key supplied
   through the environment.
@@ -242,8 +257,9 @@ flow to reason about correctness, robustness, and latency.
 
 ### What to consider when operating it
 
-- Set the backend secrets (`MONGODB_URI`, the LLM API key) and the frontend
-  `VITE_API_URL` per environment; never commit them.
+- Set the backend secrets (`MONGODB_URI`, `JWT_SECRET`, the LLM API key) and the
+  frontend `VITE_API_URL` per environment; never commit them. `JWT_SECRET` must
+  be a strong random value in production (a dev-only default exists in config).
 - Keep the Atlas network access list and the LLM key budget in mind — the key is
   usage-limited.
 - Both services read `PORT` from Railway; the frontend must keep
@@ -259,10 +275,11 @@ addresses one or more quality requirements.
 | [ADR-001](adr/ADR-001-rule-based-engine-llm-justification-only.md) | Rule-based selection engine with the LLM as a justification-only layer | [QR-001](../quality-requirements.md#qr-001-allergen-safe-recommendations), [QR-003](../quality-requirements.md#qr-003-recommendation-response-time) |
 | [ADR-002](adr/ADR-002-mongodb-atlas-datastore.md) | MongoDB Atlas as the product datastore | [QR-002](../quality-requirements.md#qr-002-robust-recommendation-across-the-valid-input-space) |
 | [ADR-003](adr/ADR-003-discrete-budget-segments-nearest-fallback.md) | Budget as discrete segments with nearest-segment fallback | [QR-002](../quality-requirements.md#qr-002-robust-recommendation-across-the-valid-input-space) |
+| [ADR-004](adr/ADR-004-authentication-guest-first-jwt.md) | Guest-first authentication with bcrypt + JWT | [QR-004](../quality-requirements.md#qr-004-credential-confidentiality) |
 
 ### How the decisions fit the architecture
 
-These three decisions explain the shape of the system shown in the views above:
+These four decisions explain the shape of the system shown in the views above:
 
 - **ADR-001** is why the static view draws the LLM as a separate, optional
   component hanging off the justification step rather than inside the engine,
@@ -278,3 +295,10 @@ These three decisions explain the shape of the system shown in the views above:
   not a fixed ₽ range) was resolved by PBI-302 at the presentation layer: the
   budget step now shows an approximate tier price and total, and the results note
   that prices are approximate — the engine is kept as-is.
+- **ADR-004** is why the static view draws the account layer as an additive
+  **Accounts API** + **Security** component rather than gating the engine: the
+  `/recommend` path takes an optional auth dependency, so the guest funnel is
+  untouched while signed-in users persist a profile, saved bag, and tracker in
+  the same Atlas datastore (ADR-002). Keeping passwords as bcrypt hashes and out
+  of the response models is what makes QR-004 (credential confidentiality)
+  hold.
