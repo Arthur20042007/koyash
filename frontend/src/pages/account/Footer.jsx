@@ -18,7 +18,7 @@ export default function Footer() {
         src={cloud}
         alt=""
         aria-hidden="true"
-        style={{ left: 205, top: 1520, width: 620, height: 233, objectFit: 'cover' }}
+        style={{ left: 205, top: 1520, width: 620, height: 233, objectFit: 'contain' }}
       />
       <p
         className="acAbs acHeading"
@@ -39,7 +39,7 @@ export default function Footer() {
         src={heart}
         alt=""
         aria-hidden="true"
-        style={{ left: 612, top: 1596, width: 54, height: 72 }}
+        style={{ left: 634, top: 1604, width: 46, height: 58 }}
       />
 
       <p
@@ -68,7 +68,7 @@ export default function Footer() {
           backgroundImage: `url(${email})`,
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundSize: '135%',
+          backgroundSize: 'contain',
         }}
       />
       <a
@@ -97,7 +97,7 @@ export default function Footer() {
           backgroundImage: `url(${telegram})`,
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundSize: '135%',
+          backgroundSize: 'contain',
         }}
       />
       <a

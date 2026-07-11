@@ -128,7 +128,7 @@ img.acAbs { pointer-events: none; object-fit: contain; }
   pointer-events: none;
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 190%;
+  background-size: contain;
 }
 .acInput {
   flex: 1 1 auto;
@@ -154,7 +154,7 @@ img.acAbs { pointer-events: none; object-fit: contain; }
   height: 32px;
   margin-right: 8px;
   border: none;
-  background: transparent center/185% no-repeat;
+  background: transparent center/contain no-repeat;
   cursor: pointer;
   opacity: 0.8;
 }
@@ -418,7 +418,7 @@ img.acAbs { pointer-events: none; object-fit: contain; }
   margin-right: 8px;
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 185%;
+  background-size: contain;
 }
 
 /* ── Avatar picker (Выбор профиля) ─────────────────────────────────────── */

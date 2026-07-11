@@ -36,7 +36,7 @@ const StatIcon = ({ src, x, y, size = 34 }) => (
       backgroundImage: `url(${src})`,
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
-      backgroundSize: '185%',
+      backgroundSize: 'contain',
     }}
   />
 );
@@ -144,7 +144,7 @@ export default function Cabinet() {
           src={heart}
           alt=""
           aria-hidden="true"
-          style={{ left: 988, top: 130, width: 135, height: 135 }}
+          style={{ left: 1024, top: 150, width: 72, height: 72 }}
         />
 
         <ProfileCard

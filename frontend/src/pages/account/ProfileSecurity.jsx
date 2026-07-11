@@ -147,7 +147,7 @@ export default function ProfileSecurity() {
           src={heart}
           alt=""
           aria-hidden="true"
-          style={{ left: 1113, top: 150, width: 100, height: 100 }}
+          style={{ left: 1120, top: 156, width: 64, height: 64 }}
         />
 
         <ProfileCard

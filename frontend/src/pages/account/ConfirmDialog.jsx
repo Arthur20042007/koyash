@@ -39,7 +39,7 @@ export default function ConfirmDialog({
             height: 26,
             maxWidth: '100%',
             margin: '0 auto 6px',
-            objectFit: 'cover',
+            objectFit: 'contain',
           }}
         />
         <div className="acModalActions">

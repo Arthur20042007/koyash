@@ -97,7 +97,7 @@ export default function Register() {
           src={lineHeart}
           alt=""
           aria-hidden="true"
-          style={{ left: 534, top: 252, width: 566, height: 46, objectFit: 'cover' }}
+          style={{ left: 534, top: 252, width: 566, height: 46, objectFit: 'contain' }}
         />
 
         <AuthField

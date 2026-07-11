@@ -65,14 +65,14 @@ export default function Login() {
           src={hero}
           alt=""
           aria-hidden="true"
-          style={{ left: 396, top: 202, width: 841, height: 537, objectFit: 'cover' }}
+          style={{ left: 396, top: 202, width: 841, height: 537, objectFit: 'contain' }}
         />
         <img
           className="acAbs"
           src={lineHeart}
           alt=""
           aria-hidden="true"
-          style={{ left: 480, top: 350, width: 674, height: 55, objectFit: 'cover' }}
+          style={{ left: 480, top: 350, width: 674, height: 55, objectFit: 'contain' }}
         />
 
         <p className="acAbs acTitle" style={{ left: 699, top: 300, width: 236 }}>

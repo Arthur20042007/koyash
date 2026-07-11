@@ -112,7 +112,7 @@ export default function ProfileCard({
                 backgroundImage: `url(${row.icon})`,
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
-                backgroundSize: '185%',
+                backgroundSize: 'contain',
               }}
             />
           )}
@@ -154,7 +154,7 @@ export default function ProfileCard({
         src={lineHeart}
         alt=""
         aria-hidden="true"
-        style={{ left: 5, top: 1012, width: 476, height: 39, objectFit: 'cover' }}
+        style={{ left: 5, top: 1012, width: 476, height: 39, objectFit: 'contain' }}
       />
 
       <button
@@ -195,7 +195,7 @@ export default function ProfileCard({
         src={lineHeart}
         alt=""
         aria-hidden="true"
-        style={{ left: 13, top: 1360, width: 476, height: 39, objectFit: 'cover' }}
+        style={{ left: 13, top: 1360, width: 476, height: 39, objectFit: 'contain' }}
       />
       <button
         type="button"

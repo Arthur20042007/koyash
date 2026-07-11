@@ -57,7 +57,7 @@ export default function Offer() {
           src={spot}
           alt=""
           aria-hidden="true"
-          style={{ left: 391, top: 29, width: 101, height: 101 }}
+          style={{ left: 406, top: 34, width: 72, height: 72 }}
         />
         <p className="acAbs acBody" style={{ left: 75, top: 111, width: 407 }}>
           Ты уже подобрал уход для своей кожи. Зарегистрируйся, чтобы сохранить рекомендации и
