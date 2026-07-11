@@ -316,7 +316,11 @@ export default function ProfileSecurity() {
             error={deleteErr}
           >
             <div className="acModalField">
-              <img className="acFieldIcon" src={icPass} alt="" aria-hidden="true" />
+              <span
+                className="acFieldIcon"
+                style={{ backgroundImage: `url(${icPass})` }}
+                aria-hidden="true"
+              />
               <input
                 className="acInput"
                 type="password"

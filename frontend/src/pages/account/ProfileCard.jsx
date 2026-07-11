@@ -86,17 +86,18 @@ export default function ProfileCard({
         rows.map((row, i) => (
           <div key={row.label}>
             {ROW_LAYOUT[i].icon && (
-              <img
+              <span
                 className="acAbs"
-                src={ROW_LAYOUT[i].icon}
-                alt=""
                 aria-hidden="true"
                 style={{
-                  left: 92,
-                  top: ROW_LAYOUT[i].y - 2,
-                  width: 34,
-                  height: 34,
-                  objectFit: 'contain',
+                  left: 88,
+                  top: ROW_LAYOUT[i].y - 6,
+                  width: 44,
+                  height: 44,
+                  backgroundImage: `url(${ROW_LAYOUT[i].icon})`,
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: '260%',
                 }}
               />
             )}

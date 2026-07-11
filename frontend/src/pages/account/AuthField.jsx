@@ -23,7 +23,13 @@ export default function AuthField({
 
   return (
     <div className={`acField${invalid ? ' acFieldError' : ''}`} style={{ left: x, top: y, width }}>
-      {icon && <img className="acFieldIcon" src={icon} alt="" aria-hidden="true" />}
+      {icon && (
+        <span
+          className="acFieldIcon"
+          style={{ backgroundImage: `url(${icon})` }}
+          aria-hidden="true"
+        />
+      )}
       <input
         className="acInput"
         type={inputType}

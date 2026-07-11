@@ -118,13 +118,17 @@ img.acAbs { pointer-events: none; object-fit: contain; }
   align-items: center;
   box-sizing: border-box;
 }
-.acField img.acFieldIcon {
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-  margin: 0 10px 0 12px;
+/* Field glyphs are 1254px icons with heavy transparent padding — render them
+   as a zoomed background so the glyph reads at a usable size, not ~6px. */
+.acFieldIcon {
+  width: 30px;
+  height: 30px;
+  margin: 0 6px 0 12px;
   flex: 0 0 auto;
   pointer-events: none;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 280%;
 }
 .acInput {
   flex: 1 1 auto;
@@ -146,11 +150,11 @@ img.acAbs { pointer-events: none; object-fit: contain; }
 /* eye toggle inside a password field */
 .acEye {
   flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
-  margin-right: 8px;
+  width: 40px;
+  height: 40px;
+  margin-right: 6px;
   border: none;
-  background: transparent center/contain no-repeat;
+  background: transparent center/260% no-repeat;
   cursor: pointer;
   opacity: 0.8;
 }

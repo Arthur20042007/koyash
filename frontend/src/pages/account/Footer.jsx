@@ -57,12 +57,19 @@ export default function Footer() {
       >
         Контакты:
       </p>
-      <img
+      <span
         className="acAbs"
-        src={email}
-        alt=""
         aria-hidden="true"
-        style={{ left: 874, top: 1591, width: 51, height: 52 }}
+        style={{
+          left: 874,
+          top: 1591,
+          width: 51,
+          height: 52,
+          backgroundImage: `url(${email})`,
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: '175%',
+        }}
       />
       <a
         className="acAbs"
@@ -79,12 +86,19 @@ export default function Footer() {
       >
         d.minnakhmetova@innopolis.university
       </a>
-      <img
+      <span
         className="acAbs"
-        src={telegram}
-        alt=""
         aria-hidden="true"
-        style={{ left: 875, top: 1651, width: 51, height: 51 }}
+        style={{
+          left: 875,
+          top: 1651,
+          width: 51,
+          height: 51,
+          backgroundImage: `url(${telegram})`,
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: '175%',
+        }}
       />
       <a
         className="acAbs"
