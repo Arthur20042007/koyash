@@ -63,3 +63,8 @@ export function profileRows(profile) {
     { label: 'Важные условия', value: joinLabels(profile.conditions, CONDITIONS) || 'Нет' },
   ];
 }
+
+// Same data keyed by label, for the profile card which renders a fixed row set.
+export function profileValues(profile) {
+  return Object.fromEntries(profileRows(profile).map((r) => [r.label, r.value]));
+}

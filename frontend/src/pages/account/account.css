@@ -394,3 +394,29 @@ img.acAbs { pointer-events: none; object-fit: contain; }
 }
 .trkHistCard.locked { opacity: 0.55; }
 .trkBadge { display: inline-block; font-size: 14px; padding: 2px 12px; border-radius: 20px; background: #fdf3e9; margin: 0 0 8px; }
+
+/* ── Pulsing heart (matches the landing .lHeart animation) ─────────────── */
+@keyframes acPulse {
+  0%,
+  100% {
+    transform: scale(1) rotate(-6deg);
+  }
+  50% {
+    transform: scale(1.14) rotate(-6deg);
+  }
+}
+.acHeart {
+  animation: acPulse 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* ── Logout button icon ────────────────────────────────────────────────── */
+.acBtnIcon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 185%;
+}

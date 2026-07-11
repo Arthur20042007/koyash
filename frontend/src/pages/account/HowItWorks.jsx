@@ -26,6 +26,7 @@ export default function HowItWorks() {
         onClick={(e) => e.stopPropagation()}
       >
         <img
+          className="acHeart"
           src={heart}
           alt=""
           aria-hidden="true"

@@ -13,7 +13,7 @@ import {
   changePassword,
   deleteAccount,
 } from '../../api/client';
-import { profileRows } from './labels';
+import { profileValues } from './labels';
 
 import heart from '../../assets/account/offer-spot.png';
 import icPass from '../../assets/account/ic-pass.png';
@@ -143,7 +143,7 @@ export default function ProfileSecurity() {
           Профиль и безопасность
         </p>
         <img
-          className="acAbs"
+          className="acAbs acHeart"
           src={heart}
           alt=""
           aria-hidden="true"
@@ -153,7 +153,7 @@ export default function ProfileSecurity() {
         <ProfileCard
           name={user?.name}
           email={user?.email}
-          rows={profileRows(profile)}
+          values={profileValues(profile)}
           hasProfile={!!profile}
           onEdit={() => navigate('/account/security')}
           onLogout={logout}

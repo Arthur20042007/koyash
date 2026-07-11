@@ -8,11 +8,38 @@ import Footer from './Footer';
 import ConfirmDialog from './ConfirmDialog';
 import { useAuth } from '../../auth/useAuth';
 import { fetchProfile, fetchCare, fetchTracker } from '../../api/client';
-import { profileRows } from './labels';
+import { profileValues } from './labels';
 
 import heart from '../../assets/account/offer-spot.png';
 import decorCream from '../../assets/account/decor-cream.png';
 import mascot from '../../assets/account/mascot.png';
+import trkIllust from '../../assets/account/trk-illust.png';
+import trkIc1 from '../../assets/account/trk-ic1.png';
+import trkIc2 from '../../assets/account/trk-ic2.png';
+import trkIc3 from '../../assets/account/trk-ic3.png';
+import trkIc4 from '../../assets/account/trk-ic4.png';
+import bagIllust from '../../assets/account/bag-illust.png';
+import bagIcDate from '../../assets/account/pf-age.png';
+import bagIcCount from '../../assets/account/bag-ic-date.png';
+import bagIcTotal from '../../assets/account/bag-ic-count.png';
+
+// Small stat glyph (padded 1254px icon → zoomed background).
+const StatIcon = ({ src, x, y, size = 34 }) => (
+  <span
+    className="acAbs"
+    aria-hidden="true"
+    style={{
+      left: x,
+      top: y,
+      width: size,
+      height: size,
+      backgroundImage: `url(${src})`,
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: '185%',
+    }}
+  />
+);
 
 const MONTHS = [
   'января',
@@ -82,7 +109,6 @@ export default function Cabinet() {
   }, [isAuthenticated]);
 
   const hasProfile = !!profile;
-  const rows = profileRows(profile);
 
   const week = trackerSummary?.week ?? 0;
   const lastResult = trackerSummary?.lastResult;
@@ -114,7 +140,7 @@ export default function Cabinet() {
           Личный кабинет
         </p>
         <img
-          className="acAbs"
+          className="acAbs acHeart"
           src={heart}
           alt=""
           aria-hidden="true"
@@ -124,7 +150,7 @@ export default function Cabinet() {
         <ProfileCard
           name={user?.name}
           email={user?.email}
-          rows={rows}
+          values={profileValues(profile)}
           hasProfile={hasProfile}
           onEdit={() => navigate('/account/security')}
           onLogout={() => navigate('/account/security')}
@@ -141,9 +167,17 @@ export default function Cabinet() {
         </p>
         {hasProfile ? (
           <>
+            <img
+              className="acAbs"
+              src={trkIllust}
+              alt=""
+              aria-hidden="true"
+              style={{ left: 659, top: 486, width: 178, height: 152 }}
+            />
+            <StatIcon src={trkIc1} x={506} y={758} size={30} />
             <p
               className="acAbs"
-              style={{ left: 541, top: 762, width: 300, fontWeight: 700, fontSize: 16 }}
+              style={{ left: 544, top: 762, width: 300, fontWeight: 700, fontSize: 16 }}
             >
               Неделя {week} из {WEEKS_TOTAL}
             </p>
@@ -170,21 +204,31 @@ export default function Cabinet() {
               }}
             />
             <div className="acCard" style={{ left: 511, top: 840, width: 225, height: 88 }} />
+            <StatIcon src={trkIc2} x={523} y={858} size={30} />
             <p
               className="acAbs"
-              style={{ left: 528, top: 852, width: 200, fontSize: 16, lineHeight: '22px' }}
+              style={{ left: 561, top: 852, width: 166, fontSize: 16, lineHeight: '22px' }}
             >
               Последний результат:
               <br />
               {lastResult || 'Пока нет отметок'}
             </p>
             <div className="acCard" style={{ left: 752, top: 840, width: 225, height: 88 }} />
+            <StatIcon src={trkIc3} x={764} y={858} size={30} />
             <p
               className="acAbs"
-              style={{ left: 770, top: 852, width: 200, fontSize: 16, lineHeight: '22px' }}
+              style={{ left: 802, top: 852, width: 166, fontSize: 16, lineHeight: '22px' }}
             >
               Частота отметок:
               <br />1 раз в 2 недели
+            </p>
+            <div className="acCard" style={{ left: 511, top: 940, width: 466, height: 64 }} />
+            <StatIcon src={trkIc4} x={523} y={956} size={30} />
+            <p
+              className="acAbs"
+              style={{ left: 561, top: 957, width: 400, fontSize: 16, lineHeight: '22px' }}
+            >
+              Отмечай результат каждые 2 недели, чтобы видеть динамику
             </p>
             <button
               type="button"
@@ -197,11 +241,18 @@ export default function Cabinet() {
           </>
         ) : (
           <>
+            <img
+              className="acAbs"
+              src={trkIllust}
+              alt=""
+              aria-hidden="true"
+              style={{ left: 597, top: 520, width: 300, height: 255 }}
+            />
             <p
               className="acAbs acTitle"
               style={{
                 left: 477,
-                top: 880,
+                top: 820,
                 width: 540,
                 fontSize: 22,
                 lineHeight: '30px',
@@ -212,7 +263,7 @@ export default function Cabinet() {
             </p>
             <p
               className="acAbs acBody"
-              style={{ left: 517, top: 950, width: 460, textAlign: 'center' }}
+              style={{ left: 517, top: 890, width: 460, textAlign: 'center' }}
             >
               Пройди подбор уходовой косметики, чтобы начать трекер результата
             </p>
@@ -229,13 +280,21 @@ export default function Cabinet() {
         </p>
         {care ? (
           <>
+            <img
+              className="acAbs"
+              src={bagIllust}
+              alt=""
+              aria-hidden="true"
+              style={{ left: 1152, top: 486, width: 320, height: 213 }}
+            />
             <div className="acCard" style={{ left: 1130, top: 751, width: 382, height: 72 }} />
+            <StatIcon src={bagIcDate} x={1148} y={769} size={34} />
             <p
               className="acAbs"
               style={{
-                left: 1155,
+                left: 1192,
                 top: 763,
-                width: 330,
+                width: 300,
                 fontWeight: 600,
                 fontSize: 20,
                 lineHeight: '27px',
@@ -244,12 +303,13 @@ export default function Cabinet() {
               Обновлено {formatDate(care.updated_at)}
             </p>
             <div className="acCard" style={{ left: 1130, top: 843, width: 382, height: 72 }} />
+            <StatIcon src={bagIcCount} x={1148} y={861} size={34} />
             <p
               className="acAbs"
               style={{
-                left: 1155,
+                left: 1192,
                 top: 858,
-                width: 330,
+                width: 300,
                 fontWeight: 600,
                 fontSize: 20,
                 lineHeight: '27px',
@@ -258,12 +318,13 @@ export default function Cabinet() {
               Средств в уходе: {activeCount}
             </p>
             <div className="acCard" style={{ left: 1130, top: 935, width: 382, height: 72 }} />
+            <StatIcon src={bagIcTotal} x={1148} y={953} size={34} />
             <p
               className="acAbs"
               style={{
-                left: 1155,
+                left: 1192,
                 top: 950,
-                width: 330,
+                width: 300,
                 fontWeight: 600,
                 fontSize: 20,
                 lineHeight: '27px',
@@ -286,7 +347,7 @@ export default function Cabinet() {
               className="acAbs acTitle"
               style={{
                 left: 1045,
-                top: 880,
+                top: 820,
                 width: 534,
                 fontSize: 22,
                 lineHeight: '30px',
@@ -295,9 +356,16 @@ export default function Cabinet() {
             >
               Косметичка пока пуста
             </p>
+            <img
+              className="acAbs"
+              src={bagIllust}
+              alt=""
+              aria-hidden="true"
+              style={{ left: 1152, top: 540, width: 320, height: 213 }}
+            />
             <p
               className="acAbs acBody"
-              style={{ left: 1085, top: 950, width: 454, textAlign: 'center' }}
+              style={{ left: 1085, top: 890, width: 454, textAlign: 'center' }}
             >
               После подбора уходовой косметики здесь появятся твои средства
             </p>

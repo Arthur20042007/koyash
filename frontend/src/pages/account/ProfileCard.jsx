@@ -1,30 +1,33 @@
 import avatar from '../../assets/account/avatar-sun.png';
 import lineHeart from '../../assets/account/line-heart.png';
+import icLogout from '../../assets/account/ic-logout.png';
 import icAge from '../../assets/account/pf-age.png';
-import icSkin from '../../assets/account/pf-skin.png';
+import icProblems from '../../assets/account/pf-skin.png';
 import icAllergy from '../../assets/account/pf-allergy.png';
 import icBudget from '../../assets/account/pf-budget.png';
 import icPref from '../../assets/account/pf-pref.png';
+import icConditions from '../../assets/account/pf-conditions.png';
 
-// Figma y-position of each field row in the left profile card, plus the small
-// decorative icon that sits next to it (some rows have none).
-const ROW_LAYOUT = [
-  { y: 553, icon: icAge }, // Возраст
-  { y: 610, icon: icSkin }, // Тип кожи
-  { y: 677, icon: null }, // Проблемы
-  { y: 744, icon: icAllergy }, // Аллергии
-  { y: 813, icon: icBudget }, // Бюджет
-  { y: 876, icon: icPref }, // Предпочтения
-  { y: 943, icon: null }, // Важные условия
+// Each profile field row: Figma y-position, its label, and the small glyph
+// beside it (Тип кожи carries no icon in the design). Rows are always shown —
+// before the questionnaire the labels appear without values.
+const ROWS = [
+  { y: 553, label: 'Возраст', icon: icAge },
+  { y: 610, label: 'Тип кожи', icon: null },
+  { y: 677, label: 'Проблемы', icon: icProblems },
+  { y: 744, label: 'Аллергии', icon: icAllergy },
+  { y: 813, label: 'Бюджет', icon: icBudget },
+  { y: 876, label: 'Предпочтения', icon: icPref },
+  { y: 943, label: 'Важные условия', icon: icConditions },
 ];
 
-// Shared left column: greeting, contact, the profile snapshot (or an empty
-// state before the questionnaire is taken), and the edit / logout / help
-// actions. `rows` come from labels.profileRows(profile).
+// Shared left column: greeting, contact, the profile snapshot and the edit /
+// logout / help actions. `values` maps a field label to its display value
+// (from labels.profileRows); missing before the questionnaire is taken.
 export default function ProfileCard({
   name,
   email,
-  rows,
+  values,
   hasProfile,
   onEdit,
   onLogout,
@@ -82,60 +85,64 @@ export default function ProfileCard({
         {email}
       </p>
 
-      {hasProfile ? (
-        rows.map((row, i) => (
-          <div key={row.label}>
-            {ROW_LAYOUT[i].icon && (
-              <span
-                className="acAbs"
-                aria-hidden="true"
-                style={{
-                  left: 96,
-                  top: ROW_LAYOUT[i].y - 1,
-                  width: 34,
-                  height: 34,
-                  backgroundImage: `url(${ROW_LAYOUT[i].icon})`,
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundSize: '185%',
-                }}
-              />
-            )}
-            <p
+      {ROWS.map((row) => (
+        <div key={row.label}>
+          {row.icon && (
+            <span
               className="acAbs"
+              aria-hidden="true"
               style={{
-                left: 143,
-                top: ROW_LAYOUT[i].y,
-                width: 290,
-                fontFamily: "'Playfair Display', serif",
-                fontWeight: 700,
-                fontSize: 20,
-                lineHeight: '27px',
-                color: '#634938',
+                left: 96,
+                top: row.y - 1,
+                width: 34,
+                height: 34,
+                backgroundImage: `url(${row.icon})`,
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '185%',
               }}
-            >
-              {row.label}
-            </p>
+            />
+          )}
+          <p
+            className="acAbs"
+            style={{
+              left: 143,
+              top: row.y,
+              width: 290,
+              fontFamily: "'Playfair Display', serif",
+              fontWeight: 700,
+              fontSize: 20,
+              lineHeight: '27px',
+              color: '#634938',
+            }}
+          >
+            {row.label}
+          </p>
+          {hasProfile && (
             <p
               className="acAbs"
               style={{
                 left: 143,
-                top: ROW_LAYOUT[i].y + 30,
+                top: row.y + 30,
                 width: 290,
                 fontSize: 16,
                 lineHeight: '22px',
                 color: '#634938',
               }}
             >
-              {row.value}
+              {values[row.label]}
             </p>
-          </div>
-        ))
-      ) : (
-        <p className="acAbs acBody" style={{ left: 92, top: 560, width: 320, textAlign: 'center' }}>
-          Твой профиль заполнится после подбора ухода
-        </p>
-      )}
+          )}
+        </div>
+      ))}
+
+      <img
+        className="acAbs"
+        src={lineHeart}
+        alt=""
+        aria-hidden="true"
+        style={{ left: 5, top: 1012, width: 476, height: 39, objectFit: 'cover' }}
+      />
 
       <button
         type="button"
@@ -151,6 +158,7 @@ export default function ProfileCard({
         style={{ left: 98, top: 1120, width: 281, height: 51, fontSize: 20 }}
         onClick={onLogout}
       >
+        <span className="acBtnIcon" style={{ backgroundImage: `url(${icLogout})` }} />
         Выйти
       </button>
 

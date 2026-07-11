@@ -53,7 +53,7 @@ export default function Offer() {
           Сохрани свой уход
         </p>
         <img
-          className="acAbs"
+          className="acAbs acHeart"
           src={spot}
           alt=""
           aria-hidden="true"

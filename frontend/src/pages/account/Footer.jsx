@@ -18,7 +18,7 @@ export default function Footer() {
         src={cloud}
         alt=""
         aria-hidden="true"
-        style={{ left: 269, top: 1539, width: 492, height: 187 }}
+        style={{ left: 205, top: 1520, width: 620, height: 233, objectFit: 'cover' }}
       />
       <p
         className="acAbs acHeading"
@@ -35,11 +35,11 @@ export default function Footer() {
         Остались вопросы? Свяжитесь с нами
       </p>
       <img
-        className="acAbs"
+        className="acAbs acHeart"
         src={heart}
         alt=""
         aria-hidden="true"
-        style={{ left: 626, top: 1622, width: 36, height: 48 }}
+        style={{ left: 612, top: 1636, width: 54, height: 72 }}
       />
 
       <p
