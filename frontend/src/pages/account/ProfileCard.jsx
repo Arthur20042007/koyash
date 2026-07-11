@@ -173,7 +173,7 @@ export default function ProfileCard({
         src={lineHeart}
         alt=""
         aria-hidden="true"
-        style={{ left: 13, top: 1360, width: 476, height: 39 }}
+        style={{ left: 13, top: 1360, width: 476, height: 39, objectFit: 'cover' }}
       />
       <button
         type="button"

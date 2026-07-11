@@ -4,9 +4,11 @@ import logo from '../../assets/landing/logo.png';
 // Shared header for the account / auth screens. Matches the landing header
 // (logo + three section links) and exposes the right-hand slot so each screen
 // can drop in its own primary action ("Подобрать уход", the user's name, …).
-// Coordinates are the raw Figma values on the 1633px canvas.
+// The section links return to the landing AND scroll to that section (the
+// target id is passed through router state and read by LandingPage).
 export default function TopNav({ right }) {
   const navigate = useNavigate();
+  const go = (section) => () => navigate('/', { state: { scrollTo: section } });
 
   return (
     <>
@@ -21,7 +23,7 @@ export default function TopNav({ right }) {
         type="button"
         className="acAbs acNav"
         style={{ left: 509, top: 48 }}
-        onClick={() => navigate('/')}
+        onClick={go('top')}
       >
         О нас
       </button>
@@ -29,7 +31,7 @@ export default function TopNav({ right }) {
         type="button"
         className="acAbs acNav"
         style={{ left: 631, top: 48 }}
-        onClick={() => navigate('/')}
+        onClick={go('how')}
       >
         Как это работает?
       </button>
@@ -37,7 +39,7 @@ export default function TopNav({ right }) {
         type="button"
         className="acAbs acNav"
         style={{ left: 853, top: 48 }}
-        onClick={() => navigate('/')}
+        onClick={go('trust')}
       >
         Забота и Доверие
       </button>

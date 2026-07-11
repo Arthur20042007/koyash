@@ -54,7 +54,7 @@ export default function ResetPassword() {
             src={hero}
             alt=""
             aria-hidden="true"
-            style={{ left: 396, top: 202, width: 841, height: 537 }}
+            style={{ left: 396, top: 202, width: 841, height: 537, objectFit: 'cover' }}
           />
 
           <p className="acAbs acTitle" style={{ left: 751, top: 298, width: 133 }}>
@@ -99,7 +99,7 @@ export default function ResetPassword() {
           src={hero}
           alt=""
           aria-hidden="true"
-          style={{ left: 396, top: 202, width: 841, height: 537 }}
+          style={{ left: 396, top: 202, width: 841, height: 537, objectFit: 'cover' }}
         />
 
         <p className="acAbs acTitle" style={{ left: 689, top: 300, width: 256 }}>

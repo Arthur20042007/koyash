@@ -35,10 +35,11 @@ export default function ConfirmDialog({
           aria-hidden="true"
           style={{
             display: 'block',
-            width: 360,
+            width: 300,
+            height: 26,
             maxWidth: '100%',
             margin: '0 auto 6px',
-            objectFit: 'contain',
+            objectFit: 'cover',
           }}
         />
         <div className="acModalActions">

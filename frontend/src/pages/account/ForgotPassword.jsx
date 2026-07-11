@@ -42,7 +42,7 @@ export default function ForgotPassword() {
             src={hero}
             alt=""
             aria-hidden="true"
-            style={{ left: 396, top: 202, width: 841, height: 537 }}
+            style={{ left: 396, top: 202, width: 841, height: 537, objectFit: 'cover' }}
           />
 
           <p className="acAbs acTitle" style={{ left: 635, top: 300, width: 365 }}>
@@ -90,7 +90,7 @@ export default function ForgotPassword() {
           src={hero}
           alt=""
           aria-hidden="true"
-          style={{ left: 396, top: 202, width: 841, height: 537 }}
+          style={{ left: 396, top: 202, width: 841, height: 537, objectFit: 'cover' }}
         />
 
         <p className="acAbs acTitle" style={{ left: 674, top: 300, width: 287 }}>

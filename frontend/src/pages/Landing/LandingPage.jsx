@@ -1,6 +1,6 @@
 import './style.css';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Stage from '../Quiz/Stage';
 import { useAuth } from '../../auth/useAuth';
 
@@ -71,6 +71,7 @@ const SmearTitle = ({ x, y, w, h, flip = false, src = smear, children }) => (
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated } = useAuth();
   const story = () => navigate('/quiz');
   const quick = () => navigate('/quick');
@@ -121,6 +122,16 @@ export function LandingPage() {
   // The three upper "Подобрать уход" buttons scroll to the choice section
   // (story vs quick) instead of jumping straight into a quiz.
   const toChoice = scrollTo('choice');
+
+  // Arriving from a header link on another screen (TopNav passes the target
+  // section id via router state) → scroll to that section once the scaled
+  // page has laid out.
+  useEffect(() => {
+    const target = location.state?.scrollTo;
+    if (!target) return;
+    const t = setTimeout(() => scrollTo(target)(), 220);
+    return () => clearTimeout(t);
+  }, [location.state]);
 
   return (
     <Stage w={1633} h={4149} mode="page">
