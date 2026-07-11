@@ -28,21 +28,25 @@ export default function AvatarPicker() {
   return (
     <div className="acModalOverlay" style={{ position: 'fixed', overflowY: 'auto' }}>
       <div className="acModal" style={{ width: 1000, maxWidth: '96vw', padding: '36px 44px 30px' }}>
-        <img
-          className="acHeart"
-          src={heart}
-          alt=""
-          aria-hidden="true"
+        <p
+          className="acModalTitle"
           style={{
-            width: 70,
-            height: 70,
-            objectFit: 'contain',
-            margin: '0 auto 4px',
-            display: 'block',
+            fontSize: 30,
+            lineHeight: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 12,
           }}
-        />
-        <p className="acModalTitle" style={{ fontSize: 30, lineHeight: '40px' }}>
+        >
           Выбери фото профиля
+          <img
+            className="acHeart"
+            src={heart}
+            alt=""
+            aria-hidden="true"
+            style={{ width: 42, height: 42, objectFit: 'contain' }}
+          />
         </p>
         <p className="acBody" style={{ margin: '0 0 4px' }}>
           Выбери аватар для личного кабинета
