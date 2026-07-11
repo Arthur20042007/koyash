@@ -5,6 +5,7 @@ import Stage from './Stage';
 import logo from '../../assets/landing/logo.png';
 import sceneLoading from '../../assets/quiz/scene-loading.png';
 import { buildRequest } from './quizConfig';
+import { getToken } from '../../api/client';
 
 const LOADING_STEPS = [
   'Смотрю, что подойдёт именно тебе...',
@@ -30,9 +31,15 @@ export default function Loading({ answers }) {
     });
 
     const request = buildRequest(answers);
+    // Send the auth token when the visitor is signed in, so the backend
+    // persists this bag/profile/tracker to their account (guest requests stay
+    // anonymous and nothing is saved).
+    const headers = { 'Content-Type': 'application/json' };
+    const token = getToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
     fetch(`${API_URL}/recommend`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(request),
     })
       .then((res) => {
