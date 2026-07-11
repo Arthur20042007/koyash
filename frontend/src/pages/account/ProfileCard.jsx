@@ -154,7 +154,7 @@ export default function ProfileCard({
         src={lineHeart}
         alt=""
         aria-hidden="true"
-        style={{ left: 5, top: 1012, width: 476, height: 39, objectFit: 'contain' }}
+        style={{ left: 84, top: 1014, width: 335, height: 30, objectFit: 'contain' }}
       />
 
       <button
@@ -195,7 +195,7 @@ export default function ProfileCard({
         src={lineHeart}
         alt=""
         aria-hidden="true"
-        style={{ left: 13, top: 1360, width: 476, height: 39, objectFit: 'contain' }}
+        style={{ left: 86, top: 1362, width: 335, height: 30, objectFit: 'contain' }}
       />
       <button
         type="button"
