@@ -2,6 +2,7 @@ import './style.css';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Stage from '../Quiz/Stage';
+import { useAuth } from '../../auth/useAuth';
 
 import logo from '../../assets/landing/logo.png';
 import mascot from '../../assets/landing/maskot.png';
@@ -70,6 +71,7 @@ const SmearTitle = ({ x, y, w, h, flip = false, src = smear, children }) => (
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const story = () => navigate('/quiz');
   const quick = () => navigate('/quick');
 
@@ -153,9 +155,38 @@ export function LandingPage() {
         >
           Забота и Доверие
         </button>
-        <Btn x={1153} y={40} onClick={toChoice}>
-          Подобрать уход
-        </Btn>
+        {/* Auth entry (Figma «До регистрации» / «После регистрации»): the
+            signed-in visitor gets a single cabinet button, the guest gets
+            register + login. */}
+        {isAuthenticated ? (
+          <button
+            type="button"
+            className="lBtn reveal"
+            style={{ left: 1284, top: 40, width: 281 }}
+            onClick={() => navigate('/account')}
+          >
+            Мой кабинет
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              className="lBtn reveal"
+              style={{ left: 1153, top: 40, width: 251, fontSize: 18 }}
+              onClick={() => navigate('/register')}
+            >
+              Зарегистрироваться
+            </button>
+            <button
+              type="button"
+              className="lBtn reveal"
+              style={{ left: 1422, top: 40, width: 143 }}
+              onClick={() => navigate('/login')}
+            >
+              Войти
+            </button>
+          </>
+        )}
 
         {/* Hero */}
         <Img src={mascot} x={881} y={104} w={575} h={575} cls="lFloat" />
