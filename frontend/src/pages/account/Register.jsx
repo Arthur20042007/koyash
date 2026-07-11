@@ -66,7 +66,7 @@ export default function Register() {
     try {
       const token = await registerUser(payload);
       signIn(token);
-      navigate('/account');
+      navigate('/account/avatar', { state: { from: '/account' } });
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Не удалось зарегистрироваться');
     } finally {

@@ -12,6 +12,7 @@ import ResetPassword from './pages/account/ResetPassword';
 import Cabinet from './pages/account/Cabinet';
 import ProfileSecurity from './pages/account/ProfileSecurity';
 import HowItWorks from './pages/account/HowItWorks';
+import AvatarPicker from './pages/account/AvatarPicker';
 import Care from './pages/account/Care';
 import Replace from './pages/account/Replace';
 import Tracker from './pages/account/Tracker';
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/account" element={<Cabinet />} />
           <Route path="/account/security" element={<ProfileSecurity />} />
           <Route path="/account/how" element={<HowItWorks />} />
+          <Route path="/account/avatar" element={<AvatarPicker />} />
           <Route path="/account/care" element={<Care />} />
           <Route path="/account/care/replace/:id" element={<Replace />} />
           <Route path="/account/tracker" element={<Tracker />} />

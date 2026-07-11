@@ -24,6 +24,7 @@ class UserRegister(BaseModel):
     password: str = Field(min_length=8, max_length=128)
     age: Optional[int] = Field(default=None, ge=10, le=100)
     phone: Optional[str] = Field(default=None, max_length=32)
+    avatar: Optional[str] = Field(default=None, max_length=32)
 
     @field_validator("email")
     @classmethod
@@ -54,6 +55,7 @@ class UserOut(BaseModel):
     email: str
     age: Optional[int] = None
     phone: Optional[str] = None
+    avatar: Optional[str] = None
 
 
 class TokenResponse(BaseModel):
@@ -69,6 +71,7 @@ class ProfileUpdate(BaseModel):
     email: Optional[str] = None
     phone: Optional[str] = Field(default=None, max_length=32)
     age: Optional[int] = Field(default=None, ge=10, le=100)
+    avatar: Optional[str] = Field(default=None, max_length=32)
 
     @field_validator("email")
     @classmethod

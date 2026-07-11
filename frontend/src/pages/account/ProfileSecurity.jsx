@@ -155,6 +155,10 @@ export default function ProfileSecurity() {
           email={user?.email}
           values={profileValues(profile)}
           hasProfile={!!profile}
+          avatar={user?.avatar}
+          onAvatarClick={() =>
+            navigate('/account/avatar', { state: { from: '/account/security' } })
+          }
           onEdit={() => navigate('/account/security')}
           onLogout={logout}
           onHowItWorks={() => navigate('/account/how')}

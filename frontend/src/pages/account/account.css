@@ -420,3 +420,33 @@ img.acAbs { pointer-events: none; object-fit: contain; }
   background-repeat: no-repeat;
   background-size: 185%;
 }
+
+/* ── Avatar picker (Выбор профиля) ─────────────────────────────────────── */
+.avGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
+  margin: 24px 0 28px;
+}
+.avItem {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  background: #fdf3e9 center / cover no-repeat;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.avItem:hover {
+  transform: scale(1.06);
+}
+.avItem.sel {
+  border-color: #e9a563;
+  box-shadow: 0 0 0 4px #ffe9cf;
+}
+@media (max-width: 720px) {
+  .avGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

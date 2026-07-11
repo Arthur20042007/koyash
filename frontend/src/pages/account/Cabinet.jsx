@@ -152,6 +152,8 @@ export default function Cabinet() {
           email={user?.email}
           values={profileValues(profile)}
           hasProfile={hasProfile}
+          avatar={user?.avatar}
+          onAvatarClick={() => navigate('/account/avatar', { state: { from: '/account' } })}
           onEdit={() => navigate('/account/security')}
           onLogout={() => navigate('/account/security')}
           onHowItWorks={() => navigate('/account/how')}

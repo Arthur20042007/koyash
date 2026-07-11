@@ -1,4 +1,4 @@
-import avatar from '../../assets/account/avatar-sun.png';
+import sun from '../../assets/account/avatar-sun.png';
 import lineHeart from '../../assets/account/line-heart.png';
 import icLogout from '../../assets/account/ic-logout.png';
 import icAge from '../../assets/account/pf-age.png';
@@ -7,13 +7,14 @@ import icAllergy from '../../assets/account/pf-allergy.png';
 import icBudget from '../../assets/account/pf-budget.png';
 import icPref from '../../assets/account/pf-pref.png';
 import icConditions from '../../assets/account/pf-conditions.png';
+import { avatarSrc } from './avatars';
 
 // Each profile field row: Figma y-position, its label, and the small glyph
-// beside it (Тип кожи carries no icon in the design). Rows are always shown —
-// before the questionnaire the labels appear without values.
+// beside it. «Тип кожи» uses the little sun. Rows are always shown — before the
+// questionnaire the labels appear without values.
 const ROWS = [
   { y: 553, label: 'Возраст', icon: icAge },
-  { y: 610, label: 'Тип кожи', icon: null },
+  { y: 610, label: 'Тип кожи', icon: sun },
   { y: 677, label: 'Проблемы', icon: icProblems },
   { y: 744, label: 'Аллергии', icon: icAllergy },
   { y: 813, label: 'Бюджет', icon: icBudget },
@@ -29,6 +30,8 @@ export default function ProfileCard({
   email,
   values,
   hasProfile,
+  avatar,
+  onAvatarClick,
   onEdit,
   onLogout,
   onHowItWorks,
@@ -48,12 +51,22 @@ export default function ProfileCard({
         }}
       />
 
-      <img
+      <button
+        type="button"
         className="acAbs"
-        src={avatar}
-        alt=""
-        aria-hidden="true"
-        style={{ left: 207, top: 335, width: 88, height: 94 }}
+        aria-label="Сменить фото профиля"
+        onClick={onAvatarClick}
+        style={{
+          left: 197,
+          top: 318,
+          width: 108,
+          height: 108,
+          borderRadius: '50%',
+          border: '3px solid #E9A563',
+          padding: 0,
+          cursor: onAvatarClick ? 'pointer' : 'default',
+          background: `#FDF3E9 url(${avatarSrc(avatar)}) center / cover no-repeat`,
+        }}
       />
       <p
         className="acAbs"

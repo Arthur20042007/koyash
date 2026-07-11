@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { fetchMe, getToken, setToken } from '../api/client';
+import { fetchMe, getToken, setToken, updateAccount } from '../api/client';
 import { AuthContext } from './useAuth';
 
 const USER_KEY = 'koyash_user';
+const AVATAR_KEY = 'koyash_avatar_'; // + userId
 
 function readStoredUser() {
   try {
@@ -22,11 +23,24 @@ function writeStoredUser(user) {
   }
 }
 
+// Avatar carries a client-side fallback: until the backend deploy that adds the
+// `avatar` field, the server drops it, so we also remember the choice per user
+// in localStorage and merge it back in whenever the account loads.
+function mergeStoredAvatar(user) {
+  if (!user || user.avatar) return user;
+  try {
+    const saved = localStorage.getItem(AVATAR_KEY + user.id);
+    return saved ? { ...user, avatar: saved } : user;
+  } catch {
+    return user;
+  }
+}
+
 // Guest-first: the whole questionnaire works without an account. This provider
 // only tracks the *optional* signed-in user, mirroring the backend's ADR-004
 // model. Token + user are cached in localStorage so a reload stays signed in.
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(readStoredUser);
+  const [user, setUser] = useState(() => mergeStoredAvatar(readStoredUser()));
   // If there's no token we're already "ready" (a guest); otherwise we stay
   // not-ready until the stored token is validated below.
   const [ready, setReady] = useState(() => !getToken());
@@ -39,8 +53,9 @@ export function AuthProvider({ children }) {
     fetchMe()
       .then((me) => {
         if (cancelled) return;
-        setUser(me);
-        writeStoredUser(me);
+        const merged = mergeStoredAvatar(me);
+        setUser(merged);
+        writeStoredUser(merged);
       })
       .catch(() => {
         if (cancelled) return;
@@ -59,8 +74,9 @@ export function AuthProvider({ children }) {
   // Called by login/register screens with the backend's TokenResponse.
   const signIn = useCallback(({ access_token, user: nextUser }) => {
     setToken(access_token);
-    writeStoredUser(nextUser);
-    setUser(nextUser);
+    const merged = mergeStoredAvatar(nextUser);
+    writeStoredUser(merged);
+    setUser(merged);
   }, []);
 
   const signOut = useCallback(() => {
@@ -78,9 +94,26 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
+  // Pick a profile avatar: update the cache, remember it locally, and best-effort
+  // persist it server-side (ignored until the backend deploy lands).
+  const setAvatar = useCallback((key) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, avatar: key };
+      writeStoredUser(next);
+      try {
+        localStorage.setItem(AVATAR_KEY + prev.id, key);
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+    updateAccount({ avatar: key }).catch(() => {});
+  }, []);
+
   const value = useMemo(
-    () => ({ user, isAuthenticated: !!user, ready, signIn, signOut, updateUser }),
-    [user, ready, signIn, signOut, updateUser],
+    () => ({ user, isAuthenticated: !!user, ready, signIn, signOut, updateUser, setAvatar }),
+    [user, ready, signIn, signOut, updateUser, setAvatar],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
