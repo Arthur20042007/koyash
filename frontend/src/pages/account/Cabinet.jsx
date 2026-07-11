@@ -174,7 +174,7 @@ export default function Cabinet() {
               src={trkIllust}
               alt=""
               aria-hidden="true"
-              style={{ left: 659, top: 486, width: 178, height: 152 }}
+              style={{ left: 587, top: 492, width: 320, height: 256 }}
             />
             <StatIcon src={trkIc1} x={506} y={758} size={30} />
             <p
@@ -248,7 +248,7 @@ export default function Cabinet() {
               src={trkIllust}
               alt=""
               aria-hidden="true"
-              style={{ left: 597, top: 520, width: 300, height: 255 }}
+              style={{ left: 552, top: 500, width: 390, height: 312 }}
             />
             <p
               className="acAbs acTitle"
@@ -287,7 +287,7 @@ export default function Cabinet() {
               src={bagIllust}
               alt=""
               aria-hidden="true"
-              style={{ left: 1152, top: 486, width: 320, height: 213 }}
+              style={{ left: 1090, top: 496, width: 440, height: 210 }}
             />
             <div className="acCard" style={{ left: 1130, top: 751, width: 382, height: 72 }} />
             <StatIcon src={bagIcDate} x={1148} y={769} size={34} />
@@ -363,7 +363,7 @@ export default function Cabinet() {
               src={bagIllust}
               alt=""
               aria-hidden="true"
-              style={{ left: 1152, top: 540, width: 320, height: 213 }}
+              style={{ left: 1075, top: 500, width: 470, height: 216 }}
             />
             <p
               className="acAbs acBody"
