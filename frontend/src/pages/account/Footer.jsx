@@ -39,7 +39,7 @@ export default function Footer() {
         src={heart}
         alt=""
         aria-hidden="true"
-        style={{ left: 612, top: 1636, width: 54, height: 72 }}
+        style={{ left: 612, top: 1596, width: 54, height: 72 }}
       />
 
       <p
