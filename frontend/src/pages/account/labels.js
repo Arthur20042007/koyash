@@ -52,11 +52,17 @@ const joinLabels = (values, dict) =>
 // and the profile stores those tokens. Map them back to the questionnaire
 // categories so the profile card shows «Силиконы», not the raw ingredient list.
 const TOKEN_TO_ALLERGEN = Object.fromEntries(
-  Object.entries(ALLERGEN_TOKENS).flatMap(([cat, tokens]) => tokens.map((t) => [t.toLowerCase(), cat])),
+  Object.entries(ALLERGEN_TOKENS).flatMap(([cat, tokens]) =>
+    tokens.map((t) => [t.toLowerCase(), cat]),
+  ),
 );
 
 const allergenLabels = (values) =>
-  [...new Set((values || []).filter(Boolean).map((v) => TOKEN_TO_ALLERGEN[String(v).toLowerCase()] || v))]
+  [
+    ...new Set(
+      (values || []).filter(Boolean).map((v) => TOKEN_TO_ALLERGEN[String(v).toLowerCase()] || v),
+    ),
+  ]
     .map((v) => ALLERGENS[v] || v)
     .join(', ');
 
