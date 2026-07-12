@@ -239,7 +239,9 @@ export default function Cabinet() {
             >
               Последний результат:
               <br />
-              <span style={{ fontWeight: 700 }}>{lastResult || 'Пока нет отметок'}</span>
+              <span style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
+                {lastResult || 'Пока нет отметок'}
+              </span>
             </p>
             <div className="acCard" style={{ left: 743, top: 826, width: 225, height: 88 }} />
             <StatIcon src={trkIc3} x={755} y={840} w={59} h={60} />
@@ -249,7 +251,7 @@ export default function Cabinet() {
             >
               Частота отметок:
               <br />
-              <span style={{ fontWeight: 700 }}>1 раз в 2 недели</span>
+              <span style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>1 раз в 2 недели</span>
             </p>
             <div className="acCard" style={{ left: 511, top: 925, width: 458, height: 88 }} />
             <StatIcon src={trkIc4} x={525} y={937} w={67} h={66} />
@@ -259,7 +261,7 @@ export default function Cabinet() {
             >
               Следующая отметка результата:
               <br />
-              <span style={{ fontWeight: 700 }}>{nextDate || '—'}</span>
+              <span style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{nextDate || '—'}</span>
             </p>
             <button
               type="button"

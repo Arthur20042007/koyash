@@ -106,7 +106,7 @@ export default function ProfileCard({
               aria-hidden="true"
               style={{
                 left: 138 - row.size,
-                top: row.y + 14 - row.size / 2,
+                top: row.y + 22 - row.size / 2,
                 width: row.size,
                 height: row.size,
                 backgroundImage: `url(${row.icon})`,
