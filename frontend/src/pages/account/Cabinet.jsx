@@ -23,16 +23,16 @@ import bagIcDate from '../../assets/account/pf-age.png';
 import bagIcCount from '../../assets/account/bag-ic-date.png';
 import bagIcTotal from '../../assets/account/bag-ic-count.png';
 
-// Small stat glyph (padded 1254px icon → zoomed background).
-const StatIcon = ({ src, x, y, size = 34 }) => (
+// Small stat glyph, sized to the Figma box (w×h).
+const StatIcon = ({ src, x, y, w = 34, h = 34 }) => (
   <span
     className="acAbs"
     aria-hidden="true"
     style={{
       left: x,
       top: y,
-      width: size,
-      height: size,
+      width: w,
+      height: h,
       backgroundImage: `url(${src})`,
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
@@ -63,19 +63,32 @@ function formatDate(iso) {
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
+function shortDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+}
+
 const OVERALL = { better: 'Стало лучше', same: 'Без изменений', worse: 'Стало хуже' };
 const WEEKS_TOTAL = 12;
 
-// Derive the tracker headline (current week + last recorded result) once, at
-// fetch time, so render stays pure (no Date.now() during render).
+// Derive the tracker headline (current week, last result, next checkpoint) once,
+// at fetch time, so render stays pure (no Date.now() during render).
 function summarizeTracker(tracker) {
   if (!tracker?.start_date) return null;
   const elapsed = (Date.now() - new Date(tracker.start_date).getTime()) / (7 * 864e5);
   const week = Math.max(0, Math.min(WEEKS_TOTAL, Math.floor(elapsed)));
-  const filled = (tracker.checkpoints || []).filter((c) => c.overall);
+  const cps = tracker.checkpoints || [];
+  const filled = cps.filter((c) => c.overall);
   const lastResult = filled.length ? OVERALL[filled[filled.length - 1].overall] : null;
-  const next = (tracker.checkpoints || []).find((c) => c.status !== 'done');
-  return { week, lastResult, nextDate: next?.due_date || null, progressPct: (week / WEEKS_TOTAL) * 100 };
+  const next = cps.find((c) => c.status !== 'done');
+  return {
+    week,
+    lastResult,
+    progressPct: (week / WEEKS_TOTAL) * 100,
+    nextDate: next ? shortDate(next.due_date) : null,
+  };
 }
 
 // Личный кабинет (Figma 2673:1165 «с подбором» / 2803:105 «без подбора»).
@@ -117,8 +130,9 @@ export default function Cabinet() {
   const nextDate = trackerSummary?.nextDate;
 
   // care summary
-  const activeCount = (care?.items || []).filter((i) => i.status === 'active').length;
-  const replacedCount = (care?.items || []).filter((i) => i.status === 'replaced').length;
+  const items = care?.items || [];
+  const activeCount = items.filter((i) => i.status === 'active').length;
+  const replacedCount = items.filter((i) => i.status === 'replaced').length;
 
   return (
     <Stage w={1633} h={1789} mode="screen">
@@ -179,10 +193,19 @@ export default function Cabinet() {
               aria-hidden="true"
               style={{ left: 587, top: 492, width: 320, height: 256 }}
             />
-            <StatIcon src={trkIc1} x={506} y={758} size={30} />
+            <StatIcon src={trkIc1} x={502} y={756} w={33} h={33} />
             <p
               className="acAbs"
-              style={{ left: 544, top: 762, width: 300, fontWeight: 700, fontSize: 16 }}
+              style={{
+                left: 541,
+                top: 756,
+                width: 228,
+                height: 33,
+                display: 'flex',
+                alignItems: 'center',
+                fontWeight: 700,
+                fontSize: 16,
+              }}
             >
               Неделя {week} из {WEEKS_TOTAL}
             </p>
@@ -208,34 +231,34 @@ export default function Cabinet() {
                 borderRadius: 5,
               }}
             />
-            <div className="acCard" style={{ left: 511, top: 840, width: 225, height: 88 }} />
-            <StatIcon src={trkIc2} x={523} y={858} size={30} />
+            <div className="acCard" style={{ left: 511, top: 826, width: 225, height: 88 }} />
+            <StatIcon src={trkIc2} x={528} y={840} w={61} h={63} />
             <p
               className="acAbs"
-              style={{ left: 561, top: 852, width: 166, fontSize: 16, lineHeight: '22px' }}
+              style={{ left: 598, top: 837, width: 138, fontSize: 16, lineHeight: '22px' }}
             >
               Последний результат:
               <br />
               {lastResult || 'Пока нет отметок'}
             </p>
-            <div className="acCard" style={{ left: 752, top: 840, width: 225, height: 88 }} />
-            <StatIcon src={trkIc3} x={764} y={858} size={30} />
+            <div className="acCard" style={{ left: 743, top: 826, width: 225, height: 88 }} />
+            <StatIcon src={trkIc3} x={755} y={840} w={59} h={60} />
             <p
               className="acAbs"
-              style={{ left: 802, top: 852, width: 166, fontSize: 16, lineHeight: '22px' }}
+              style={{ left: 822, top: 846, width: 146, fontSize: 16, lineHeight: '22px' }}
             >
               Частота отметок:
               <br />1 раз в 2 недели
             </p>
-            <div className="acCard" style={{ left: 511, top: 940, width: 466, height: 64 }} />
-            <StatIcon src={trkIc4} x={523} y={956} size={30} />
+            <div className="acCard" style={{ left: 511, top: 925, width: 458, height: 88 }} />
+            <StatIcon src={trkIc4} x={525} y={937} w={67} h={66} />
             <p
               className="acAbs"
-              style={{ left: 561, top: 950, width: 400, fontSize: 16, lineHeight: '22px' }}
+              style={{ left: 624, top: 944, width: 330, fontSize: 16, lineHeight: '22px' }}
             >
               Следующая отметка результата:
               <br />
-              <b>{nextDate ? formatDate(nextDate) : 'Все отметки заполнены'}</b>
+              {nextDate || '—'}
             </p>
             <button
               type="button"
@@ -295,49 +318,55 @@ export default function Cabinet() {
               style={{ left: 1090, top: 496, width: 440, height: 210 }}
             />
             <div className="acCard" style={{ left: 1130, top: 751, width: 382, height: 72 }} />
-            <StatIcon src={bagIcDate} x={1148} y={769} size={34} />
+            <StatIcon src={bagIcDate} x={1158} y={763} w={50} h={47} />
             <p
               className="acAbs"
               style={{
-                left: 1192,
-                top: 763,
-                width: 300,
+                left: 1231,
+                top: 759,
+                width: 228,
                 fontWeight: 600,
                 fontSize: 20,
                 lineHeight: '27px',
               }}
             >
-              Обновлено {formatDate(care.updated_at)}
+              Обновлено
+              <br />
+              {formatDate(care.updated_at)}
             </p>
             <div className="acCard" style={{ left: 1130, top: 843, width: 382, height: 72 }} />
-            <StatIcon src={bagIcCount} x={1148} y={861} size={34} />
+            <StatIcon src={bagIcCount} x={1171} y={851} w={24} h={55} />
             <p
               className="acAbs"
               style={{
-                left: 1192,
-                top: 858,
-                width: 300,
+                left: 1231,
+                top: 851,
+                width: 228,
                 fontWeight: 600,
                 fontSize: 20,
                 lineHeight: '27px',
               }}
             >
-              Средств в уходе: {activeCount}
+              Средств в уходе:
+              <br />
+              {activeCount}
             </p>
             <div className="acCard" style={{ left: 1130, top: 935, width: 382, height: 72 }} />
-            <StatIcon src={bagIcTotal} x={1148} y={953} size={34} />
+            <StatIcon src={bagIcTotal} x={1150} y={946} w={65} h={51} />
             <p
               className="acAbs"
               style={{
-                left: 1192,
-                top: 950,
-                width: 300,
+                left: 1231,
+                top: 944,
+                width: 228,
                 fontWeight: 600,
                 fontSize: 20,
                 lineHeight: '27px',
               }}
             >
-              Средств заменено: {replacedCount}
+              Средств заменено:
+              <br />
+              {replacedCount}
             </p>
             <button
               type="button"
