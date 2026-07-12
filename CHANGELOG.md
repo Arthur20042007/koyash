@@ -6,6 +6,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-07-12
+
+Week 6 trial / handover-candidate release for Assignment 6 — the personal-account
+layer. The questionnaire → cosmetic-bag flow stays fully available to guests;
+signing in is optional and only adds the personal features.
+
+### Added
+
+- **Accounts (optional).** Registration and sign-in with email + password (name
+  required; age and phone optional; phone is stored but not used for auth).
+  Registration signs the user in immediately. A guest's freshly generated
+  cosmetic bag is carried into the account on sign-up / sign-in.
+- **Profile card** built from the latest questionnaire — age, skin type,
+  concerns, allergens, budget, preferences (vegan / cruelty-free / minimalism)
+  and special conditions — plus a pickable profile avatar.
+- **One saved cosmetic bag** per account («Текущий уход»): the questionnaire
+  saves/overwrites it, and it shows the routine as after the questionnaire.
+- **«Подошло / Не подошло» feedback** per product; a comment is required on
+  «Не подошло», and the bag sum counts only active products.
+- **Product replacement** — swap a product marked «Не подошло» for a similar one
+  in the same routine step (up to 2 per step; the replaced product is dimmed and
+  kept with its comment). If no alternative fits, the current product stays.
+- **Result tracker** — 6 checkpoints over 12 weeks with criteria derived from
+  skin type and concerns, an overall rating and a result history; future
+  checkpoints unlock by date and only the active one is editable.
+- **Account management** — edit personal data, change the password while signed
+  in, and delete the account (password-confirmed; removes the profile, saved bag
+  and tracker).
+
+### Changed
+
+- The customer-facing deployment now redeploys from the team repository's `main`.
+- Authentication design recorded in ADR-004 (guest-first, bcrypt + JWT).
+
+### Security
+
+- Passwords are stored only as bcrypt hashes and are never returned by the API
+  (QR-004). Sign-in uses a 7-day JWT held in the browser.
+
 ## [1.2.0] - 2026-07-05
 
 ### Added
