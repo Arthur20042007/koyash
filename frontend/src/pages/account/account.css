@@ -394,6 +394,10 @@ img.acAbs { pointer-events: none; object-fit: contain; }
 .trkTlName { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 20px; margin: 0; }
 .trkTlDate { font-family: 'Manrope', sans-serif; font-size: 15px; color: #8a6a52; margin: 3px 0 0; }
 .trkTlStat { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; }
+.trkDotImg { flex: 0 0 auto; width: 56px; height: 56px; object-fit: contain; }
+.trkStatImg { width: 26px; height: 26px; object-fit: contain; display: block; }
+.trkNumImg { position: absolute; width: 34px; height: 34px; object-fit: contain; }
+.trkPill img { width: 24px; height: 24px; object-fit: contain; flex: 0 0 auto; }
 
 /* center panel — criterion rows */
 .trkNum {

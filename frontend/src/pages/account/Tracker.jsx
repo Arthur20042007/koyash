@@ -5,8 +5,19 @@ import Stage from '../Quiz/Stage';
 import TopNav from './TopNav';
 import { useAuth } from '../../auth/useAuth';
 import { fetchTracker, submitCheckpoint } from '../../api/client';
-import heartImg from '../../assets/account/trk-heart.png';
-import bannerHeart from '../../assets/account/trk-heart1.png';
+import heartImg from '../../assets/account/trk-heart.svg';
+import flagImg from '../../assets/account/trk-flag.svg';
+import lockImg from '../../assets/account/trk-lock.svg';
+import arrowImg from '../../assets/account/trk-arrow.svg';
+import faceNeutral from '../../assets/account/trk-face-neutral.svg';
+import faceSad from '../../assets/account/trk-face-sad.svg';
+import n1 from '../../assets/account/trk-n1.svg';
+import n2 from '../../assets/account/trk-n2.svg';
+import n3 from '../../assets/account/trk-n3.svg';
+import n4 from '../../assets/account/trk-n4.svg';
+
+const NUM = [null, n1, n2, n3, n4]; // Figma number circles, 1..4 (CSS fallback beyond)
+const OVERALL_IMG = { better: heartImg, same: faceNeutral, worse: faceSad };
 
 const OVERALL = [
   { value: 'better', label: 'Стало лучше', left: 1101, width: 144 },
@@ -20,46 +31,27 @@ function formatDate(iso) {
 }
 const weekLabel = (cp) => `Неделя ${cp.index * 2}`;
 
-/* ── line icons (SVG keeps them crisp at any scale) ─────────────────────── */
-const IChk = () => (
-  <svg width="26" height="26" viewBox="0 0 26 26"><circle cx="13" cy="13" r="12" fill="#CDFFBB" />
+// green check — kept as SVG (green marks a filled checkpoint; no raster asset for it)
+const IChk = ({ size = 26 }) => (
+  <svg width={size} height={size} viewBox="0 0 26 26"><circle cx="13" cy="13" r="12" fill="#CDFFBB" />
     <path d="M7 13.5l4 4 8-8.5" fill="none" stroke="#087508" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
 );
-const IArrow = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e9a563" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
-);
-const ILock = ({ c = '#b3a494' }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.9"><rect x="5" y="10.5" width="14" height="9.5" rx="2.2" /><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" /></svg>
-);
-const IFlag = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e9a563" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 21V4" /><path d="M6 5h11l-2.2 3.5L17 12H6" fill="#ffe0c1" /></svg>
-);
-const IHeart = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="#e9a563" stroke="#e9a563" strokeWidth="1.4"><path d="M12 20s-7-4.6-7-9.3A3.7 3.7 0 0 1 12 8a3.7 3.7 0 0 1 7 2.7C19 15.4 12 20 12 20z" /></svg>
-);
-const IFaceMeh = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a6a52" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M8.5 15h7" strokeLinecap="round" /><circle cx="9" cy="10" r="1" fill="#8a6a52" stroke="none" /><circle cx="15" cy="10" r="1" fill="#8a6a52" stroke="none" /></svg>
-);
-const IFaceSad = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a6a52" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M8.5 15.5c1-1.4 6-1.4 7 0" strokeLinecap="round" /><circle cx="9" cy="10" r="1" fill="#8a6a52" stroke="none" /><circle cx="15" cy="10" r="1" fill="#8a6a52" stroke="none" /></svg>
-);
-const OVERALL_ICON = { better: IHeart, same: IFaceMeh, worse: IFaceSad };
 const IChevron = ({ dir }) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e9a563" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
     <path d={dir === 'left' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} /></svg>
 );
 
-// status shown on the right of a timeline card / on a history card:
-//   filled → green check ("отмечено"), available → arrow, locked → lock.
+// status marker: filled → green check ("отмечено"), available → arrow ("текущий"),
+// locked → lock.
 function StatIcon({ status }) {
   if (status === 'done') return <IChk />;
-  if (status === 'active') return <IArrow />;
-  return <ILock />;
+  if (status === 'active') return <img className="trkStatImg" src={arrowImg} alt="" />;
+  return <img className="trkStatImg" src={lockImg} alt="" />;
 }
 
 // Трекер результата (Figma 2673:1842). Left checkpoint slider drives the centre
 // scoring panel; only the active checkpoint is editable, filled ones are
-// read-only (green), future ones are locked.
+// read-only (green check), future ones are locked.
 export default function Tracker() {
   const navigate = useNavigate();
   const { isAuthenticated, ready } = useAuth();
@@ -145,7 +137,7 @@ export default function Tracker() {
         <img className="acAbs acHeart" src={heartImg} alt="" style={{ left: 1040, top: 158, width: 58, height: 58 }} />
 
         <div className="trkBanner" style={{ left: 50, top: 246, width: 1533, height: 82 }}>
-          <img src={bannerHeart} alt="" />
+          <img src={heartImg} alt="" />
           <span>Отслеживай изменения кожи каждые две недели. Отмечай от 1 до 5, насколько выражен каждый
             признак, ставь общую оценку и оставляй наблюдения.</span>
         </div>
@@ -167,7 +159,7 @@ export default function Tracker() {
                   if (it.start) {
                     return (
                       <div className="trkTlItem readonly" key="start">
-                        <span className="trkTlDot"><IFlag /></span>
+                        <img className="trkDotImg" src={flagImg} alt="" />
                         <div className="trkTlCard">
                           <p className="trkTlName">Старт</p>
                           <p className="trkTlDate">Начало ухода · {formatDate(tracker.start_date)}</p>
@@ -179,7 +171,7 @@ export default function Tracker() {
                   const cls = `trkTlItem${it.index === selected ? ' sel' : ''}${it.status === 'locked' ? ' locked' : ''}`;
                   return (
                     <button type="button" className={cls} key={it.index} onClick={() => setSelected(it.index)}>
-                      <span className="trkTlDot">{it.index}</span>
+                      {NUM[it.index] ? <img className="trkDotImg" src={NUM[it.index]} alt="" /> : <span className="trkTlDot">{it.index}</span>}
                       <span className="trkTlCard">
                         <span className="trkTlName" style={{ display: 'block' }}>{weekLabel(it)}</span>
                         <span className="trkTlDate" style={{ display: 'block' }}>{formatDate(it.due_date)}</span>
@@ -195,7 +187,7 @@ export default function Tracker() {
             <div className="trkPanel" style={{ left: 376, top: 390, width: 689, height: 494 }} />
             {selectedCp && selectedCp.status === 'locked' && (
               <div className="trkLocked" style={{ left: 376, top: 390, width: 689, height: 494 }}>
-                <ILock c="#c9b7a4" />
+                <img src={lockImg} alt="" style={{ width: 52, height: 52, objectFit: 'contain' }} />
                 <span>{weekLabel(selectedCp)} откроется {formatDate(selectedCp.due_date)}</span>
               </div>
             )}
@@ -216,7 +208,9 @@ export default function Tracker() {
                   const rowTop = 553 + i * rowPitch;
                   return (
                     <div key={c}>
-                      <span className="trkNum" style={{ left: 462, top: rowTop }}>{i + 1}</span>
+                      {NUM[i + 1]
+                        ? <img className="trkNumImg" style={{ left: 462, top: rowTop }} src={NUM[i + 1]} alt="" />
+                        : <span className="trkNum" style={{ left: 462, top: rowTop }}>{i + 1}</span>}
                       <span className="trkCritName" style={{ left: 520, top: rowTop + 3, width: 230 }}>{c}</span>
                       {[1, 2, 3, 4, 5].map((n) => (
                         <button key={n} type="button" disabled={!editable}
@@ -240,18 +234,15 @@ export default function Tracker() {
                 <p className="acAbs acTitle" style={{ left: 1121, top: 404, fontSize: 24, lineHeight: '32px', textAlign: 'left' }}>
                   Общая оценка
                 </p>
-                {OVERALL.map((o) => {
-                  const Icon = OVERALL_ICON[o.value];
-                  return (
-                    <button key={o.value} type="button" disabled={!editable}
-                      className={`trkPill${overallValue === o.value ? ' on' : ''}`}
-                      style={{ left: o.left, top: 480, width: o.width }}
-                      onClick={() => editable && setOverall(o.value)}>
-                      <Icon />
-                      {o.label}
-                    </button>
-                  );
-                })}
+                {OVERALL.map((o) => (
+                  <button key={o.value} type="button" disabled={!editable}
+                    className={`trkPill${overallValue === o.value ? ' on' : ''}`}
+                    style={{ left: o.left, top: 480, width: o.width }}
+                    onClick={() => editable && setOverall(o.value)}>
+                    <img src={OVERALL_IMG[o.value]} alt="" />
+                    {o.label}
+                  </button>
+                ))}
                 <p className="acAbs" style={{ left: 1126, top: 565, fontFamily: 'Playfair Display, serif', fontWeight: 700, fontSize: 16, color: '#634938' }}>
                   Что изменилось за эти 2 недели?
                 </p>
