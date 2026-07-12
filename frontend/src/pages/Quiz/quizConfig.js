@@ -266,7 +266,7 @@ export const TOTAL_QUESTION_STEPS = STEPS.filter((s) => s.questionStep).length;
 
 // ── request building ──────────────────────────────────────────────────────
 const CONCERN_MAP = { pores: 'oiliness' };
-const ALLERGEN_TOKENS = {
+export const ALLERGEN_TOKENS = {
   fragrance: ['Fragrance'],
   alcohol: ['Alcohol', 'Alcohol Denat.', 'Benzyl Alcohol', 'Dichlorobenzyl Alcohol', 't-Butyl Alcohol'],
   silicone: [

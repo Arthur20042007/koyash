@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- «Мой кабинет» button on the results screen, linking straight into the personal
+  account (matches the landing's cabinet button).
+
+### Changed
+
+- The personal-cabinet profile card shows the questionnaire allergen categories
+  («Силиконы», «Отдушки», …) under «Аллергии» instead of the expanded list of
+  excluded ingredients.
+
 ## [1.3.0] - 2026-07-12
 
 Week 6 trial / handover-candidate release for Assignment 6 — the personal-account
