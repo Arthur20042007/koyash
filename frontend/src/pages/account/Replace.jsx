@@ -7,6 +7,7 @@ import ProductCard from './ProductCard';
 import ConfirmDialog from './ConfirmDialog';
 import { useAuth } from '../../auth/useAuth';
 import { fetchCare, fetchAlternatives, replaceItem } from '../../api/client';
+import heart from '../../assets/account/offer-spot.png';
 
 // Замена средства (Figma 2842:31) + «Замен не нашлось» (2844:109).
 // Lists similar products for a disliked item (GET alternatives) and swaps the
@@ -75,6 +76,13 @@ export default function Replace() {
           >
             Подходящие замены
           </p>
+          <img
+            className="acAbs acHeart"
+            src={heart}
+            alt=""
+            aria-hidden="true"
+            style={{ left: 1035, top: 152, width: 50, height: 50 }}
+          />
         </div>
 
         <div className="careList">

@@ -74,7 +74,8 @@ function summarizeTracker(tracker) {
   const week = Math.max(0, Math.min(WEEKS_TOTAL, Math.floor(elapsed)));
   const filled = (tracker.checkpoints || []).filter((c) => c.overall);
   const lastResult = filled.length ? OVERALL[filled[filled.length - 1].overall] : null;
-  return { week, lastResult, progressPct: (week / WEEKS_TOTAL) * 100 };
+  const next = (tracker.checkpoints || []).find((c) => c.status !== 'done');
+  return { week, lastResult, nextDate: next?.due_date || null, progressPct: (week / WEEKS_TOTAL) * 100 };
 }
 
 // Личный кабинет (Figma 2673:1165 «с подбором» / 2803:105 «без подбора»).
@@ -113,9 +114,11 @@ export default function Cabinet() {
   const week = trackerSummary?.week ?? 0;
   const lastResult = trackerSummary?.lastResult;
   const progressPct = trackerSummary?.progressPct ?? 0;
+  const nextDate = trackerSummary?.nextDate;
 
   // care summary
   const activeCount = (care?.items || []).filter((i) => i.status === 'active').length;
+  const replacedCount = (care?.items || []).filter((i) => i.status === 'replaced').length;
 
   return (
     <Stage w={1633} h={1789} mode="screen">
@@ -228,9 +231,11 @@ export default function Cabinet() {
             <StatIcon src={trkIc4} x={523} y={956} size={30} />
             <p
               className="acAbs"
-              style={{ left: 561, top: 957, width: 400, fontSize: 16, lineHeight: '22px' }}
+              style={{ left: 561, top: 950, width: 400, fontSize: 16, lineHeight: '22px' }}
             >
-              Отмечай результат каждые 2 недели, чтобы видеть динамику
+              Следующая отметка результата:
+              <br />
+              <b>{nextDate ? formatDate(nextDate) : 'Все отметки заполнены'}</b>
             </p>
             <button
               type="button"
@@ -332,7 +337,7 @@ export default function Cabinet() {
                 lineHeight: '27px',
               }}
             >
-              Итого: {Math.round(care.total_price_rub || 0)} ₽
+              Средств заменено: {replacedCount}
             </p>
             <button
               type="button"
