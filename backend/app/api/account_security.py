@@ -24,6 +24,7 @@ def _to_user_out(doc: dict[str, Any]) -> UserOut:
         email=doc["email"],
         age=doc.get("age"),
         phone=doc.get("phone"),
+        avatar=doc.get("avatar"),
     )
 
 
@@ -41,6 +42,8 @@ async def update_profile(
         updates["phone"] = payload.phone
     if payload.age is not None:
         updates["age"] = payload.age
+    if payload.avatar is not None:
+        updates["avatar"] = payload.avatar
     if payload.email is not None and payload.email != user["email"]:
         existing = await db["users"].find_one({"email": payload.email})
         if existing is not None and existing["_id"] != user["_id"]:

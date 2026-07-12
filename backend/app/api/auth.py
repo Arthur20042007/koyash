@@ -35,6 +35,7 @@ def _to_user_out(doc: dict[str, Any]) -> UserOut:
         email=doc["email"],
         age=doc.get("age"),
         phone=doc.get("phone"),
+        avatar=doc.get("avatar"),
     )
 
 
@@ -52,6 +53,7 @@ async def register(payload: UserRegister) -> TokenResponse:
         "password_hash": hash_password(payload.password),
         "age": payload.age,
         "phone": payload.phone,
+        "avatar": payload.avatar,
         "created_at": datetime.now(timezone.utc),
     }
     try:
