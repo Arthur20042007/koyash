@@ -10,7 +10,8 @@
 # Skip links that point at localhost / 127.0.0.1 / 0.0.0.0. These are local
 # development URLs and are never reachable from a CI runner.
 # Affects:
-#   - README.md ("Running locally" -> http://localhost:8000/health, /docs)
+#   - README.md ("Run it locally" -> http://localhost:8000/health, /docs, :5173)
+#   - CONTRIBUTING.md / AGENTS.md (local dev URLs)
 #   - reports/week2/mvp-v0-report.md (smoke-check -> http://localhost:8000/docs)
 exclude_loopback = true
 

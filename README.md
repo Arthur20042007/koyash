@@ -1,123 +1,93 @@
 # KOYASH
 
-## About the project
+A skincare recommendation service. You answer a short questionnaire — budget,
+ingredient constraints (vegan, cruelty-free, allergens to avoid), skin type and
+the concerns you want to address — and KOYASH assembles a "cosmetic bag" of real
+products into a routine (cleanse → tone → serum → moisturize → SPF, plus
+occasional treatments), explaining **why** each product is there.
 
-KOYASH is a skincare product recommendation service. The user specifies a
-budget, ingredient constraints (vegan, cruelty-free, allergens to avoid) and
-the skin concerns they want to address, and the service suggests matching
-products and assembles them into a routine (cleanse → tone → serum →
-moisturize → spf, plus occasional treatments such as exfoliants and masks).
+> **Try it:** <https://koyash-production-25e0.up.railway.app> ·
+> **API docs:** <https://koyash-production.up.railway.app/docs> ·
+> 📖 **Documentation:** <https://koyash-team.github.io/koyash/>
 
-**Who it's for:** people who find it hard to navigate ingredient lists on
-their own and want a skincare routine that fits their budget and
-constraints (allergies, vegan/cruelty-free preferences).
+**Who it's for:** people who find ingredient lists hard to navigate and want a
+routine that fits their budget and constraints.
 
-**Current status:** MVP v2 — a FastAPI backend with rule-based recommendation on
-top of MongoDB Atlas (`GET /products`, `POST /recommend`): skin-type matching, an
-honest budget presentation, a special-condition safety filter (e.g. no retinoids
-in pregnancy), and an optional LLM justification layer (gpt-4o-mini,
-justification-only, off by default). A React + Vite frontend (storytelling and
-short questionnaires, results screens) is deployed and wired end-to-end.
-Authentication and saved cosmetic-bag history are planned for a later Sprint — see
-[docs/roadmap.md](docs/roadmap.md).
+**Current state — `MVP v3`.** A rule-based engine on MongoDB Atlas builds the
+bag, with an optional LLM layer that only rewords the justification (never the
+selection). On top of that, signed-in users get a **personal account** — a
+profile card, one saved cosmetic bag with «worked / didn't work» feedback,
+product replacement, and a result tracker — while the questionnaire → bag flow
+stays available to guests. The app is deployed on Railway (which redeploys from
+`main`) with MongoDB Atlas as the datastore. See the [roadmap](docs/roadmap.md)
+and [customer handover](docs/customer-handover.md).
 
-## Running locally
+## Access the product
 
-### Via Docker Compose (recommended)
+- **Web app:** <https://koyash-production-25e0.up.railway.app>
+- **API + Swagger:** <https://koyash-production.up.railway.app/docs>
+- **Demo video (MVP v1):** <https://youtu.be/SDuBlborKr0>
 
-Requirements: Docker + Docker Compose.
+No account is needed to get a recommendation — signing in only adds the personal
+features.
 
-1. Copy `backend/.env.example` to `backend/.env` and fill in `MONGODB_URI`
-   with your MongoDB Atlas connection string.
-2. From the repository root:
+## Run it locally
 
-   ```bash
-   docker compose --env-file backend/.env up --build
-   ```
-
-3. Check:
-   - <http://localhost:8000/health> — should return `{"status": "ok"}`
-   - <http://localhost:8000/docs> — Swagger UI with the `/products` and `/recommend` endpoints
-
-### Without Docker (backend directly)
-
-Requirements: Python 3.12, pip.
+Requirements: Python 3.12 and Node.js 20+ (or Docker).
 
 ```bash
+# backend
 cd backend
 pip install -r requirements.txt
-copy .env.example .env   # then fill in MONGODB_URI
-uvicorn app.main:app --reload
-```
+cp .env.example .env          # fill MONGODB_URI, set a JWT_SECRET
+uvicorn app.main:app --reload # http://localhost:8000/docs
 
-### Frontend (local dev)
-
-Requirements: Node.js 20+, npm.
-
-```bash
+# frontend (second terminal)
 cd frontend
 npm install
-npm run dev          # serves the app on http://localhost:5173
+npm run dev                   # http://localhost:5173
 ```
 
-The frontend calls the backend at `http://localhost:8000` by default. To point
-it at a different API (for example the deployed one), create `frontend/.env`:
+With Docker Compose instead:
 
 ```bash
-VITE_API_URL=http://localhost:8000
+docker compose --env-file backend/.env up --build
 ```
 
-Start the backend first (see above), or set `VITE_API_URL` to the deployed API.
-See [frontend/README.md](frontend/README.md) for more detail.
-
-### Database layer (`db/`)
-
-Scripts for loading and checking the MongoDB Atlas data (import from the
-source dataset, JSON-schema validators, sanity checks) — see
-[db/README.md](db/README.md).
+Check <http://localhost:8000/health> — it should return `{"status": "ok"}`.
+Full setup, verification commands, and the contribution workflow are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Documentation
 
-📖 **Hosted documentation site:** <https://koyash-team.github.io/koyash/> —
-browsable version of the maintained docs below (architecture, development
-process, quality, testing, roadmap).
+📖 **Hosted documentation site:** <https://koyash-team.github.io/koyash/> — a
+browsable version of everything below.
 
-- [db/README.md](db/README.md) — data layer: imports, validators, sanity checks, dataset handling.
-- [db/docs/KOYASH_data_transformation_plan.md](db/docs/KOYASH_data_transformation_plan.md) — spec for transforming the source Excel data into MongoDB.
-- [reports/week2/README.md](reports/week2/README.md) — week 2 reports index.
-- [reports/week2/mvp-v0-report.md](reports/week2/mvp-v0-report.md) — MVP v0 report.
-- [docs/user-stories.md](docs/user-stories.md) — current user-story index.
-- [docs/roadmap.md](docs/roadmap.md) — Sprint-by-Sprint roadmap.
-- [docs/architecture/README.md](docs/architecture/README.md) — architecture overview (static / dynamic / deployment views and ADRs).
-- [docs/development-process.md](docs/development-process.md) — team development process, git/review workflow, and configuration management.
-- [docs/definition-of-done.md](docs/definition-of-done.md) — team Definition of Done.
-- [docs/Process_Requirements.md](docs/Process_Requirements.md) — shared Scrum/workflow requirements (course-provided).
-- `frontend/` — React + Vite frontend: questionnaire and results screens, wired to the backend API.
+- [Customer handover](docs/customer-handover.md) — access, configuration,
+  limitations, and the current handover status
+- [Architecture overview and ADRs](docs/architecture/README.md) — static,
+  dynamic, and deployment views
+- [Development process](docs/development-process.md) — boards, git and review
+  workflow, configuration management, CI
+- [Testing status](docs/testing.md) · [Quality requirements](docs/quality-requirements.md)
+  · [Quality requirement tests](docs/quality-requirement-tests.md)
+- [User acceptance tests](docs/user-acceptance-tests.md) ·
+  [Definition of Done](docs/definition-of-done.md)
+- [Roadmap](docs/roadmap.md) · [User stories](docs/user-stories.md) ·
+  [CHANGELOG](CHANGELOG.md)
+- [`db/`](db/README.md) — data layer: catalog import, JSON-schema validators,
+  sanity checks
+- [`reports/`](reports/) — weekly course reports
 
-## Deployment
+## Contributing
 
-- API + Swagger docs: <https://koyash-production.up.railway.app/docs>
-- Frontend: <https://koyash-production-25e0.up.railway.app>
-- Demo video: <https://youtu.be/SDuBlborKr0>
+- [CONTRIBUTING.md](CONTRIBUTING.md) — setup, verification commands, branch/PR
+  workflow, review and merge rules
+- [AGENTS.md](AGENTS.md) — operating guide for coding agents
 
-## Link checking
+Secrets are never committed: `.env` files are git-ignored and only the sanitized
+`*.env.example` templates live in the repository.
 
-CI runs [lychee](https://lychee.cli.rs) on every pull request and on every
-push to `main` (see
-[.github/workflows/lychee.yml](.github/workflows/lychee.yml)), checking every
-link in every Markdown file in the repo — including `reports/` — both
-repo-relative links and public external URLs.
+## License
 
-A couple of links are narrowly excluded, with justification in
-[lychee.toml](lychee.toml):
-
-- `http://localhost:8000/...` (in "Running locally" above and in the
-  `reports/week2/mvp-v0-report.md` smoke-check) — local development URLs that
-  are never reachable from a CI runner.
-- `https://youtu.be/...` links (the current MVP v1 demo above and the
-  historical MVP v0 demo in `reports/week2/mvp-v0-report.md`) — YouTube blocks
-  automated HTTP clients at the TLS/bot-detection layer, so lychee can never
-  get a real response; the lychee.toml exclusion is a pattern match on any
-  `youtu.be` link, not a single hard-coded URL. Manually verified on
-  2026-06-21 that the current demo (<https://youtu.be/SDuBlborKr0>) plays
-  normally in a browser; the MVP v0 link was verified on 2026-06-13.
+[MIT](LICENSE)

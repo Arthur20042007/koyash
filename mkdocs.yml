@@ -24,6 +24,8 @@ nav:
       - ADR-001 — Rule-based engine + LLM justification: architecture/adr/ADR-001-rule-based-engine-llm-justification-only.md
       - ADR-002 — MongoDB Atlas datastore: architecture/adr/ADR-002-mongodb-atlas-datastore.md
       - ADR-003 — Budget segments + fallback: architecture/adr/ADR-003-discrete-budget-segments-nearest-fallback.md
+      - ADR-004 — Guest-first authentication (bcrypt + JWT): architecture/adr/ADR-004-authentication-guest-first-jwt.md
+  - Customer handover: customer-handover.md
   - Development process: development-process.md
   - Roadmap: roadmap.md
   - Quality:

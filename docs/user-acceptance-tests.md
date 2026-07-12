@@ -47,6 +47,9 @@ low-budget "toning" catalog gap remains an open follow-up (see
 [reports/week4/customer-review-summary.md](../reports/week4/customer-review-summary.md),
 action point A2).
 
+**Also exercised (2026-07-11, Week 6 review):** the questionnaire was re-taken during the
+demo and produced a saved cosmetic bag; no defect.
+
 ## UAT-002: Declared allergens are never recommended
 
 **Status:** Active
@@ -167,7 +170,254 @@ revised.
 
 **Resulting PBIs or issues:** Prompt/model refinement tracked on [PBI-303](https://github.com/Koyash-team/koyash/issues/104) for a later iteration.
 
-> The special-condition safety filter (US-20 / PBI-312) is delivered this Sprint and
-> covered by automated tests (`backend/tests/test_conditions.py`), but it shipped after
-> the 2026-07-03 customer review, so a customer-executed UAT for it will be added once the
-> customer runs it (next session / Sprint 4).
+## UAT-006: A declared special condition excludes contraindicated products
+
+**Status:** Active
+
+**User goal:** As a user with a special condition (pregnancy, rosacea, or dermatitis), I
+want products with ingredients contraindicated for that condition to be excluded, so that
+the recommendation is safe for me.
+
+**Preconditions:** The deployed app is reachable. No account is required.
+
+**Steps:**
+1. Complete the questionnaire and declare **pregnancy** as a special condition.
+2. Open the results screen and inspect the key actives listed for each product.
+3. Repeat the questionnaire with the same answers but **without** the special condition.
+
+**Expected outcome:** With pregnancy declared, no product in the bag lists a retinoid
+(retinol / retinal / tretinoin / adapalene), hydroquinone, or a salicylate among its
+ingredients. Without the condition, such a product may appear. If excluding them empties a
+routine step, the step is reported as empty rather than filled with a contraindicated
+product. The result is deterministic — it is a rules-based safety filter, not an LLM
+judgement.
+
+**Related:** [US-20](https://github.com/Koyash-team/koyash/issues/124), [PBI-312](https://github.com/Koyash-team/koyash/issues/125).
+
+**Execution results (2026-07-11, Week 6 review):** Demonstrated and accepted. The
+special-condition handling was shown as part of the questionnaire flow (a declared condition
+such as pregnancy excludes contraindicated products), consistent with the deterministic
+approach the customer approved at the 2026-07-03 review. It was not called out verbally in
+this session and is additionally covered by automated tests
+(`backend/tests/test_conditions.py`).
+
+**Customer comments / observed issues:** Approach approved at the prior review; no defect
+raised.
+
+**Resulting PBIs or issues:** —
+
+## UAT-007: Create an account and keep the cosmetic bag
+
+**Status:** Active
+
+**User goal:** As a returning user, I want to create an account so that my cosmetic bag is
+saved to me instead of being lost after the session.
+
+**Preconditions:** The Week 6 trial release is deployed and reachable. A sanitized demo
+email address is available (no real personal data).
+
+**Steps:**
+1. As a guest (not signed in), complete the questionnaire and view the cosmetic bag.
+2. Register an account: name, email, password (repeat it). Leave age and phone empty.
+3. Open the personal account and go to the saved cosmetic bag ("Текущий уход").
+4. Sign out, sign back in with the same email and password, and reopen the bag.
+
+**Expected outcome:** Registration succeeds without requiring age or phone, and signs the
+user in immediately. The bag generated as a guest is present in the account after
+registration. After signing out and back in, the same bag is still there. The guest flow
+in step 1 works without any account. A password shorter than 8 characters, a mismatched
+repeat, or an already-registered email is rejected with a clear message.
+
+**Related:** [US-21](https://github.com/Koyash-team/koyash/issues/136), [US-12](https://github.com/Koyash-team/koyash/issues/16).
+
+**Execution results (2026-07-11, Week 6 review):** Demonstrated and accepted. The signed-in
+account held a saved cosmetic bag, and re-taking the questionnaire saved a new one; the
+skin-type mini-quiz and the age validation (10–100) were shown. The customer confirmed she
+had tried the version herself. Not executed as a fresh guest → register step sequence by the
+customer in this session; validation rejections were not re-checked live.
+
+**Customer comments / observed issues:** Noticed and approved the age limit. No defect
+raised.
+
+**Resulting PBIs or issues:** —
+
+## UAT-008: See my skincare profile in the account
+
+**Status:** Active
+
+**User goal:** As a signed-in user, I want to see at a glance what the service knows about
+my skin, so that I understand why it recommends what it recommends.
+
+**Preconditions:** Signed in with an account that has completed the questionnaire at least
+once (UAT-007).
+
+**Steps:**
+1. Open the personal account.
+2. Read the profile card.
+3. Re-take the questionnaire with a different skin type and one different concern.
+4. Return to the personal account and read the profile card again.
+
+**Expected outcome:** The profile card shows the skin type, concerns, allergens, budget,
+value preferences, special conditions, and age from the **latest** questionnaire. After
+re-taking the questionnaire the card reflects the new answers. Before the very first
+questionnaire the account shows an empty state inviting the user to get a recommendation.
+
+**Related:** [US-22](https://github.com/Koyash-team/koyash/issues/137).
+
+**Execution results (2026-07-11, Week 6 review):** Demonstrated and accepted. The profile
+card in the personal cabinet was shown; the customer could see her skin type. The
+profile-refresh-after-re-take and the empty-state cases were not exercised step by step in
+this session.
+
+**Customer comments / observed issues:** No defect raised.
+
+**Resulting PBIs or issues:** —
+
+## UAT-009: Mark whether a product suited me
+
+**Status:** Active
+
+**User goal:** As a signed-in user, I want to record whether each product worked for me, so
+that I can keep track of what suits my skin.
+
+**Preconditions:** Signed in with a saved cosmetic bag (UAT-007).
+
+**Steps:**
+1. Open the saved cosmetic bag.
+2. Mark one product as **«Подошло»**.
+3. Mark another product as **«Не подошло»** and try to submit without writing a comment.
+4. Write a short comment for that product and submit.
+5. Reload the page.
+
+**Expected outcome:** «Подошло» is recorded with a single tap and asks for no comment.
+«Не подошло» requires a comment — submitting without one is refused with a clear message.
+After submitting, the reaction and the comment are shown and survive a reload. A reaction
+can be changed afterwards. The bag total counts only the products in the routine.
+
+**Related:** [US-13](https://github.com/Koyash-team/koyash/issues/17).
+
+**Execution results (2026-07-11, Week 6 review):** Demonstrated and accepted. The
+per-product «подошло / не подошло» controls and the comment box were shown. The
+required-comment validation and the persist-after-reload case were not exercised step by
+step in this session.
+
+**Customer comments / observed issues:** No defect raised.
+
+**Resulting PBIs or issues:** —
+
+## UAT-010: Replace a product that did not suit me
+
+**Status:** Active
+
+**User goal:** As a signed-in user, I want to swap a product that did not suit me for a
+similar one, so that my routine fits me better without starting over.
+
+**Preconditions:** Signed in with a saved cosmetic bag in which at least one product has
+been marked «Не подошло» with a comment (UAT-009).
+
+**Steps:**
+1. On the product marked «Не подошло», choose **«Заменить на похожий продукт»**.
+2. Review the offered alternatives and pick one.
+3. Inspect the bag: find the new product and the old one.
+4. Repeat the replacement for the same routine step twice more.
+
+**Expected outcome:** Replacement is offered only after «Не подошло» with a submitted
+comment. The alternatives are products of the **same routine step**, chosen with the same
+profile filters (budget, ethics, allergens, skin type, special conditions), and exclude the
+current and previously replaced products. The chosen alternative becomes the active
+product; the old one stays in the bag, dimmed and moved to the bottom, with its comment
+preserved. The bag total updates to count only active products. After **two** replacements
+for that step, the replace option is no longer offered. If no alternative exists, the user
+is told so and the current product stays.
+
+**Related:** [US-25](https://github.com/Koyash-team/koyash/issues/157).
+
+**Execution results (2026-07-11, Week 6 review):** Demonstrated and accepted. Replacing a
+product was shown: the chosen alternative became active and the replaced product moved to the
+bottom, dimmed, keeping its comment. The 2-per-step limit and the "no alternatives" case were
+not explicitly exercised in this session.
+
+**Customer comments / observed issues:** No defect raised.
+
+**Resulting PBIs or issues:** —
+
+## UAT-011: Follow the result tracker
+
+**Status:** Active
+
+**User goal:** As a signed-in user, I want to see how my skin is expected to be tracked
+over the care period, so that I know when and what to report.
+
+**Preconditions:** Signed in with a saved cosmetic bag (UAT-007).
+
+**Steps:**
+1. Open the result tracker from the personal account.
+2. Read the checkpoint schedule and the criteria offered for rating.
+3. Try to open a future checkpoint.
+4. Re-take the questionnaire, then reopen the tracker.
+
+**Expected outcome:** The tracker shows **6 checkpoints, one every two weeks** over 12
+weeks, counted from the moment the current bag was created, with the date of the next one.
+Checkpoints whose date has not arrived are **locked** and cannot be filled. The rating
+criteria are chosen from the user's own profile (skin type and concerns), are all phrased
+as symptoms on a 1–5 scale where **lower is better**, and the overall rating offers
+"better / no change / worse" plus a comment. Re-taking the questionnaire starts a new
+12-week tracker.
+
+> **Note for the Week 6 trial:** the first checkpoint opens only two weeks after the bag is
+> created, so during the trial session every checkpoint is legitimately locked. This
+> scenario therefore verifies the schedule, the derived criteria, and the locked state —
+> not the act of submitting a checkpoint.
+
+**Related:** [US-24](https://github.com/Koyash-team/koyash/issues/139).
+
+**Execution results (2026-07-11, Week 6 review):** Demonstrated and accepted. A checkpoint was
+unlocked for the demo (via a backdated start date) to show the flow: the criteria derived from
+the questionnaire, a base set when no problems are declared, the overall rating with a comment,
+and the per-checkpoint statistics. Real over-time unlocking was not exercised (it spans weeks).
+
+**Customer comments / observed issues:** Approved the criteria approach (deriving them from the
+declared problems and skin type, with a base fallback). Asked that the tracker match the design
+once the UI polish is finished.
+
+**Resulting PBIs or issues:** —
+
+## UAT-012: Manage and delete my account
+
+**Status:** Active
+
+**User goal:** As a signed-in user, I want to keep my details current and be able to remove
+my account and data entirely.
+
+**Preconditions:** Signed in with a **throwaway sanitized demo account** — this scenario
+destroys the account it is run against.
+
+**Steps:**
+1. Open "Профиль и безопасность" and edit the name and age; save.
+2. Change the password: enter a wrong current password, then the correct one.
+3. Sign out and sign back in with the new password.
+4. Delete the account, confirming with the password.
+5. Try to sign in again with the deleted account.
+
+**Expected outcome:** Personal data is saved; an email already used by another account is
+refused. Changing the password requires the correct current password — a wrong one is
+refused. The old password stops working and the new one works. Deleting the account
+requires the password, and afterwards the saved bag and the tracker are gone and signing in
+with those credentials fails.
+
+**Note:** There is no self-service password reset in this release — "Forgot password?" is
+intentionally hidden until a transactional email service is connected (see
+[customer handover](customer-handover.md#known-limitations-unfinished-areas-and-risks)).
+
+**Related:** [US-26](https://github.com/Koyash-team/koyash/issues/158).
+
+**Execution results (2026-07-11, Week 6 review):** Demonstrated and accepted. Change-password
+and delete-account were shown in the personal cabinet. Deletion was not run destructively, and
+the edit-personal-data / wrong-password / re-login paths were not exercised step by step in
+this session.
+
+**Customer comments / observed issues:** No defect raised. (There is no self-service password
+reset in this release; the customer will provide a mail domain so it can be built — see the
+Week 6 Sprint Review summary.)
+
+**Resulting PBIs or issues:** —
