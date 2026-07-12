@@ -18,7 +18,7 @@ import arrow from '../../assets/account/howto/arrow.png';
 const STEPS = [
   {
     num: num1,
-    numStyle: { left: 63, top: 135, width: 106, height: 106 },
+    numStyle: { left: 76, top: 152, width: 56, height: 56 },
     ill: ill1,
     illStyle: { left: 325, top: 145, width: 170, height: 182 },
     cardY: 139,
@@ -27,7 +27,7 @@ const STEPS = [
   },
   {
     num: num2,
-    numStyle: { left: 54, top: 405, width: 116, height: 116 },
+    numStyle: { left: 70, top: 422, width: 60, height: 60 },
     ill: ill2,
     illStyle: { left: 320, top: 428, width: 216, height: 161 },
     cardY: 408,
@@ -36,7 +36,7 @@ const STEPS = [
   },
   {
     num: num3,
-    numStyle: { left: 54, top: 673, width: 123, height: 123 },
+    numStyle: { left: 68, top: 690, width: 62, height: 62 },
     ill: ill3,
     illStyle: { left: 335, top: 715, width: 155, height: 152 },
     cardY: 678,
@@ -45,7 +45,7 @@ const STEPS = [
   },
   {
     num: num4,
-    numStyle: { left: 62, top: 954, width: 107, height: 107 },
+    numStyle: { left: 76, top: 970, width: 56, height: 56 },
     ill: ill4,
     illStyle: { left: 340, top: 965, width: 145, height: 170 },
     cardY: 949,
