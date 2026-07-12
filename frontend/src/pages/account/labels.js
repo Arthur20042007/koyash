@@ -2,6 +2,8 @@
 // (mirrors the option lists in ../Quiz/quizConfig.js). Used to render the
 // profile card in the personal cabinet.
 
+import { ALLERGEN_TOKENS } from '../Quiz/quizConfig';
+
 export const SKIN_TYPE = {
   oily: 'Жирная',
   dry: 'Сухая',
@@ -45,6 +47,19 @@ const joinLabels = (values, dict) =>
     .map((v) => dict[v] || v)
     .join(', ');
 
+// The questionnaire expands allergen categories into ingredient tokens before
+// sending them to /recommend (e.g. "silicone" → "Silicones", "Dimethicone", …),
+// and the profile stores those tokens. Map them back to the questionnaire
+// categories so the profile card shows «Силиконы», not the raw ingredient list.
+const TOKEN_TO_ALLERGEN = Object.fromEntries(
+  Object.entries(ALLERGEN_TOKENS).flatMap(([cat, tokens]) => tokens.map((t) => [t.toLowerCase(), cat])),
+);
+
+const allergenLabels = (values) =>
+  [...new Set((values || []).filter(Boolean).map((v) => TOKEN_TO_ALLERGEN[String(v).toLowerCase()] || v))]
+    .map((v) => ALLERGENS[v] || v)
+    .join(', ');
+
 // Turn a ProfileOut payload into the label rows shown in the profile card.
 export function profileRows(profile) {
   if (!profile) return [];
@@ -57,7 +72,7 @@ export function profileRows(profile) {
     { label: 'Возраст', value: profile.age ? `${profile.age} лет` : '—' },
     { label: 'Тип кожи', value: SKIN_TYPE[profile.skin_type] || '—' },
     { label: 'Проблемы', value: joinLabels(profile.concerns, CONCERNS) || 'Нет' },
-    { label: 'Аллергии', value: joinLabels(profile.allergens, ALLERGENS) || 'Нет' },
+    { label: 'Аллергии', value: allergenLabels(profile.allergens) || 'Нет' },
     { label: 'Бюджет', value: BUDGET[profile.budget] || '—' },
     { label: 'Предпочтения', value: prefs.join(', ') || 'Нет' },
     { label: 'Важные условия', value: joinLabels(profile.conditions, CONDITIONS) || 'Нет' },

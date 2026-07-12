@@ -163,6 +163,9 @@ export default function Results() {
         {meta.note && <p className="rMetaNote">{meta.note}</p>}
 
         <div className="rActions">
+          <Link to="/account" className="rBtnCabinet">
+            Мой кабинет
+          </Link>
           <button className="rBtnPrimary" type="button" onClick={handleRetake}>
             Пройти заново
           </button>
