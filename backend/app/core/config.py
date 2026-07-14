@@ -16,6 +16,26 @@ class Settings(BaseSettings):
     JWT_ALG: str = "HS256"
     JWT_EXPIRE_DAYS: int = 7
 
+    # Password reset by email (US-27). Mail is sent through the customer's own
+    # mail domain over SMTP — only sending is used, so the mailbox's POP3/IMAP
+    # side is not configured here. Credentials come from the environment only
+    # and are never committed. When SMTP is unconfigured the reset endpoint
+    # still answers normally but no mail is sent (see app.core.mailer).
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 465
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM: str = ""
+    # True  -> implicit TLS, connect with SMTP_SSL (the SSL/TLS port, usually 465)
+    # False -> plain connect on the SMTP port + STARTTLS (usually 587)
+    SMTP_SSL: bool = True
+    SMTP_TIMEOUT: float = 15.0
+
+    # Where the reset link points (the deployed web app).
+    FRONTEND_URL: str = "http://localhost:5173"
+    # Reset links are single-use and expire after this many minutes.
+    RESET_TOKEN_TTL_MINUTES: int = 30
+
     # LLM justification layer (ADR-001). Off by default: when disabled or
     # unconfigured, /recommend returns the rule-based justification unchanged.
     LLM_ENABLED: bool = False
@@ -23,6 +43,11 @@ class Settings(BaseSettings):
     LLM_BASE_URL: str = "https://api.vsellm.ru/v1"
     LLM_MODEL: str = "openai/gpt-4o-mini"
     LLM_TIMEOUT: float = 20.0
+
+    @property
+    def mail_enabled(self) -> bool:
+        """True when enough SMTP settings are present to actually send mail."""
+        return bool(self.SMTP_HOST and self.SMTP_USER and self.SMTP_PASSWORD)
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

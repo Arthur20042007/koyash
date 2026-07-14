@@ -80,6 +80,14 @@ export const loginUser = (payload) => request('/auth/login', { method: 'POST', b
 
 export const fetchMe = () => request('/auth/me', { auth: true });
 
+// Password reset (US-27). `forgotPassword` answers the same way for a known and
+// an unknown address, so the UI must not treat its response as "this email exists".
+export const forgotPassword = (payload) =>
+  request('/auth/forgot-password', { method: 'POST', body: payload });
+
+export const resetPassword = (payload) =>
+  request('/auth/reset-password', { method: 'POST', body: payload });
+
 // ── Account (profile + security) ───────────────────────────────────────────
 export const fetchProfile = () => request('/profile', { auth: true });
 

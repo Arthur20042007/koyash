@@ -72,7 +72,12 @@ async def change_password(
         )
     await get_database()["users"].update_one(
         {"_id": user["_id"]},
-        {"$set": {"password_hash": hash_password(payload.new_password)}},
+        {
+            "$set": {"password_hash": hash_password(payload.new_password)},
+            # Changing the password here also kills any reset link that is still
+            # outstanding, so an old "forgot password" email cannot be replayed.
+            "$unset": {"reset_token_hash": "", "reset_expires_at": ""},
+        },
     )
 
 

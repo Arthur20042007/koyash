@@ -84,6 +84,10 @@ stored in the repository** — only sanitized templates (`backend/.env.example`,
 | `JWT_SECRET` | Signs the sign-in tokens. **Must** be a strong random value in production | Yes in production |
 | `LLM_ENABLED`, `LLM_API`, `LLM_BASE_URL`, `LLM_MODEL` | Optional LLM rewording of the justification text | No (off by default) |
 | `LLM_SYSTEM_PROMPT` | The customer-authored prompt. Never committed — supplied via this variable or a git-ignored file | Only if the LLM is enabled |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SSL` | Outgoing mail server for the password-reset email. `SMTP_SSL=true` uses the SSL/TLS port (usually 465); `false` uses the plain port (usually 587) with STARTTLS | Yes, for password reset |
+| `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | Mailbox account, its password, and the "from" address on the project's mail domain. **Secret — environment only** | Yes, for password reset |
+| `FRONTEND_URL` | Where the reset link in the email points (the deployed web app) | Yes, for password reset |
+| `RESET_TOKEN_TTL_MINUTES` | How long a reset link stays valid | No (defaults to 30) |
 | `VITE_API_URL` | Frontend build-time pointer to the backend | Yes (frontend) |
 
 Live values are held in the Railway project environment (and GitHub Actions
@@ -103,6 +107,11 @@ redeploy; nothing needs to change in the repository.
   runtime; deleting an account removes that user's profile, saved bag, and
   tracker.
 - Passwords are stored only as bcrypt hashes and are never returned by the API.
+- **Password reset** emails a single-use link from the project's mail domain. The
+  link expires after 30 minutes, and only a digest of it is stored — so a copy of
+  the database does not yield a usable reset link. Requesting a reset for an
+  address that has no account looks exactly the same to the caller, so the form
+  cannot be used to find out who is registered.
 
 ## Troubleshooting and support
 
@@ -112,7 +121,7 @@ redeploy; nothing needs to change in the repository.
 | "Nothing found" after the questionnaire | Expected behaviour, not a crash: the combination of budget, ethics, and allergens left no products. Relax one filter. The high budget segment has only 3 products in the catalog. |
 | A routine step is missing from the bag | The catalog has no product for that step under the chosen filters; the service leaves the step empty rather than substituting something unsafe. |
 | Justifications look short / plain | The LLM rewording layer is disabled or unavailable; the rule-based text is used. |
-| Forgot the account password | There is no self-service reset yet — see [Known limitations](#known-limitations-unfinished-areas-and-risks). |
+| Forgot the account password | Use "Забыли пароль?" on the sign-in screen: a reset link is emailed from the project's mail domain. The link works once and expires after 30 minutes; if it has expired, just request a new one. Check the spam folder if the mail does not arrive. |
 
 For anything else, open an issue at
 <https://github.com/Koyash-team/koyash/issues> or contact the team through the
@@ -120,10 +129,6 @@ usual course channel.
 
 ## Known limitations, unfinished areas, and risks
 
-- **No self-service password reset.** The "Forgot password?" entry point is
-  hidden because a secure reset needs a transactional email service that is not
-  yet connected. A signed-in user can change their password; a user who forgets
-  it currently cannot recover the account on their own.
 - **Sign-in tokens last 7 days and cannot be revoked early**, and are stored in
   the browser. This is an accepted trade-off for a lightweight account layer.
 - **One saved cosmetic bag per user.** Re-taking the questionnaire overwrites
@@ -167,7 +172,7 @@ This status is re-assessed after the Week 7 final transition.
 
 | Action | Blocks full transition? |
 |---|---|
-| Get the customer's mail-domain credentials (she has a domain with a connected mail service) and ship password reset; tracker reminders are planned as a customer-side Telegram bot | No for basic use; yes for self-service account recovery |
+| Keep the mail-domain credentials valid (they power the password-reset email). Tracker reminders stay out of scope — the customer runs them from her own Telegram bot | No — but password reset stops working if the mailbox password changes |
 | Deliver the final `MVP v3` release in Week 7 | Yes |
 | Transfer operational ownership (Railway project, MongoDB Atlas cluster, optional LLM API key) to the customer | Yes, for `Deployed or operated on customer side` |
 

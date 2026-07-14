@@ -91,3 +91,25 @@ class PasswordChange(BaseModel):
 
 class AccountDelete(BaseModel):
     password: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    """Start a password reset (US-27). Only the email is needed."""
+
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def _email(cls, v: str) -> str:
+        return _normalize_email(v)
+
+
+class ResetPasswordRequest(BaseModel):
+    """Finish a password reset with the single-use token from the email link."""
+
+    token: str = Field(min_length=16, max_length=256)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class MessageResponse(BaseModel):
+    detail: str

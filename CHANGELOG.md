@@ -8,6 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **Password reset (US-27).** «Забыли пароль?» now works: the service emails a
+  reset link from the project's own mail domain, and the link opens a screen for
+  setting a new password. The link is **single-use** and expires after 30 minutes,
+  and requesting a reset for an unknown address responds exactly like a known one,
+  so the form cannot be used to discover who is registered. Changing the password
+  while signed in also invalidates any reset link that is still outstanding.
+
+### Fixed
+
+- The «Забыли пароль?» screens previously showed «Письмо отправлено!» and «Готово!»
+  without contacting the backend at all — no email was ever sent and no password was
+  ever changed. Both screens are now wired to the real endpoints.
+
+### Added
+
 - «Мой кабинет» button on the results screen, linking straight into the personal
   account (matches the landing's cabinet button).
 

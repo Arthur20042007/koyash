@@ -1,24 +1,28 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import './account.css';
 import Stage from '../Quiz/Stage';
 import TopNav from './TopNav';
 import AuthField from './AuthField';
 import FieldError from './FieldError';
+import { resetPassword } from '../../api/client';
 
 import hero from '../../assets/account/hero-login.png';
 import icPass from '../../assets/account/ic-pass.png';
 
 // Новый пароль → Готово! (Figma 2779:49 / 2879:392 → 2673:1370).
 //
-// NOTE: reached from the "restore password" email link. The backend has no
-// reset endpoint yet, so this validates the two fields locally and shows the
-// success state; hook the submit up to a real endpoint when one exists.
+// Reached from the link in the reset email: /reset-password?token=…
+// The token is single-use and time-limited, so an expired or already-used link
+// comes back as an error and the user is sent to request a fresh one.
 export default function ResetPassword() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const token = params.get('token') || '';
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
   const rightNav = (
@@ -32,8 +36,12 @@ export default function ResetPassword() {
     </button>
   );
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setError('');
+    if (!token) {
+      setError('Ссылка неполная. Запроси восстановление пароля ещё раз.');
+      return;
+    }
     if (password.length < 8) {
       setError('Пароль должен содержать не менее 8 символов');
       return;
@@ -42,7 +50,15 @@ export default function ResetPassword() {
       setError('Пароли не совпадают');
       return;
     }
-    setDone(true);
+    setBusy(true);
+    try {
+      await resetPassword({ token, new_password: password });
+      setDone(true);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (done) {
@@ -141,9 +157,20 @@ export default function ResetPassword() {
           className="acBtn"
           style={{ left: 665, top: 597 + shift, width: 305, height: 51, fontSize: 16 }}
           onClick={handleSubmit}
+          disabled={busy}
         >
           Поменять пароль
         </button>
+        {error && (
+          <button
+            type="button"
+            className="acAbs acLink"
+            style={{ left: 665, top: 657 + shift, width: 305, textAlign: 'center' }}
+            onClick={() => navigate('/forgot-password')}
+          >
+            Запросить новую ссылку
+          </button>
+        )}
       </div>
     </Stage>
   );

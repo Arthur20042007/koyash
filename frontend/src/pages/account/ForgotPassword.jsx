@@ -4,6 +4,8 @@ import './account.css';
 import Stage from '../Quiz/Stage';
 import TopNav from './TopNav';
 import AuthField from './AuthField';
+import FieldError from './FieldError';
+import { forgotPassword } from '../../api/client';
 
 import hero from '../../assets/account/hero-login.png';
 import icEmail from '../../assets/account/ic-email.png';
@@ -12,14 +14,32 @@ import mailDot from '../../assets/account/mail-dot.png';
 
 // Забыли пароль → Письмо отправлено (Figma 2778:2 → 2673:1134).
 //
-// NOTE: the backend has no password-reset endpoint yet (no /auth/forgot or
-// /auth/reset). This screen therefore implements the design and navigation
-// only — "Отправить ссылку" moves to the confirmation state without actually
-// dispatching an email. Wire it to a real endpoint once the backend adds one.
+// The confirmation screen is shown for *any* address: the backend answers
+// identically for a registered and an unknown one, so landing here reveals
+// nothing about whether an account exists (no user enumeration).
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit() {
+    setError('');
+    if (!email.trim()) {
+      setError('Введи email');
+      return;
+    }
+    setBusy(true);
+    try {
+      await forgotPassword({ email: email.trim() });
+      setSent(true);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const rightNav = (
     <button
@@ -81,9 +101,12 @@ export default function ForgotPassword() {
     );
   }
 
+  // the canvas grows to fit the error line, like the other auth screens
+  const shift = error ? 40 : 0;
+
   return (
-    <Stage w={1633} h={940} mode="screen">
-      <div className="acCanvas" style={{ height: 940 }}>
+    <Stage w={1633} h={940 + shift} mode="screen">
+      <div className="acCanvas" style={{ height: 940 + shift }}>
         <TopNav right={rightNav} />
         <img
           className="acAbs"
@@ -114,18 +137,21 @@ export default function ForgotPassword() {
           autoComplete="email"
         />
 
+        {error && <FieldError message={error} top={521} />}
+
         <button
           type="button"
           className="acBtn"
-          style={{ left: 664, top: 520, width: 305, height: 51, fontSize: 16 }}
-          onClick={() => email.trim() && setSent(true)}
+          style={{ left: 664, top: 520 + shift, width: 305, height: 51, fontSize: 16 }}
+          onClick={handleSubmit}
+          disabled={busy}
         >
           Отправить ссылку
         </button>
         <button
           type="button"
           className="acBtn acBtnGhost"
-          style={{ left: 684, top: 579, width: 265, height: 41, fontSize: 16 }}
+          style={{ left: 684, top: 579 + shift, width: 265, height: 41, fontSize: 16 }}
           onClick={() => navigate('/login')}
         >
           Назад

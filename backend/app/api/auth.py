@@ -13,14 +13,27 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pymongo.errors import DuplicateKeyError
 
+from app.core.config import settings
 from app.core.database import get_database
+from app.core.mailer import send_email
 from app.core.security import (
     create_access_token,
     decode_token,
     hash_password,
+    hash_reset_token,
+    new_reset_token,
+    reset_token_expiry,
     verify_password,
 )
-from app.models.user import TokenResponse, UserLogin, UserOut, UserRegister
+from app.models.user import (
+    ForgotPasswordRequest,
+    MessageResponse,
+    ResetPasswordRequest,
+    TokenResponse,
+    UserLogin,
+    UserOut,
+    UserRegister,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -81,6 +94,78 @@ async def login(payload: UserLogin) -> TokenResponse:
         )
     token = create_access_token(str(doc["_id"]))
     return TokenResponse(access_token=token, user=_to_user_out(doc))
+
+
+# The same answer is returned whether or not the address is registered, so the
+# endpoint cannot be used to discover which emails have accounts.
+_RESET_REQUESTED = (
+    "Если аккаунт с таким email существует, мы отправили на него ссылку "
+    "для восстановления пароля."
+)
+
+
+def _as_utc(value: datetime) -> datetime:
+    """Mongo hands back naive datetimes; treat them as UTC."""
+    return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+
+
+@router.post(
+    "/forgot-password",
+    response_model=MessageResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def forgot_password(payload: ForgotPasswordRequest) -> MessageResponse:
+    """Start a password reset: email a single-use, time-limited link (US-27).
+
+    Answers identically for a known and an unknown address (no user
+    enumeration), and a mail failure is not surfaced either.
+    """
+    db = get_database()
+    doc = await db["users"].find_one({"email": payload.email})
+    if doc is not None:
+        raw_token, digest = new_reset_token()
+        await db["users"].update_one(
+            {"_id": doc["_id"]},
+            {"$set": {"reset_token_hash": digest, "reset_expires_at": reset_token_expiry()}},
+        )
+        link = f"{settings.FRONTEND_URL.rstrip('/')}/reset-password?token={raw_token}"
+        await send_email(
+            to=payload.email,
+            subject="Koyash — восстановление пароля",
+            body=(
+                f"Привет, {doc.get('name', '')}!\n\n"
+                "Мы получили запрос на восстановление пароля в Koyash.\n"
+                "Чтобы задать новый пароль, перейди по ссылке:\n\n"
+                f"{link}\n\n"
+                f"Ссылка действует {settings.RESET_TOKEN_TTL_MINUTES} минут "
+                "и сработает только один раз.\n\n"
+                "Если запрос был не от тебя — просто проигнорируй это письмо, "
+                "пароль останется прежним.\n"
+            ),
+        )
+    return MessageResponse(detail=_RESET_REQUESTED)
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+async def reset_password(payload: ResetPasswordRequest) -> MessageResponse:
+    """Finish a password reset. The token is single-use and time-limited."""
+    db = get_database()
+    doc = await db["users"].find_one({"reset_token_hash": hash_reset_token(payload.token)})
+    expires_at = doc.get("reset_expires_at") if doc is not None else None
+    if doc is None or expires_at is None or _as_utc(expires_at) < datetime.now(timezone.utc):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ссылка недействительна или устарела. Запроси восстановление ещё раз.",
+        )
+    await db["users"].update_one(
+        {"_id": doc["_id"]},
+        {
+            "$set": {"password_hash": hash_password(payload.new_password)},
+            # Single use: the link stops working once the password is changed.
+            "$unset": {"reset_token_hash": "", "reset_expires_at": ""},
+        },
+    )
+    return MessageResponse(detail="Пароль обновлён. Теперь можно войти с новым паролем.")
 
 
 async def get_current_user(
