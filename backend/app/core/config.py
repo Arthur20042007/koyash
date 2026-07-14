@@ -16,11 +16,27 @@ class Settings(BaseSettings):
     JWT_ALG: str = "HS256"
     JWT_EXPIRE_DAYS: int = 7
 
-    # Password reset by email (US-27). Mail is sent through the customer's own
-    # mail domain over SMTP — only sending is used, so the mailbox's POP3/IMAP
-    # side is not configured here. Credentials come from the environment only
-    # and are never committed. When SMTP is unconfigured the reset endpoint
-    # still answers normally but no mail is sent (see app.core.mailer).
+    # Password reset by email (US-27).
+    #
+    # Two transports (see app.core.mailer):
+    #   "smtp"  - talk to the mail server directly. Works locally.
+    #   "brevo" - hand the message to Brevo's HTTPS API (port 443).
+    #
+    # Production runs on "brevo" because **Railway blocks outbound SMTP** (ports
+    # 465/587/2525) on its Free/Trial/Hobby plans, so the SMTP transport times
+    # out from the deployed service even with valid credentials. The sender stays
+    # the customer's own address either way (verified in Brevo as a single
+    # sender, so no DNS change was needed).
+    MAIL_TRANSPORT: str = "smtp"
+    BREVO_API_KEY: str = ""
+    # The "from" address. Falls back to SMTP_FROM/SMTP_USER for compatibility.
+    MAIL_FROM: str = ""
+    MAIL_FROM_NAME: str = "Koyash"
+
+    # SMTP transport. Only sending is used, so the mailbox's POP3/IMAP side is
+    # not configured here. Credentials come from the environment only and are
+    # never committed. When mail is unconfigured the reset endpoint still answers
+    # normally but nothing is sent.
     SMTP_HOST: str = ""
     SMTP_PORT: int = 465
     SMTP_USER: str = ""
@@ -45,8 +61,15 @@ class Settings(BaseSettings):
     LLM_TIMEOUT: float = 20.0
 
     @property
+    def mail_from(self) -> str:
+        """The address the reset email is sent from."""
+        return self.MAIL_FROM or self.SMTP_FROM or self.SMTP_USER
+
+    @property
     def mail_enabled(self) -> bool:
-        """True when enough SMTP settings are present to actually send mail."""
+        """True when the selected transport is configured well enough to send."""
+        if self.MAIL_TRANSPORT.lower() == "brevo":
+            return bool(self.BREVO_API_KEY and self.mail_from)
         return bool(self.SMTP_HOST and self.SMTP_USER and self.SMTP_PASSWORD)
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

@@ -9,7 +9,7 @@ from typing import Any
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pymongo.errors import DuplicateKeyError
 
@@ -114,11 +114,17 @@ def _as_utc(value: datetime) -> datetime:
     response_model=MessageResponse,
     status_code=status.HTTP_202_ACCEPTED,
 )
-async def forgot_password(payload: ForgotPasswordRequest) -> MessageResponse:
+async def forgot_password(
+    payload: ForgotPasswordRequest, background: BackgroundTasks
+) -> MessageResponse:
     """Start a password reset: email a single-use, time-limited link (US-27).
 
-    Answers identically for a known and an unknown address (no user
-    enumeration), and a mail failure is not surfaced either.
+    Answers identically for a known and an unknown address, and a mail failure is
+    not surfaced either. The mail is handed to a background task rather than
+    awaited, for two reasons: the caller must not wait on a slow (or hanging)
+    SMTP server, and awaiting it would make a request for a *registered* address
+    measurably slower than one for an unknown address — a timing side channel
+    that would give away which emails have accounts.
     """
     db = get_database()
     doc = await db["users"].find_one({"email": payload.email})
@@ -129,7 +135,8 @@ async def forgot_password(payload: ForgotPasswordRequest) -> MessageResponse:
             {"$set": {"reset_token_hash": digest, "reset_expires_at": reset_token_expiry()}},
         )
         link = f"{settings.FRONTEND_URL.rstrip('/')}/reset-password?token={raw_token}"
-        await send_email(
+        background.add_task(
+            send_email,
             to=payload.email,
             subject="Koyash — восстановление пароля",
             body=(

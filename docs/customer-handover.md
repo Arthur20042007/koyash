@@ -84,8 +84,10 @@ stored in the repository** — only sanitized templates (`backend/.env.example`,
 | `JWT_SECRET` | Signs the sign-in tokens. **Must** be a strong random value in production | Yes in production |
 | `LLM_ENABLED`, `LLM_API`, `LLM_BASE_URL`, `LLM_MODEL` | Optional LLM rewording of the justification text | No (off by default) |
 | `LLM_SYSTEM_PROMPT` | The customer-authored prompt. Never committed — supplied via this variable or a git-ignored file | Only if the LLM is enabled |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SSL` | Outgoing mail server for the password-reset email. `SMTP_SSL=true` uses the SSL/TLS port (usually 465); `false` uses the plain port (usually 587) with STARTTLS | Yes, for password reset |
-| `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | Mailbox account, its password, and the "from" address on the project's mail domain. **Secret — environment only** | Yes, for password reset |
+| `MAIL_TRANSPORT` | How the reset email leaves the service: `brevo` (HTTPS API — used in production) or `smtp` (direct, used locally). See [Operational notes](#operational-notes) | Yes, for password reset |
+| `BREVO_API_KEY`, `MAIL_FROM` | Brevo API key and the "from" address on the project's mail domain. **Secret — environment only** | Yes, when `MAIL_TRANSPORT=brevo` |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SSL` | Outgoing mail server. `SMTP_SSL=true` uses the SSL/TLS port (usually 465); `false` uses the plain port (usually 587) with STARTTLS | Only when `MAIL_TRANSPORT=smtp` |
+| `SMTP_USER`, `SMTP_PASSWORD` | Mailbox account and its password. **Secret — environment only** | Only when `MAIL_TRANSPORT=smtp` |
 | `FRONTEND_URL` | Where the reset link in the email points (the deployed web app) | Yes, for password reset |
 | `RESET_TOKEN_TTL_MINUTES` | How long a reset link stays valid | No (defaults to 30) |
 | `VITE_API_URL` | Frontend build-time pointer to the backend | Yes (frontend) |
@@ -110,8 +112,19 @@ redeploy; nothing needs to change in the repository.
 - **Password reset** emails a single-use link from the project's mail domain. The
   link expires after 30 minutes, and only a digest of it is stored — so a copy of
   the database does not yield a usable reset link. Requesting a reset for an
-  address that has no account looks exactly the same to the caller, so the form
-  cannot be used to find out who is registered.
+  address that has no account looks exactly the same to the caller (same answer,
+  same response time — the mail is sent in the background), so the form cannot be
+  used to find out who is registered.
+- **How the reset email is delivered.** Railway **blocks outbound SMTP** (ports
+  25 / 465 / 587 / 2525) on its Free, Trial and Hobby plans, so the deployed
+  service cannot talk to a mail server directly — it times out on connect even
+  with valid credentials. The service therefore sends through **Brevo's HTTPS
+  API** (`MAIL_TRANSPORT=brevo`), which uses port 443 and is never blocked. The
+  **sender is still the project's own domain address**, verified in Brevo as a
+  single sender, so no DNS record had to change. The direct SMTP transport
+  (`MAIL_TRANSPORT=smtp`) still works locally and would work on a host that
+  permits outbound SMTP — including Railway's Pro plan, if the project ever moves
+  to it.
 
 ## Troubleshooting and support
 
