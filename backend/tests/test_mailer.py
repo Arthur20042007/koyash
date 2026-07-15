@@ -15,6 +15,7 @@ has no async plugin, so the coroutine is driven with ``asyncio.run``.)
 """
 
 import asyncio
+import contextlib
 import io
 import urllib.error
 
@@ -59,6 +60,25 @@ def test_send_failure_is_swallowed(monkeypatch, mail_settings):
     monkeypatch.setattr(mailer, "_send_resend", _boom)
 
     assert _send() is False
+
+
+def test_request_sends_a_non_default_user_agent(monkeypatch, mail_settings):
+    """Resend sits behind Cloudflare, which blocks the default
+    "Python-urllib/x.y" User-Agent as a bot signature (Cloudflare error 1010)
+    before the request ever reaches Resend. Pin that a real User-Agent is set,
+    so this can't silently regress back to the urllib default."""
+    captured = {}
+
+    def _fake_urlopen(request, timeout):
+        captured["user_agent"] = request.get_header("User-agent")
+        return contextlib.nullcontext()
+
+    monkeypatch.setattr(mailer.urllib.request, "urlopen", _fake_urlopen)
+
+    mailer._send_resend("user@mail.test", "Тема", "Текст")
+
+    assert captured["user_agent"]
+    assert "python-urllib" not in captured["user_agent"].lower()
 
 
 def test_resend_rejection_is_logged_with_its_body(monkeypatch, mail_settings, caplog):

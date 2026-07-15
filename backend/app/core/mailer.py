@@ -47,6 +47,12 @@ def _send_resend(to: str, subject: str, body: str) -> None:
         headers={
             "Authorization": f"Bearer {settings.RESEND_API_KEY}",
             "Content-Type": "application/json",
+            # Resend sits behind Cloudflare, which blocks the bare
+            # "Python-urllib/x.y" default User-Agent as a known bot/scanner
+            # signature (Cloudflare error 1010) before the request ever
+            # reaches Resend. Any identifiable, non-default User-Agent avoids
+            # that block.
+            "User-Agent": "koyash-backend/1.0 (+https://koyash.online)",
         },
     )
     # urlopen raises urllib.error.HTTPError itself on a 4xx/5xx response, so a
