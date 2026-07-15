@@ -17,6 +17,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- The password-reset email now goes out through the [Resend](https://resend.com)
+  HTTPS API instead of raw SMTP. Railway blocks outbound SMTP (ports 25/465/587)
+  on its Free/Hobby plans, so the previous smtplib-based sender could never
+  actually deliver from the deployed backend — see
+  https://railway.com/deploy/resend-email-railway. The `SMTP_*` environment
+  variables are replaced by `RESEND_API_KEY` (and `MAIL_FROM` is reused as the
+  verified sender address).
 - The «Забыли пароль?» screens previously showed «Письмо отправлено!» and «Готово!»
   without contacting the backend at all — no email was ever sent and no password was
   ever changed. Both screens are now wired to the real endpoints.

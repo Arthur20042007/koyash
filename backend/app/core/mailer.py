@@ -1,11 +1,15 @@
 """Transactional email for the password reset (US-27).
 
-Mail is sent over SMTP to the project's own mail domain. Only *sending* is used,
-so the mailbox's POP3/IMAP side is not configured here, and credentials live in
-the environment and are never committed.
+Mail is sent through Resend's HTTPS API rather than raw SMTP. Railway blocks
+outbound SMTP (ports 25/465/587) on its Free/Hobby plans, so a smtplib-based
+sender can never actually deliver once deployed there — see
+https://railway.com/deploy/resend-email-railway. Resend's API is a plain HTTPS
+POST on port 443, the same port normal web traffic uses, so it isn't blocked.
+
+Only stdlib is used (``urllib.request``) so this needs no extra dependency.
 
 The message is handed to a background task by the caller (see the
-``/auth/forgot-password`` endpoint), so a slow or unreachable mail server never
+``/auth/forgot-password`` endpoint), so a slow or unreachable API call never
 makes the user wait — and never makes a request for a *registered* address take
 measurably longer than one for an unknown address, which would leak who is
 registered. A mail failure must likewise never break the request: this module
@@ -13,59 +17,57 @@ reports failure with a return value and never raises to the caller.
 """
 
 import asyncio
+import json
 import logging
-import smtplib
-import ssl
-from email.message import EmailMessage
+import urllib.request
 
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
+RESEND_API_URL = "https://api.resend.com/emails"
 
-def _send_smtp(to: str, subject: str, body: str) -> None:
-    """Blocking SMTP send. Runs in a worker thread (see ``send_email``)."""
-    message = EmailMessage()
-    message["From"] = settings.mail_from
-    message["To"] = to
-    message["Subject"] = subject
-    message.set_content(body)
 
-    context = ssl.create_default_context()
-    if settings.SMTP_SSL:
-        # Implicit TLS: connect straight to the SSL/TLS port (usually 465).
-        with smtplib.SMTP_SSL(
-            settings.SMTP_HOST,
-            settings.SMTP_PORT,
-            context=context,
-            timeout=settings.SMTP_TIMEOUT,
-        ) as smtp:
-            smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            smtp.send_message(message)
-    else:
-        # Explicit TLS: plain connect (usually 587), then upgrade with STARTTLS.
-        with smtplib.SMTP(
-            settings.SMTP_HOST, settings.SMTP_PORT, timeout=settings.SMTP_TIMEOUT
-        ) as smtp:
-            smtp.starttls(context=context)
-            smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            smtp.send_message(message)
+def _send_resend(to: str, subject: str, body: str) -> None:
+    """Blocking HTTPS call to the Resend API. Runs in a worker thread (see ``send_email``)."""
+    payload = json.dumps(
+        {
+            "from": settings.mail_from,
+            "to": [to],
+            "subject": subject,
+            "text": body,
+        }
+    ).encode("utf-8")
+
+    request = urllib.request.Request(
+        RESEND_API_URL,
+        data=payload,
+        method="POST",
+        headers={
+            "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        },
+    )
+    # urlopen raises urllib.error.HTTPError itself on a 4xx/5xx response, so a
+    # non-2xx status is already surfaced as an exception to the caller.
+    with urllib.request.urlopen(request, timeout=settings.MAIL_TIMEOUT):
+        pass
 
 
 async def send_email(to: str, subject: str, body: str) -> bool:
     """Send a plain-text email.
 
-    Returns True when the message was accepted by the mail server. Returns False
-    when mail is not configured or the send failed — callers must not surface
+    Returns True when the message was accepted by Resend. Returns False when
+    mail is not configured or the send failed — callers must not surface
     either case to the user.
     """
     if not settings.mail_enabled:
-        logger.warning("SMTP is not configured; nothing sent to %s", to)
+        logger.warning("Resend is not configured; nothing sent to %s", to)
         return False
 
     try:
-        # smtplib is blocking; keep the event loop free.
-        await asyncio.to_thread(_send_smtp, to, subject, body)
+        # urllib is blocking; keep the event loop free.
+        await asyncio.to_thread(_send_resend, to, subject, body)
         return True
     except Exception:  # noqa: BLE001 - a mail failure must not break the request
         logger.exception("Failed to send mail to %s", to)

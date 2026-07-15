@@ -9,8 +9,9 @@ security-relevant guarantees are the point of these tests:
   * the link expires, and it works exactly once;
   * a mail failure never changes what the caller sees.
 
-SMTP is never touched: `send_email` is monkeypatched and the sent messages are
-captured, so the suite still runs without a mail server (as CI does).
+The Resend API is never touched: `send_email` is monkeypatched and the sent
+messages are captured, so the suite still runs without network access (as CI
+does).
 """
 
 from datetime import datetime, timedelta, timezone

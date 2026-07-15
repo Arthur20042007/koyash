@@ -16,28 +16,27 @@ class Settings(BaseSettings):
     JWT_ALG: str = "HS256"
     JWT_EXPIRE_DAYS: int = 7
 
-    # Password reset by email (US-27). Mail is sent through the project's own
-    # mail domain over SMTP — only sending is used, so the mailbox's POP3/IMAP
-    # side is not configured here. Credentials come from the environment only and
-    # are never committed. When SMTP is unconfigured the reset endpoint still
-    # answers normally but nothing is sent (see app.core.mailer).
+    # Password reset by email (US-27). Mail is sent through Resend's HTTPS API
+    # rather than SMTP: Railway blocks outbound SMTP (ports 25/465/587) on its
+    # Free/Hobby plans, so a smtplib-based sender can never actually deliver in
+    # production — see https://railway.com/deploy/resend-email-railway.
+    # Resend's API rides on port 443 like any other web request, so it isn't
+    # blocked. Credentials come from the environment only and are never
+    # committed. When Resend is unconfigured the reset endpoint still answers
+    # normally but nothing is sent (see app.core.mailer).
     #
-    # Note: the mail is sent in a background task, so an unreachable mail server
+    # Note: the mail is sent in a background task, so an unreachable API
     # never makes the user wait and never leaks (by response time) which
     # addresses are registered.
     #
-    # The "from" address; falls back to SMTP_FROM / SMTP_USER for compatibility.
+    # The "from" address, e.g. "Koyash <noreply@your-domain>" or a bare
+    # address; must be on a domain verified with Resend (or the sandbox
+    # `onboarding@resend.dev` for testing).
     MAIL_FROM: str = ""
 
-    SMTP_HOST: str = ""
-    SMTP_PORT: int = 465
-    SMTP_USER: str = ""
-    SMTP_PASSWORD: str = ""
-    SMTP_FROM: str = ""
-    # True  -> implicit TLS, connect with SMTP_SSL (the SSL/TLS port, usually 465)
-    # False -> plain connect on the SMTP port + STARTTLS (usually 587)
-    SMTP_SSL: bool = True
-    SMTP_TIMEOUT: float = 15.0
+    # API key from the Resend dashboard (starts with "re_").
+    RESEND_API_KEY: str = ""
+    MAIL_TIMEOUT: float = 15.0
 
     # Where the reset link points (the deployed web app).
     FRONTEND_URL: str = "http://localhost:5173"
@@ -55,12 +54,12 @@ class Settings(BaseSettings):
     @property
     def mail_from(self) -> str:
         """The address the reset email is sent from."""
-        return self.MAIL_FROM or self.SMTP_FROM or self.SMTP_USER
+        return self.MAIL_FROM
 
     @property
     def mail_enabled(self) -> bool:
-        """True when enough SMTP settings are present to actually send mail."""
-        return bool(self.SMTP_HOST and self.SMTP_USER and self.SMTP_PASSWORD)
+        """True when enough Resend settings are present to actually send mail."""
+        return bool(self.RESEND_API_KEY and self.MAIL_FROM)
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

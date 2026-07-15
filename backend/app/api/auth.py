@@ -122,7 +122,7 @@ async def forgot_password(
     Answers identically for a known and an unknown address, and a mail failure is
     not surfaced either. The mail is handed to a background task rather than
     awaited, for two reasons: the caller must not wait on a slow (or hanging)
-    SMTP server, and awaiting it would make a request for a *registered* address
+    mail API call, and awaiting it would make a request for a *registered* address
     measurably slower than one for an unknown address — a timing side channel
     that would give away which emails have accounts.
     """

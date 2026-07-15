@@ -84,8 +84,8 @@ stored in the repository** — only sanitized templates (`backend/.env.example`,
 | `JWT_SECRET` | Signs the sign-in tokens. **Must** be a strong random value in production | Yes in production |
 | `LLM_ENABLED`, `LLM_API`, `LLM_BASE_URL`, `LLM_MODEL` | Optional LLM rewording of the justification text | No (off by default) |
 | `LLM_SYSTEM_PROMPT` | The customer-authored prompt. Never committed — supplied via this variable or a git-ignored file | Only if the LLM is enabled |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SSL` | Outgoing mail server for the password-reset email. `SMTP_SSL=true` uses the SSL/TLS port (usually 465); `false` uses the plain port (usually 587) with STARTTLS | Yes, for password reset |
-| `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | Mailbox account, its password, and the "from" address on the project's mail domain. **Secret — environment only** | Yes, for password reset |
+| `RESEND_API_KEY` | API key from the [Resend](https://resend.com) dashboard used to send the password-reset email. **Secret — environment only** | Yes, for password reset |
+| `MAIL_FROM` | The "from" address, on a domain verified with Resend (or `onboarding@resend.dev` for testing) | Yes, for password reset |
 | `FRONTEND_URL` | Where the reset link in the email points (the deployed web app) | Yes, for password reset |
 | `RESET_TOKEN_TTL_MINUTES` | How long a reset link stays valid | No (defaults to 30) |
 | `VITE_API_URL` | Frontend build-time pointer to the backend | Yes (frontend) |
@@ -113,12 +113,16 @@ redeploy; nothing needs to change in the repository.
   address that has no account looks exactly the same to the caller (same answer,
   same response time — the mail is sent in the background), so the form cannot be
   used to find out who is registered.
-- **How the reset email is delivered.** The service sends the reset link over SMTP
-  from the project's own mail domain, in a background task so the user never waits
-  on the mail server. Note that some hosting plans **block outbound SMTP** (ports
-  25 / 465 / 587) to prevent spam; if the reset email is not being delivered from
-  the deployed environment, confirm with the host that outbound SMTP is permitted
-  for the service.
+- **How the reset email is delivered.** The service sends the reset link through
+  the [Resend](https://resend.com) HTTPS API, in a background task so the user
+  never waits on the call. This is deliberate, not incidental: Railway (our host)
+  **blocks outbound SMTP** (ports 25 / 465 / 587) on its Free/Hobby plans, so a
+  classic SMTP-based mailer cannot deliver once deployed there — see
+  <https://railway.com/deploy/resend-email-railway>. Resend's API is a plain
+  HTTPS call on port 443, the same port normal web traffic uses, so it is not
+  blocked. If the reset email is not being delivered, check that
+  `RESEND_API_KEY` and `MAIL_FROM` are set in Railway and that `MAIL_FROM`'s
+  domain is verified in the Resend dashboard.
 
 ## Troubleshooting and support
 
