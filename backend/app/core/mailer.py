@@ -19,6 +19,7 @@ reports failure with a return value and never raises to the caller.
 import asyncio
 import json
 import logging
+import urllib.error
 import urllib.request
 
 from app.core.config import settings
@@ -69,6 +70,16 @@ async def send_email(to: str, subject: str, body: str) -> bool:
         # urllib is blocking; keep the event loop free.
         await asyncio.to_thread(_send_resend, to, subject, body)
         return True
+    except urllib.error.HTTPError as exc:
+        # Resend's error body (JSON with "name"/"message") says exactly why the
+        # request was rejected — e.g. an unverified domain or a restricted API
+        # key — which the bare HTTPError repr does not. Surfacing it here (not
+        # to the caller, only to the log) is what makes misconfiguration
+        # diagnosable at all, since this endpoint never reports failure to the
+        # user by design.
+        detail = exc.read().decode("utf-8", errors="replace")
+        logger.error("Resend rejected the mail to %s: HTTP %s %s", to, exc.code, detail)
+        return False
     except Exception:  # noqa: BLE001 - a mail failure must not break the request
         logger.exception("Failed to send mail to %s", to)
         return False

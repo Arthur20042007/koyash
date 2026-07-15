@@ -15,6 +15,8 @@ has no async plugin, so the coroutine is driven with ``asyncio.run``.)
 """
 
 import asyncio
+import io
+import urllib.error
 
 import pytest
 
@@ -57,3 +59,27 @@ def test_send_failure_is_swallowed(monkeypatch, mail_settings):
     monkeypatch.setattr(mailer, "_send_resend", _boom)
 
     assert _send() is False
+
+
+def test_resend_rejection_is_logged_with_its_body(monkeypatch, mail_settings, caplog):
+    """A 4xx/5xx from Resend (e.g. unverified domain, restricted key) is still
+    swallowed as far as the caller sees, but its response body — which is what
+    actually says *why* — must land in the log, since this is the only place
+    that failure is ever surfaced."""
+
+    def _reject(*_args):
+        raise urllib.error.HTTPError(
+            mailer.RESEND_API_URL,
+            403,
+            "Forbidden",
+            hdrs=None,
+            fp=io.BytesIO(b'{"name":"validation_error","message":"The domain is not verified"}'),
+        )
+
+    monkeypatch.setattr(mailer, "_send_resend", _reject)
+
+    with caplog.at_level("ERROR"):
+        assert _send() is False
+
+    assert "403" in caplog.text
+    assert "domain is not verified" in caplog.text
